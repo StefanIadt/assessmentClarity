@@ -147,6 +147,11 @@ main,header,footer{position:relative;z-index:1}main{background:transparent}.stor
 .story-still .inclusion-takeaway{opacity:1!important;transform:none!important}
 @media(max-width:760px){.inclusion-takeaway{right:7%;bottom:22%;font-size:27px;max-width:23ch}}
 @media(prefers-reduced-motion:reduce){.inclusion-takeaway{opacity:1!important;transform:none!important}}
+
+.ephemera-piece{will-change:transform;transition:transform .24s cubic-bezier(.2,.65,.3,1),filter .24s ease-out;backface-visibility:hidden}
+.scan-note{transform-origin:80% 15%}.scan-rubric{transform-origin:90% 50%}.scan-copy{transform-origin:15% 70%}.scan-deadline{transform-origin:80% 80%}
+@media(prefers-reduced-motion:reduce){.ephemera-piece{transition:none}}
+.story-still .ephemera-piece{transition:none}
 </style></head><body><a class="skip" href="#main">Skip to content</a>
 <header class="top"><a class="logo" href="#top">FINDING<br>CLARITY.</a><span class="mid">AN INTERACTIVE ASSESSMENT STUDY / IADT</span><button id="prefs-open" aria-expanded="false" aria-controls="prefs">Experience settings</button></header>
 <div id="prefs" class="prefs" hidden><h2>Experience settings</h2><label><input type="checkbox" id="reduce"> Reduce animation</label><label><input type="checkbox" id="contrast"> High contrast</label><label><input type="checkbox" id="large"> Larger text</label><button id="prefs-close">Close</button></div>

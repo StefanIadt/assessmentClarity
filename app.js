@@ -57,7 +57,7 @@ revealGroups.forEach(group => {
   });
 });
 
-let scheduled = false;
+let scheduled = false, papersInitialized = false;
 function paintScroll() {
   scheduled = false;
   const still = reduced(); document.body.classList.toggle('story-still', still);
@@ -70,16 +70,47 @@ function paintScroll() {
   stage.style.setProperty('--brief-opacity', inclusion);
 
   stage.style.setProperty('--clarity', clamp(travel / .75));
-  $$('.ephemera-piece').forEach((layer, index) => {
-    const start = Number(layer.dataset.start), entered = clamp((travel - start) / .27);
-    const leaving = clamp((travel - 1.48 - index * .035) / .38);
-    const ease = 1 - Math.pow(1 - entered, 3), opacity = still ? 0 : entered * (1 - leaving);
-    const rotate = Number(layer.dataset.rotation), x = Number(layer.dataset.x), y = Number(layer.dataset.y);
-    layer.style.opacity = opacity;
-    layer.style.transform = `translate(${(1 - ease) * x + leaving * (index % 2 ? 110 : -110)}px,${(1 - ease) * y - leaving * (70 + index * 12)}px) rotate(${rotate + (1 - ease) * (index % 2 ? 7 : -6) + leaving * (index % 2 ? 4 : -4)}deg)`;
+  const papers = $$('.ephemera-piece');
+  const geometry = papers.map(layer => ({ left: layer.offsetLeft, top: layer.offsetTop, width: layer.offsetWidth, height: layer.offsetHeight }));
+  papers.forEach((layer, index) => {
+    if (!papersInitialized) layer.style.transition = 'none';
+    const box = geometry[index], start = Number(layer.dataset.start);
+    const entering = clamp((travel - start) / .34);
+    const exitStarts = [1.43, 1.77, 1.66, 1.54];
+    const leaving = clamp((travel - exitStarts[index]) / .39);
+    const arrived = 1 - Math.pow(1 - entering, 4);
+    // Each sheet has a distinct edge of entry and a full, opaque route off the desk.
+    const entryRoutes = [
+      { x: stage.clientWidth - box.left + 180, y: -80 },
+      { x: stage.clientWidth - box.left + 180, y: 110 },
+      { x: -box.left - box.width - 180, y: 160 },
+      { x: 100, y: stage.clientHeight - box.top + 180 }
+    ];
+    const exitRoutes = [
+      { x: stage.clientWidth - box.left + 180, y: -box.top - box.height - 100 },
+      { x: stage.clientWidth - box.left + 180, y: 70 },
+      { x: -box.left - box.width - 180, y: 180 },
+      { x: 120, y: stage.clientHeight - box.top + 180 }
+    ];
+    const lifted = Math.sin(Math.min(1, leaving * 2) * Math.PI / 2);
+    const removal = Math.pow(clamp((leaving - .1) / .9), 1.65);
+    const entry = entryRoutes[index], exit = exitRoutes[index];
+    const x = (1 - arrived) * entry.x + removal * exit.x;
+    const y = (1 - arrived) * entry.y + removal * exit.y - lifted * 12;
+    const height = (1 - arrived) * 24 + lifted * 32;
+    const tilt = (1 - arrived) * (index % 2 ? -8 : 7) + lifted * (index % 2 ? 6 : -5);
+    const settle = Math.sin(entering * Math.PI * 2) * Math.pow(1 - entering, 2) * 2;
+    const rotation = Number(layer.dataset.rotation) + (1 - arrived) * (index % 2 ? 13 : -11) + settle + removal * (index % 2 ? 7 : -8);
+    layer.style.opacity = still ? 0 : 1;
+    layer.style.transform = `perspective(1200px) translate3d(${x}px,${y}px,${height}px) rotateX(${tilt}deg) rotateY(${tilt * -.45}deg) rotateZ(${rotation}deg)`;
+    const shadow = (1 - arrived) * .6 + lifted;
+    layer.style.filter = `drop-shadow(${1 + shadow * 5}px ${3 + shadow * 14}px ${2 + shadow * 12}px rgba(40,31,20,${.10 + shadow * .07}))`;
+    layer.dataset.phase = entering < 1 ? 'arriving' : leaving > 0 ? 'clearing' : 'placed';
   });
 
-  const takeaway = $('.inclusion-takeaway'), clearing = still ? 1 : clamp((travel - 1.6) / .42);
+  if (!papersInitialized) { papersInitialized = true; requestAnimationFrame(() => papers.forEach(layer => layer.style.transition = '')); }
+
+  const takeaway = $('.inclusion-takeaway'), clearing = still ? 1 : clamp((travel - 1.92) / .26);
   takeaway.style.opacity = clearing; takeaway.style.transform = `translateY(${(1 - clearing) * 15}px)`;
 
   $$('.story-brief h2 span').forEach((line, index) => { const amount = still ? 1 : clamp((travel - .2 - index * .025) / .16); line.style.opacity = amount; line.style.transform = `translateY(${(1 - amount) * 28}px)`; line.style.clipPath = 'none'; });
