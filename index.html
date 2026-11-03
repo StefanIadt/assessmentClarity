@@ -81,6 +81,10 @@
 .complexity-conclusion{font-size:clamp(24px,3.2vw,48px);line-height:1.15;letter-spacing:-.045em;max-width:27ch;margin:100px 0 0 auto}
 .visually-hidden{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
 @media(max-width:760px){.complexity-section{min-height:850px;padding-top:80px;padding-bottom:80px}.complexity-trigger{font-size:37px;line-height:1.13}.complexity-conclusion{font-size:28px;margin-top:100px;max-width:24ch}}
+
+.clarity-toggle{align-self:flex-start;margin:190px 0 0;border:1px solid #151515;border-radius:100px;padding:15px 24px;background:transparent;color:inherit;font-size:14px;cursor:pointer;transition:background .2s,color .2s}
+.clarity-toggle:hover{background:#151515;color:#f4f3ef}.clarity-toggle:disabled{opacity:.45;cursor:wait}.complexity-conclusion{margin-top:45px}
+@media(max-width:760px){.clarity-toggle{margin-top:190px}.complexity-section{min-height:1000px}}
 </style></head><body><a class="skip" href="#main">Skip to content</a>
 <header class="top"><a class="logo" href="#top">FINDING<br>CLARITY.</a><span class="mid">AN INTERACTIVE ASSESSMENT STUDY / IADT</span><button id="prefs-open" aria-expanded="false" aria-controls="prefs">Experience settings</button></header>
 <div id="prefs" class="prefs" hidden><h2>Experience settings</h2><label><input type="checkbox" id="reduce"> Reduce animation</label><label><input type="checkbox" id="contrast"> High contrast</label><label><input type="checkbox" id="large"> Larger text</label><button id="prefs-close">Close</button></div>
@@ -110,8 +114,9 @@
 </div></div></section>
 <section class="section complexity-section" aria-label="The cost of complexity">
 <button type="button" class="complexity-trigger" aria-describedby="complexity-help">As complexity increases, students may spend more time decoding assessment systems than engaging with learning itself.</button>
-<span id="complexity-help" class="visually-hidden">Hover, focus or tap to let the words fall and return to their places.</span>
-<p class="complexity-conclusion" aria-live="polite" hidden>Assessment design should reduce unnecessary cognitive load, not add to it.</p>
+<span id="complexity-help" class="visually-hidden">Hover, focus or tap to let the words fall. Use Restore clarity to put them back.</span>
+<button type="button" class="clarity-toggle" aria-controls="complexity-conclusion" aria-expanded="false">Let words fall ↓</button>
+<p id="complexity-conclusion" class="complexity-conclusion" aria-live="polite" hidden>Assessment design should reduce unnecessary cognitive load, not add to it.</p>
 </section>
 <section id="clear-reading" class="section clear-reading" aria-labelledby="clear-title">
 <div class="meta"><span>04 / A CLEARER WAY IN</span><span>SAME EXPECTATIONS. LESS GUESSWORK.</span></div>
@@ -184,25 +189,28 @@ function schedule(){if(!pending){pending=true;requestAnimationFrame(update)}}add
 })();
 
 (()=>{
- const trigger=document.querySelector('.complexity-trigger'),conclusion=document.querySelector('.complexity-conclusion'),media=matchMedia('(prefers-reduced-motion: reduce)');
+ const trigger=document.querySelector('.complexity-trigger'),toggle=document.querySelector('.clarity-toggle'),conclusion=document.querySelector('.complexity-conclusion'),media=matchMedia('(prefers-reduced-motion: reduce)');
  const sentence=trigger.textContent;trigger.setAttribute('aria-label',sentence);trigger.replaceChildren();
  sentence.split(/(\s+)/).forEach(text=>{if(!text.trim()){trigger.append(document.createTextNode(text));return}const word=document.createElement('span');word.className='complexity-word';word.setAttribute('aria-hidden','true');word.textContent=text;trigger.append(word)});
- const words=[...trigger.querySelectorAll('.complexity-word')];let running=false,animations=[],generation=0;
+ const words=[...trigger.querySelectorAll('.complexity-word')];let state='idle',animations=[],generation=0;
  const reduced=()=>media.matches||document.querySelector('#reduce').checked;
- function reveal(){conclusion.hidden=false}
- function reset(){generation++;animations.forEach(a=>a.cancel());animations=[];running=false;trigger.removeAttribute('data-falling');reveal()}
- async function fall(){if(running)return;if(reduced()){reset();return}running=true;const run=++generation;trigger.dataset.falling='true';
- animations=words.map((word,i)=>{const x=((i*37)%91)-45,angle=((i*23)%55)-27,drop=85+(i*17)%75;return word.animate([
+ function cancel(){animations.forEach(a=>a.cancel());animations=[]}
+ function label(){toggle.textContent=state==='fallen'?'Restore clarity ↗':state==='clear'?'Let it fall again ↓':'Let words fall ↓';toggle.setAttribute('aria-expanded',String(state==='clear'));trigger.dataset.state=state}
+ async function fall(){if(state==='busy'||state==='fallen')return;const run=++generation;cancel();state='busy';toggle.disabled=true;conclusion.hidden=true;toggle.setAttribute('aria-expanded','false');trigger.dataset.falling='true';
+ if(!reduced())animations=words.map((word,i)=>{const x=((i*37)%91)-45,angle=((i*23)%55)-27,drop=85+(i*17)%75;return word.animate([
  {transform:'translate(0,0) rotate(0deg)',offset:0,easing:'cubic-bezier(.5,0,1,1)'},
- {transform:'translate('+x+'px,'+drop+'px) rotate('+angle+'deg)',offset:.34,easing:'ease-out'},
- {transform:'translate('+(x*.85)+'px,'+(drop-30)+'px) rotate('+(angle*.7)+'deg)',offset:.46,easing:'ease-in'},
- {transform:'translate('+x+'px,'+drop+'px) rotate('+angle+'deg)',offset:.58,easing:'ease-in-out'},
- {transform:'translate('+x+'px,'+drop+'px) rotate('+angle+'deg)',offset:.67,easing:'cubic-bezier(.22,.61,.36,1)'},
- {transform:'translate(0,0) rotate(0deg)',offset:1}
- ],{duration:2700,delay:i*22,fill:'none'})});
- await Promise.allSettled(animations.map(a=>a.finished));if(run!==generation)return;animations=[];running=false;trigger.removeAttribute('data-falling');reveal();if(!reduced())conclusion.animate([{opacity:0,transform:'translateY(18px)'},{opacity:1,transform:'translateY(0)'}],{duration:800,easing:'ease-out'});
+ {transform:'translate('+x+'px,'+drop+'px) rotate('+angle+'deg)',offset:.65,easing:'ease-out'},
+ {transform:'translate('+(x*.85)+'px,'+(drop-25)+'px) rotate('+(angle*.7)+'deg)',offset:.82,easing:'ease-in'},
+ {transform:'translate('+x+'px,'+drop+'px) rotate('+angle+'deg)',offset:1}
+ ],{duration:1000,delay:i*15,fill:'forwards'})});
+ await Promise.allSettled(animations.map(a=>a.finished));if(run!==generation)return;state='fallen';toggle.disabled=false;trigger.removeAttribute('data-falling');label();
  }
- trigger.addEventListener('pointerenter',e=>{if(e.pointerType==='mouse')fall()});trigger.addEventListener('focus',fall);trigger.addEventListener('click',fall);
- addEventListener('resize',()=>{if(running)reset()});media.addEventListener('change',()=>{if(reduced())reset()});document.querySelector('#reduce').addEventListener('change',()=>{if(reduced())reset()});if(reduced())reveal();
+ async function restore(){if(state!=='fallen')return;const run=++generation;const positions=words.map(word=>getComputedStyle(word).transform);cancel();state='busy';toggle.disabled=true;
+ if(!reduced())animations=words.map((word,i)=>word.animate([{transform:positions[i]},{transform:'translate(0,0) rotate(0deg)'}],{duration:850,delay:i*8,easing:'cubic-bezier(.22,.61,.36,1)',fill:'none'}));
+ await Promise.allSettled(animations.map(a=>a.finished));if(run!==generation)return;cancel();state='clear';toggle.disabled=false;conclusion.hidden=false;label();if(!reduced())conclusion.animate([{opacity:0,transform:'translateY(15px)'},{opacity:1,transform:'translateY(0)'}],{duration:700,easing:'ease-out'});
+ }
+ const firstFall=()=>{if(state==='idle')fall()};trigger.addEventListener('pointerenter',e=>{if(e.pointerType==='mouse')firstFall()});trigger.addEventListener('focus',firstFall);trigger.addEventListener('click',()=>{if(state!=='fallen')fall()});toggle.addEventListener('click',()=>state==='fallen'?restore():fall());
+ function stopMotion(){if(!reduced())return;generation++;cancel();toggle.disabled=false;trigger.removeAttribute('data-falling');state='clear';conclusion.hidden=false;label()}
+ media.addEventListener('change',stopMotion);document.querySelector('#reduce').addEventListener('change',stopMotion);if(reduced())stopMotion();else label();
 })();
 </script></body></html>
