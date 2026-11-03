@@ -79,6 +79,9 @@ function paintScroll() {
     layer.style.transform = `translate(${(1 - ease) * x + leaving * (index % 2 ? 110 : -110)}px,${(1 - ease) * y - leaving * (70 + index * 12)}px) rotate(${rotate + (1 - ease) * (index % 2 ? 7 : -6) + leaving * (index % 2 ? 4 : -4)}deg)`;
   });
 
+  const takeaway = $('.inclusion-takeaway'), clearing = still ? 1 : clamp((travel - 1.6) / .42);
+  takeaway.style.opacity = clearing; takeaway.style.transform = `translateY(${(1 - clearing) * 15}px)`;
+
   $$('.story-brief h2 span').forEach((line, index) => { const amount = still ? 1 : clamp((travel - .2 - index * .025) / .16); line.style.opacity = amount; line.style.transform = `translateY(${(1 - amount) * 28}px)`; line.style.clipPath = 'none'; });
   const opacity = still ? .07 : .36 - clamp(travel / .85) * .285;
   background.style.setProperty('opacity', document.body.classList.contains('contrast') ? .035 : opacity);

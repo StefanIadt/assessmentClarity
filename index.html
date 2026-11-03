@@ -142,6 +142,11 @@ main,header,footer{position:relative;z-index:1}main{background:transparent}.stor
 .story-still .ephemera{display:none}.story-still .scroll-story{height:auto}
 @media(max-width:760px){.scroll-story{height:350svh}.scan-note{left:59%;top:35%;width:42%}.scan-rubric{right:-12%;top:49%;width:57%}.scan-copy{left:-9%;top:66%;width:83%}.scan-deadline{left:33%;top:68%;width:72%}}
 @media(prefers-reduced-motion:reduce){.ephemera{display:none}.scroll-story{height:auto}}
+
+.inclusion-takeaway{position:absolute;right:6%;bottom:17%;z-index:4;margin:0;max-width:24ch;font-size:clamp(24px,2.9vw,44px);line-height:1.12;letter-spacing:-.045em;opacity:0;transform:translateY(15px);pointer-events:none}
+.story-still .inclusion-takeaway{opacity:1!important;transform:none!important}
+@media(max-width:760px){.inclusion-takeaway{right:7%;bottom:22%;font-size:27px;max-width:23ch}}
+@media(prefers-reduced-motion:reduce){.inclusion-takeaway{opacity:1!important;transform:none!important}}
 </style></head><body><a class="skip" href="#main">Skip to content</a>
 <header class="top"><a class="logo" href="#top">FINDING<br>CLARITY.</a><span class="mid">AN INTERACTIVE ASSESSMENT STUDY / IADT</span><button id="prefs-open" aria-expanded="false" aria-controls="prefs">Experience settings</button></header>
 <div id="prefs" class="prefs" hidden><h2>Experience settings</h2><label><input type="checkbox" id="reduce"> Reduce animation</label><label><input type="checkbox" id="contrast"> High contrast</label><label><input type="checkbox" id="large"> Larger text</label><button id="prefs-close">Close</button></div>
@@ -157,6 +162,7 @@ main,header,footer{position:relative;z-index:1}main{background:transparent}.stor
 <img class="ephemera-piece scan-copy" src="assets/ephemera/photocopy.webp" width="1536" height="1024" alt="" decoding="async" data-start=".72" data-rotation="-8" data-x="-130" data-y="180">
 <img class="ephemera-piece scan-deadline" src="assets/ephemera/deadline.webp" width="1536" height="1024" alt="" decoding="async" data-start=".85" data-rotation="8" data-x="150" data-y="150">
 </div>
+<p class="inclusion-takeaway">Less ambiguity.<br>More room for learning.</p>
 <p class="visually-hidden">Decorative, fictional assessment annotations accumulate as you scroll, then clear away: a changed deadline, rubric fragments, notes and learning-outcome highlights.</p>
 
 <div class="story-track" aria-hidden="true"><span></span></div>
