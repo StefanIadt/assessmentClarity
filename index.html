@@ -124,6 +124,13 @@ main,header,footer{position:relative;z-index:1}main{background:transparent}.stor
 .particle-label{transition:color .65s cubic-bezier(.22,.61,.36,1)}
 .story-still .particle-word canvas{display:none}
 @media(prefers-reduced-motion:reduce){.particle-word canvas{display:none}.particle-label{transition:none}}
+
+.scene-loop{position:absolute;right:6%;bottom:17%;width:clamp(260px,28vw,430px);display:block;color:#30302d;text-decoration:none;opacity:var(--brief-opacity,0);transition:opacity .6s ease;z-index:4;touch-action:pan-y;cursor:pointer}
+.scene-loop svg{display:block;width:100%;overflow:hidden}.scene-loop text{fill:currentColor;font-family:Inter,system-ui,sans-serif;font-size:24px;font-weight:400;letter-spacing:0}
+.scene-loop-arrow{display:block;text-align:right;margin:0 5px 0 0;font-size:25px;font-weight:300;line-height:1}.scene-loop-static{display:none;font-size:14px}.scene-loop:hover{color:#151515}.scene-loop:focus-visible{outline:2px solid;outline-offset:12px}
+.story-still .scene-loop{opacity:1}.story-still .scene-loop svg,.story-still .scene-loop-arrow{display:none}.story-still .scene-loop-static{display:block}
+@media(max-width:760px){.scene-loop{width:240px;right:7%;bottom:19%}.scene-loop text{font-size:27px}.scene-loop-arrow{font-size:22px}}
+@media(prefers-reduced-motion:reduce){.scene-loop{opacity:1}.scene-loop svg,.scene-loop-arrow{display:none}.scene-loop-static{display:block}}
 </style></head><body><a class="skip" href="#main">Skip to content</a>
 <header class="top"><a class="logo" href="#top">FINDING<br>CLARITY.</a><span class="mid">AN INTERACTIVE ASSESSMENT STUDY / IADT</span><button id="prefs-open" aria-expanded="false" aria-controls="prefs">Experience settings</button></header>
 <div id="prefs" class="prefs" hidden><h2>Experience settings</h2><label><input type="checkbox" id="reduce"> Reduce animation</label><label><input type="checkbox" id="contrast"> High contrast</label><label><input type="checkbox" id="large"> Larger text</label><button id="prefs-close">Close</button></div>
@@ -133,6 +140,10 @@ main,header,footer{position:relative;z-index:1}main{background:transparent}.stor
 <div class="story-topline"><span>01—03 / AN ASSESSMENT IN FOCUS</span><span>IADT · FINDING CLARITY</span></div>
 <h1 id="story-title" class="story-title"><span>FINDING</span><span>OUR WAY</span><span>TO CLARITY.</span></h1>
 <div class="story-brief" aria-label="Designing for inclusion"><div class="eyebrow">UNIVERSAL DESIGN / FOR ASSESSMENT</div><h2><span>Designing</span><br><span>for inclusion.</span></h2><div class="assembly" aria-hidden="true"></div></div>
+<a class="scene-loop" href="#experience" aria-label="Scroll down to find out more. Continue to the next section." inert>
+<svg viewBox="0 0 560 150" aria-hidden="true"><defs><path id="scene-loop-path" d="M -560 75 Q -420 11 -280 75 T 0 75 T 280 75 T 560 75 T 840 75 T 1120 75"/></defs><text><textPath href="#scene-loop-path" class="scene-loop-text">Scroll down to find out more · Scroll down to find out more · Scroll down to find out more · Scroll down to find out more · Scroll down to find out more · Scroll down to find out more · </textPath></text></svg>
+<span class="scene-loop-arrow" aria-hidden="true">↓</span><span class="scene-loop-static">Scroll down to find out more ↓</span>
+</a>
 <div class="story-track" aria-hidden="true"><span></span></div>
 <div class="scroll-cue">SCROLL ↓</div>
 </div></section>
