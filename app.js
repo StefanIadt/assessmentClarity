@@ -142,7 +142,9 @@ function paintScroll() {
     words.forEach((word, index) => {
       const amount = still ? 1 : clamp((reveal - groupIndex * .16 - index / words.length * .21) / .18);
       const eased = 1 - Math.pow(1 - amount, 3);
-      word.style.opacity = eased; word.style.transform = `translateY(${(1 - eased) * .45}em)`; word.style.filter = `blur(${(1 - eased) * 2}px)`;
+      word.style.opacity = eased;
+      const particleWord = word.closest('.particle-word'); if (particleWord) particleWord.style.setProperty('--particle-reveal', eased);
+      word.style.transform = `translateY(${(1 - eased) * .45}em)`; word.style.filter = `blur(${(1 - eased) * 2}px)`;
     });
   });
 }
@@ -264,6 +266,11 @@ $('#reduce').addEventListener('change', paintFocus); motionMedia.addEventListene
   if (!context) return;
   let points = [], frame = 0, pointer = null, last = 0, visible = true, width = 0, height = 0, queuedBuild = 0;
   const pad = 70;
+  function drawAtRest() {
+    context.clearRect(0, 0, width, height); context.fillStyle = '#151515';
+    const size = innerWidth < 760 ? 1.75 : 2.2;
+    points.forEach(point => { point.x = point.homeX; point.y = point.homeY; point.vx = point.vy = 0; context.fillRect(point.x, point.y, size, size); });
+  }
   function build() {
     host.classList.remove('particles-active');
     const box = label.getBoundingClientRect(), style = getComputedStyle(host), fontSize = parseFloat(style.fontSize);
@@ -287,10 +294,11 @@ $('#reduce').addEventListener('change', paintFocus); motionMedia.addEventListene
     }
     canvas.dataset.particleCount = points.length;
     cancelAnimationFrame(frame); frame = 0; last = 0;
+    drawAtRest(); host.classList.add('particles-ready');
   }
   function tick(time) {
     frame = 0;
-    if (reduced() || !visible) { host.classList.remove('particles-active'); return; }
+    if (reduced() || !visible) { host.classList.remove('particles-active'); drawAtRest(); return; }
     const dt = last ? Math.min(2, (time - last) / 16.67) : 1; last = time;
     context.clearRect(0, 0, width, height); context.fillStyle = '#151515';
     let energy = 0;
@@ -305,7 +313,7 @@ $('#reduce').addEventListener('change', paintFocus); motionMedia.addEventListene
       context.fillRect(point.x, point.y, innerWidth < 760 ? 1.75 : 2.2, innerWidth < 760 ? 1.75 : 2.2);
     }
     if (pointer || energy > points.length * .08) frame = requestAnimationFrame(tick);
-    else { host.classList.remove('particles-active'); last = 0; }
+    else { host.classList.remove('particles-active'); drawAtRest(); last = 0; }
   }
   function wake() { if (reduced() || !visible || !points.length) return; host.classList.add('particles-active'); if (!frame) { last = 0; frame = requestAnimationFrame(tick); } }
   function position(event) { const box = host.getBoundingClientRect(); pointer = { x: event.clientX - box.left + pad, y: event.clientY - box.top + pad }; wake(); }
@@ -319,8 +327,8 @@ $('#reduce').addEventListener('change', paintFocus); motionMedia.addEventListene
   });
   function rebuild() { cancelAnimationFrame(queuedBuild); queuedBuild = requestAnimationFrame(build); }
   new ResizeObserver(rebuild).observe(host);
-  new IntersectionObserver(entries => { visible = entries[0].isIntersecting; if (!visible) { pointer = null; cancelAnimationFrame(frame); frame = 0; host.classList.remove('particles-active'); } }, { threshold: 0 }).observe(host);
-  function stop() { if (reduced()) { pointer = null; cancelAnimationFrame(frame); frame = 0; host.classList.remove('particles-active'); } }
+  new IntersectionObserver(entries => { visible = entries[0].isIntersecting; if (!visible) { pointer = null; cancelAnimationFrame(frame); frame = 0; host.classList.remove('particles-active'); drawAtRest(); } }, { threshold: 0 }).observe(host);
+  function stop() { if (reduced()) { pointer = null; cancelAnimationFrame(frame); frame = 0; host.classList.remove('particles-active'); drawAtRest(); } }
   $('#reduce').addEventListener('change', stop); motionMedia.addEventListener('change', stop);
   document.fonts.ready.then(rebuild); build();
 })();

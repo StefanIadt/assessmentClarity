@@ -154,6 +154,12 @@ main,header,footer{position:relative;z-index:1}main{background:transparent}.stor
 .story-still .ephemera-piece{transition:none}
 
 .ephemera-piece{transition:none;will-change:transform;filter:drop-shadow(0 1px .65px #251d1452) drop-shadow(2px 5px 3.5px #251d1433)}
+
+/* The dotted form is the resting appearance, not a hidden hover state. */
+.particle-word.particles-ready canvas,.particle-word.particles-ready.particles-active canvas{display:block;opacity:var(--particle-reveal,0);transition:none}
+.particle-word.particles-ready .particle-label{color:transparent;transition:none}
+.story-still .particle-word.particles-ready canvas{display:block;opacity:1}.story-still .particle-word.particles-ready .particle-label{color:transparent}
+@media(prefers-reduced-motion:reduce){.particle-word.particles-ready canvas{display:block;opacity:1}.particle-word.particles-ready .particle-label{color:transparent}}
 </style></head><body><a class="skip" href="#main">Skip to content</a>
 <header class="top"><a class="logo" href="#top">FINDING<br>CLARITY.</a><span class="mid">AN INTERACTIVE ASSESSMENT STUDY / IADT</span><button id="prefs-open" aria-expanded="false" aria-controls="prefs">Experience settings</button></header>
 <div id="prefs" class="prefs" hidden><h2>Experience settings</h2><label><input type="checkbox" id="reduce"> Reduce animation</label><label><input type="checkbox" id="contrast"> High contrast</label><label><input type="checkbox" id="large"> Larger text</label><button id="prefs-close">Close</button></div>
