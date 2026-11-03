@@ -177,25 +177,28 @@ const sentence = message.textContent.trim(); message.replaceChildren();
 const focusWords = sentence.split(/\s+/).map((text, index, all) => {
   const word = document.createElement('button'); word.type = 'button'; word.className = 'focus-word'; word.textContent = text; word.setAttribute('aria-pressed', 'false'); message.append(word); if (index < all.length - 1) message.append(document.createTextNode(' ')); return word;
 });
-let blurStarted = false, blurTimer, pointer = null, focused = null;
+let pointer = null, focused = null, focusFrame = 0;
 function paintFocus() {
+  focusFrame = 0;
+  const bounds = message.getBoundingClientRect();
+  const distanceFromCenter = Math.abs(bounds.top + bounds.height / 2 - innerHeight * .5);
+  const proximity = clamp(1 - distanceFromCenter / (innerHeight * .44));
+  const emphasis = proximity * proximity * (3 - 2 * proximity);
+  const baseBlur = reduced() ? 0 : (innerWidth < 760 ? 1.7 : 2.1) * emphasis;
   const center = pointer || (focused ? (() => { const r = focused.getBoundingClientRect(); return { x: r.left + r.width / 2, y: r.top + r.height / 2 }; })() : null);
   focusWords.forEach(word => {
-    let blur = blurStarted && !reduced() ? 5 : 0;
+    let blur = baseBlur;
     if (blur && center) {
       const box = word.getBoundingClientRect();
       const dx = Math.max(0, Math.abs(center.x - (box.left + box.width / 2)) - box.width / 2);
       const dy = Math.max(0, Math.abs(center.y - (box.top + box.height / 2)) - box.height / 2);
       const distance = Math.hypot(dx / (innerWidth < 760 ? 145 : 250), dy / 48);
-      blur *= clamp((distance - .32) / .75);
+      blur *= clamp((distance - .5) / .75);
     }
     word.style.setProperty('--word-blur', `${blur}px`);
     word.setAttribute('aria-pressed', String(word === focused));
   });
 }
-new IntersectionObserver(entries => {
-  if (entries.some(entry => entry.isIntersecting && entry.intersectionRatio >= .3) && !blurStarted && !blurTimer) blurTimer = setTimeout(() => { blurStarted = true; paintFocus(); }, 1300);
-}, { threshold: .3 }).observe(message);
 message.addEventListener('pointermove', event => { if (event.pointerType === 'mouse') { pointer = { x: event.clientX, y: event.clientY }; paintFocus(); } });
 message.addEventListener('pointerleave', () => { pointer = null; paintFocus(); });
 focusWords.forEach(word => {
@@ -203,7 +206,9 @@ focusWords.forEach(word => {
   word.addEventListener('click', () => { focused = word; pointer = null; paintFocus(); });
 });
 message.addEventListener('focusout', () => requestAnimationFrame(() => { if (!message.contains(document.activeElement)) { focused = null; paintFocus(); } }));
-addEventListener('scroll', () => { if (pointer || focused) paintFocus(); }, { passive: true });
+function scheduleFocus() { if (!focusFrame) focusFrame = requestAnimationFrame(paintFocus); }
+addEventListener('scroll', scheduleFocus, { passive: true }); addEventListener('resize', scheduleFocus);
+paintFocus();
 $('#reduce').addEventListener('change', paintFocus); motionMedia.addEventListener('change', paintFocus);
 
 // Matter.js bodies fall, collide, settle and can be dragged. Restore returns them to their measured text positions.
