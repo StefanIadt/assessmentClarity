@@ -110,6 +110,13 @@ main,header,footer{position:relative;z-index:1}main{background:transparent}.stor
 @media(prefers-reduced-motion:reduce){.scroll-story,.ambiguity-flow{height:auto;min-height:0}.story-stage{position:relative;min-height:650px}.ambiguity-flow .ambiguity-panel{position:relative;min-height:0}.ambiguity-scroll-word{opacity:1!important;filter:none!important;transform:none!important}.focus-word{filter:none!important}.background-loop{animation:none}.consistent-column{transform:none!important}}
 .word-columns>.consistent-column{margin-top:-360px}.focus-word:focus-visible{filter:blur(var(--word-blur,0px))}.barrier-flow .reading-art{background:transparent}
 .scroll-story{height:220svh}@media(max-width:760px){.scroll-story{height:220svh}}@media(prefers-reduced-motion:reduce){.scroll-story{height:auto}}.story-still .scroll-story{height:auto}
+
+.particle-word{display:inline-block;position:relative;border:0;padding:0;margin:0;background:transparent;color:inherit;font:inherit;line-height:inherit;letter-spacing:inherit;cursor:pointer;vertical-align:baseline;isolation:isolate;touch-action:pan-y}
+.particle-label{display:inline}.particle-word canvas{position:absolute;pointer-events:none;z-index:2;display:none;max-width:none}
+.particle-word.particles-active canvas{display:block}.particle-word.particles-active .particle-label{color:transparent}
+.particle-word:focus-visible{outline:2px solid #151515;outline-offset:8px}
+.story-still .particle-word.particles-active canvas{display:none}.story-still .particle-word.particles-active .particle-label{color:inherit}
+@media(prefers-reduced-motion:reduce){.particle-word.particles-active canvas{display:none}.particle-word.particles-active .particle-label{color:inherit}}
 </style></head><body><a class="skip" href="#main">Skip to content</a>
 <header class="top"><a class="logo" href="#top">FINDING<br>CLARITY.</a><span class="mid">AN INTERACTIVE ASSESSMENT STUDY / IADT</span><button id="prefs-open" aria-expanded="false" aria-controls="prefs">Experience settings</button></header>
 <div id="prefs" class="prefs" hidden><h2>Experience settings</h2><label><input type="checkbox" id="reduce"> Reduce animation</label><label><input type="checkbox" id="contrast"> High contrast</label><label><input type="checkbox" id="large"> Larger text</label><button id="prefs-close">Close</button></div>
@@ -126,7 +133,7 @@ main,header,footer{position:relative;z-index:1}main{background:transparent}.stor
 
 <div class="meta"><span>02 / THE PROBLEM IS AMBIGUITY</span><span>MAKING ASSESSMENT CLEARER</span></div>
 <div class="ambiguity-composition">
-<h2 id="ambiguity-title"><span>Many students struggle </span><span>not with ability, </span><span>but with ambiguity.</span></h2>
+<h2 id="ambiguity-title"><span>Many students struggle </span><span>not with ability, </span><span>but with <button type="button" class="particle-word" aria-label="ambiguity. Activate to scatter and reform the word."><span class="particle-label">ambiguity.</span></button></span></h2>
 <p class="ambiguity-note note-one">Assessment briefs and rubrics can be <span>difficult to interpret,</span> <span>inconsistent across modules,</span> written in <span>abstract academic language,</span> and <span>inaccessible in structure and format.</span></p>
 <p class="ambiguity-note note-two">Students from different backgrounds, disciplines, and levels of experience can interpret the same assessment criteria in <em>very different ways.</em></p>
 </div>

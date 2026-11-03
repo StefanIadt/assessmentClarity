@@ -193,3 +193,72 @@ $('#reduce').addEventListener('change', paintFocus); motionMedia.addEventListene
   $('#reduce').addEventListener('change', () => { if (reduced()) stable(); }); motionMedia.addEventListener('change', () => { if (reduced()) stable(); });
   if (reduced()) stable(); else label();
 })();
+
+// A local particle interaction gives "ambiguity" a tactile, reversible loss of structure.
+(() => {
+  const host = $('.particle-word'), label = host.querySelector('.particle-label');
+  const canvas = document.createElement('canvas'); canvas.setAttribute('aria-hidden', 'true'); host.append(canvas);
+  const context = canvas.getContext('2d');
+  if (!context) return;
+  let points = [], frame = 0, pointer = null, last = 0, visible = true, width = 0, height = 0, queuedBuild = 0;
+  const pad = 70;
+  function build() {
+    host.classList.remove('particles-active');
+    const box = label.getBoundingClientRect(), style = getComputedStyle(host), fontSize = parseFloat(style.fontSize);
+    if (!box.width || !box.height) return;
+    width = Math.ceil(box.width) + pad * 2; height = Math.ceil(box.height) + pad * 2;
+    const dpr = Math.min(devicePixelRatio || 1, 2);
+    canvas.width = width * dpr; canvas.height = height * dpr; canvas.style.width = `${width}px`; canvas.style.height = `${height}px`; canvas.style.left = `${-pad}px`; canvas.style.top = `${-pad}px`;
+    context.setTransform(dpr, 0, 0, dpr, 0, 0);
+    const sample = document.createElement('canvas'); sample.width = width; sample.height = height;
+    const ink = sample.getContext('2d', { willReadFrequently: true });
+    ink.font = `${style.fontWeight} ${fontSize}px ${style.fontFamily}`;
+    if ('letterSpacing' in ink) ink.letterSpacing = style.letterSpacing;
+    const metrics = ink.measureText('ambiguity.');
+    const baseline = pad + (box.height - metrics.actualBoundingBoxAscent - metrics.actualBoundingBoxDescent) / 2 + metrics.actualBoundingBoxAscent;
+    ink.fillText('ambiguity.', pad, baseline);
+    const pixels = ink.getImageData(0, 0, width, height).data;
+    const spacing = fontSize < 55 ? 2 : 3;
+    points = [];
+    for (let y = pad - 3; y < height - pad + 3; y += spacing) for (let x = pad - 3; x < width - pad + 3; x += spacing) {
+      if (pixels[(y * width + x) * 4 + 3] > 100) points.push({ x, y, homeX: x, homeY: y, vx: 0, vy: 0 });
+    }
+    canvas.dataset.particleCount = points.length;
+    cancelAnimationFrame(frame); frame = 0; last = 0;
+  }
+  function tick(time) {
+    frame = 0;
+    if (reduced() || !visible) { host.classList.remove('particles-active'); return; }
+    const dt = last ? Math.min(2, (time - last) / 16.67) : 1; last = time;
+    context.clearRect(0, 0, width, height); context.fillStyle = '#151515';
+    let energy = 0;
+    for (const point of points) {
+      point.vx += (point.homeX - point.x) * .025 * dt; point.vy += (point.homeY - point.y) * .025 * dt;
+      if (pointer) {
+        const dx = point.x - pointer.x, dy = point.y - pointer.y, distance = Math.hypot(dx, dy), radius = innerWidth < 760 ? 48 : 75;
+        if (distance < radius) { const force = (1 - distance / radius) * 1.8 * dt; point.vx += dx / Math.max(distance, .1) * force; point.vy += dy / Math.max(distance, .1) * force; }
+      }
+      point.vx *= Math.pow(.85, dt); point.vy *= Math.pow(.85, dt); point.x += point.vx * dt; point.y += point.vy * dt;
+      energy += Math.abs(point.x - point.homeX) + Math.abs(point.y - point.homeY) + Math.abs(point.vx) + Math.abs(point.vy);
+      context.fillRect(point.x, point.y, innerWidth < 760 ? 1.75 : 2.2, innerWidth < 760 ? 1.75 : 2.2);
+    }
+    if (pointer || energy > points.length * .08) frame = requestAnimationFrame(tick);
+    else { host.classList.remove('particles-active'); last = 0; }
+  }
+  function wake() { if (reduced() || !visible || !points.length) return; host.classList.add('particles-active'); if (!frame) { last = 0; frame = requestAnimationFrame(tick); } }
+  function position(event) { const box = host.getBoundingClientRect(); pointer = { x: event.clientX - box.left + pad, y: event.clientY - box.top + pad }; wake(); }
+  host.addEventListener('pointerenter', event => { if (event.pointerType === 'mouse') position(event); });
+  host.addEventListener('pointermove', event => { if (event.pointerType === 'mouse') position(event); });
+  host.addEventListener('pointerleave', () => { pointer = null; wake(); });
+  host.addEventListener('click', () => {
+    pointer = null;
+    points.forEach((point, index) => { const angle = index * 2.39996, impulse = 3 + (index % 9) * .6; point.vx += Math.cos(angle) * impulse; point.vy += Math.sin(angle) * impulse; });
+    wake();
+  });
+  function rebuild() { cancelAnimationFrame(queuedBuild); queuedBuild = requestAnimationFrame(build); }
+  new ResizeObserver(rebuild).observe(host);
+  new IntersectionObserver(entries => { visible = entries[0].isIntersecting; if (!visible) { pointer = null; cancelAnimationFrame(frame); frame = 0; host.classList.remove('particles-active'); } }, { threshold: 0 }).observe(host);
+  function stop() { if (reduced()) { pointer = null; cancelAnimationFrame(frame); frame = 0; host.classList.remove('particles-active'); } }
+  $('#reduce').addEventListener('change', stop); motionMedia.addEventListener('change', stop);
+  document.fonts.ready.then(rebuild); build();
+})();
