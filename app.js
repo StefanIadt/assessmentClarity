@@ -356,3 +356,38 @@ $('#reduce').addEventListener('change', paintFocus); motionMedia.addEventListene
   document.fonts.ready.then(rebuild); build();
 })();
 
+
+// One fine pen stroke carries the reading sequence through the spaces between scenes.
+(() => {
+  const main = $('#main'), svg = $('.reading-thread'), ink = $('.reading-thread-ink');
+  const scenes = [$('.ambiguity-flow'), $('.barrier-flow'), $('.complexity-flow')];
+  let length = 0, start = 0, end = 1, queued = false;
+  function measure() {
+    queued = false;
+    scenes.forEach(scene => {
+      const panel = scene.firstElementChild;
+      scene.classList.remove('scene-unpinned');
+      scene.classList.toggle('scene-unpinned', reduced() || panel.scrollHeight > innerHeight + 2);
+    });
+    const height = main.offsetHeight;
+    start = scenes[0].offsetTop + Math.min(scenes[0].firstElementChild.offsetHeight, innerHeight) * .72;
+    const middle = scenes[1].offsetTop + Math.min(scenes[1].firstElementChild.offsetHeight, innerHeight) * .22;
+    end = scenes[2].offsetTop + Math.min(scenes[2].firstElementChild.offsetHeight, innerHeight) * .36;
+    svg.setAttribute('viewBox', `0 0 25 ${height}`); svg.style.height = `${height}px`;
+    const join = (start + middle) / 2, next = (middle + end) / 2;
+    ink.setAttribute('d', `M18 ${start} C8 ${start+28} 22 ${join-45} 15 ${join} S9 ${middle-25} 17 ${middle} C23 ${middle+50} 8 ${next-40} 13 ${next} S21 ${end-28} 15 ${end}`);
+    length = ink.getTotalLength(); ink.style.strokeDasharray = length;
+    draw();
+  }
+  function draw() {
+    if (!length) return;
+    const mainTop = main.getBoundingClientRect().top + scrollY;
+    const progress = reduced() ? 1 : clamp((scrollY + innerHeight * .76 - mainTop - start) / Math.max(1, end - start));
+    ink.style.strokeDashoffset = length * (1 - progress);
+  }
+  function scheduleMeasure() { if (!queued) { queued = true; requestAnimationFrame(measure); } }
+  const observer = new ResizeObserver(scheduleMeasure); scenes.forEach(scene => observer.observe(scene.firstElementChild));
+  addEventListener('resize', scheduleMeasure); addEventListener('scroll', draw, { passive:true });
+  $('#reduce').addEventListener('change', scheduleMeasure); motionMedia.addEventListener('change', scheduleMeasure);
+  document.fonts.ready.then(scheduleMeasure); measure();
+})();
