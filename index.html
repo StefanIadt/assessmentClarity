@@ -54,6 +54,19 @@
 .focus-word.is-focused{filter:none}.focus-word:focus-visible{outline:2px solid #151515;outline-offset:4px}
 .story-still .focus-word{filter:none}
 @media(prefers-reduced-motion:reduce){.focus-word{filter:none;transition:none}}
+
+/* Shared background typography and continuous, seamless movement. */
+.word-columns,.ambiguity-panel .ambiguity-grain,.barrier-panel>.reading-echo{position:absolute;inset:18px 24px 0;display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:24px;overflow:hidden;pointer-events:none;mask-image:linear-gradient(#000 80%,transparent);color:#666}
+.ambiguity-panel .ambiguity-grain{z-index:-1;opacity:.18}.barrier-panel>.reading-echo{z-index:0;opacity:.24}
+.consistent-column{min-width:0;font-size:clamp(10px,1.12vw,16px);line-height:1.04;letter-spacing:-.04em;font-weight:400;transform:none}
+.background-cycle span{display:block;white-space:nowrap}
+.background-loop{animation:background-drift 90s linear infinite;will-change:transform}
+@keyframes background-drift{from{transform:translateY(0)}to{transform:translateY(-50%)}}
+.barrier-panel .barrier-heading,.barrier-panel .reading-art,.barrier-panel .reading-bottom{z-index:1}
+.focus-word{transition:filter .85s cubic-bezier(.22,.61,.36,1)}.focus-word.is-focused{transition-duration:.55s}
+.story-still .background-loop{animation:none}
+@media(max-width:760px){.word-columns,.ambiguity-panel .ambiguity-grain,.barrier-panel>.reading-echo{inset:20px 16px 0;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}.consistent-column:nth-child(n+5){display:none}}
+@media(prefers-reduced-motion:reduce){.background-loop{animation:none}.focus-word,.focus-word.is-focused{transition:none}}
 </style></head><body><a class="skip" href="#main">Skip to content</a>
 <header class="top"><a class="logo" href="#top">FINDING<br>CLARITY.</a><span class="mid">AN INTERACTIVE ASSESSMENT STUDY / IADT</span><button id="prefs-open" aria-expanded="false" aria-controls="prefs">Experience settings</button></header>
 <div id="prefs" class="prefs" hidden><h2>Experience settings</h2><label><input type="checkbox" id="reduce"> Reduce animation</label><label><input type="checkbox" id="contrast"> High contrast</label><label><input type="checkbox" id="large"> Larger text</label><button id="prefs-close">Close</button></div>
@@ -78,7 +91,7 @@
 </div><div class="barrier-panel">
 <div class="meta"><span>03 / THE SAME WORDS. DIFFERENT BARRIERS.</span><span class="barrier-count">01 / 03</span></div>
 <div class="barrier-heading"><h2 id="barrier-title">When the meaning<br>is hard to find.</h2><p class="barrier-description">Abstract language can hide a straightforward task.</p></div>
-<div class="reading-art"><div class="reading-echo" aria-hidden="true"></div><div class="reading-source"><span>ASSESSMENT / CRITICAL REFLECTION</span><div class="reveal-message" role="group" aria-label="Assessment text. Hover, focus or tap individual words to bring them into focus.">Demonstrate a critical synthesis of relevant theoretical perspectives through reflexive engagement with your practice, evidencing contextual understanding and a coherent articulation of your developmental trajectory.</div></div></div>
+<div class="reading-echo" aria-hidden="true"></div><div class="reading-art"><div class="reading-source"><span>ASSESSMENT / CRITICAL REFLECTION</span><div class="reveal-message" role="group" aria-label="Assessment text. Hover, focus or tap individual words to bring them into focus.">Demonstrate a critical synthesis of relevant theoretical perspectives through reflexive engagement with your practice, evidencing contextual understanding and a coherent articulation of your developmental trajectory.</div></div></div>
 <div class="reading-bottom"><p class="barrier-insight">The task is there. The meaning takes work.</p><a href="#clear-reading">Read without visual effects ↗</a><span>SCROLL TO REVEAL ↓</span></div>
 </div></div></section>
 <section id="clear-reading" class="section clear-reading" aria-labelledby="clear-title">
@@ -121,5 +134,19 @@ function schedule(){if(!pending){pending=true;requestAnimationFrame(update)}}add
  function activate(word){if(active&&active!==word){active.classList.remove('is-focused');active.setAttribute('aria-pressed','false')}active=word;if(word){word.classList.add('is-focused');word.setAttribute('aria-pressed','true')}}
  words.forEach((text,i)=>{const word=document.createElement('button');word.type='button';word.className='focus-word';word.textContent=text;word.setAttribute('aria-pressed','false');word.addEventListener('pointerenter',e=>{if(e.pointerType==='mouse')activate(word)});word.addEventListener('focus',()=>activate(word));word.addEventListener('click',()=>activate(word));message.append(word);if(i<words.length-1)message.append(document.createTextNode(' '))});
  message.addEventListener('pointerleave',()=>{if(!message.contains(document.activeElement))activate(null)});message.addEventListener('focusout',()=>requestAnimationFrame(()=>{if(!message.contains(document.activeElement)&&!message.matches(':hover'))activate(null)}));
+})();
+
+(()=>{
+ const vocabulary=['Assessment brief','Learning outcomes','What is expected?','Research','Prototype','Submission deadline','Feedback','Assessment criteria','Reflection','Accessibility','Academic integrity','Learning together','Module requirements','Concept and research','Make a plan','Evidence of process','Design for inclusion','Weighting 30%','Task navigation','What do I submit?','11 December','17:00','Review and refine','Student success'];
+ document.querySelectorAll('.word-columns,.ambiguity-grain,.reading-echo').forEach(background=>{
+  background.replaceChildren();
+  for(let i=0;i<6;i++){
+   const col=document.createElement('div');col.className='consistent-column';
+   const loop=document.createElement('div');loop.className='background-loop';loop.style.animationDuration=(90+i*8)+'s';loop.style.animationDelay=(-i*7)+'s';
+   const cycle=document.createElement('div');cycle.className='background-cycle';
+   for(let j=0;j<72;j++){const line=document.createElement('span');line.textContent=vocabulary[(j+i*5)%vocabulary.length];cycle.append(line)}
+   loop.append(cycle,cycle.cloneNode(true));col.append(loop);background.append(col);
+  }
+ });
 })();
 </script></body></html>
