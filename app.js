@@ -1,0 +1,175 @@
+'use strict';
+const $ = selector => document.querySelector(selector);
+const $$ = selector => [...document.querySelectorAll(selector)];
+const clamp = value => Math.max(0, Math.min(1, value));
+const motionMedia = matchMedia('(prefers-reduced-motion: reduce)');
+const reduced = () => motionMedia.matches || $('#reduce').checked;
+
+// Preferences remain available for every scene.
+const prefs = $('#prefs');
+$('#reduce').checked = motionMedia.matches;
+$('#prefs-open').onclick = () => { prefs.hidden = !prefs.hidden; $('#prefs-open').setAttribute('aria-expanded', String(!prefs.hidden)); };
+$('#prefs-close').onclick = () => { prefs.hidden = true; $('#prefs-open').setAttribute('aria-expanded', 'false'); $('#prefs-open').focus(); };
+document.addEventListener('keydown', event => { if (event.key === 'Escape' && !prefs.hidden) $('#prefs-close').click(); });
+$('#contrast').onchange = event => document.body.classList.toggle('contrast', event.target.checked);
+$('#large').onchange = event => { document.body.classList.toggle('large', event.target.checked); dispatchEvent(new Event('resize')); };
+
+// A single continuous backdrop prevents seams between scenes.
+const vocabulary = ['Assessment brief','Learning outcomes','What is expected?','Research','Prototype','Submission deadline','Feedback','Assessment criteria','Reflection','Accessibility','Academic integrity','Learning together','Module requirements','Concept and research','Make a plan','Evidence of process','Design for inclusion','Weighting 30%','Task navigation','What do I submit?','11 December','17:00','Review and refine','Student success'];
+const background = $('.word-columns');
+for (let column = 0; column < 6; column++) {
+  const wrapper = document.createElement('div'); wrapper.className = 'consistent-column';
+  const loop = document.createElement('div'); loop.className = 'background-loop';
+  loop.style.animationDuration = `${90 + column * 13}s`; loop.style.animationDelay = `${-column * 9}s`;
+  const cycle = document.createElement('div'); cycle.className = 'background-cycle';
+  for (let line = 0; line < 240; line++) { const word = document.createElement('span'); word.textContent = vocabulary[(line + column * 5) % vocabulary.length]; cycle.append(word); }
+  loop.append(cycle, cycle.cloneNode(true)); wrapper.append(loop); background.append(wrapper);
+}
+
+const revealGroups = [$('#ambiguity-title'), $('.note-one'), $('.note-two')];
+revealGroups.forEach(group => {
+  const walker = document.createTreeWalker(group, NodeFilter.SHOW_TEXT), nodes = [];
+  while (walker.nextNode()) nodes.push(walker.currentNode);
+  nodes.forEach(node => {
+    const fragment = document.createDocumentFragment();
+    node.textContent.split(/(\s+)/).forEach(text => { if (!text.trim()) fragment.append(document.createTextNode(text)); else { const word = document.createElement('span'); word.className = 'ambiguity-scroll-word'; word.textContent = text; fragment.append(word); } });
+    node.replaceWith(fragment);
+  });
+});
+
+let scheduled = false;
+function paintScroll() {
+  scheduled = false;
+  const still = reduced(); document.body.classList.toggle('story-still', still);
+  const story = $('.scroll-story'), stage = $('.story-stage');
+  const travel = Math.max(0, -story.getBoundingClientRect().top) / innerHeight;
+  const titleFade = still ? 1 : clamp((travel - .1) / .14);
+  const inclusion = still ? 1 : clamp((travel - .2) / .16);
+  stage.style.setProperty('--title-opacity', 1 - titleFade);
+  stage.style.setProperty('--title-y', `${-titleFade * 30}px`);
+  stage.style.setProperty('--brief-opacity', inclusion);
+  stage.style.setProperty('--clarity', clamp(travel / .75));
+  $$('.story-brief h2 span').forEach((line, index) => { const amount = still ? 1 : clamp((travel - .2 - index * .025) / .16); line.style.opacity = amount; line.style.transform = `translateY(${(1 - amount) * 28}px)`; line.style.clipPath = 'none'; });
+  const opacity = still ? .07 : .36 - clamp(travel / .85) * .285;
+  background.style.setProperty('opacity', document.body.classList.contains('contrast') ? .035 : opacity);
+  $$('.consistent-column').forEach((column, index) => { column.style.transform = still ? 'none' : `translateY(${Math.max(-240, Math.min(240, scrollY * (index % 2 ? .12 + index * .025 : -.10 - index * .02)))}px)`; });
+  const rect = $('.ambiguity-flow').getBoundingClientRect();
+  const reveal = still ? 1 : clamp((innerHeight * .8 - rect.top) / (innerHeight * .42));
+  revealGroups.forEach((group, groupIndex) => {
+    const words = [...group.querySelectorAll('.ambiguity-scroll-word')];
+    words.forEach((word, index) => {
+      const amount = still ? 1 : clamp((reveal - groupIndex * .16 - index / words.length * .21) / .18);
+      const eased = 1 - Math.pow(1 - amount, 3);
+      word.style.opacity = eased; word.style.transform = `translateY(${(1 - eased) * .45}em)`; word.style.filter = `blur(${(1 - eased) * 2}px)`;
+    });
+  });
+}
+function scheduleScroll() { if (!scheduled) { scheduled = true; requestAnimationFrame(paintScroll); } }
+addEventListener('scroll', scheduleScroll, { passive: true }); addEventListener('resize', scheduleScroll);
+$('#reduce').addEventListener('change', scheduleScroll); $('#contrast').addEventListener('change', scheduleScroll); motionMedia.addEventListener('change', scheduleScroll);
+paintScroll();
+
+// Start readable, then allow a broad area around the pointer to come into focus.
+const message = $('.reveal-message');
+const sentence = message.textContent.trim(); message.replaceChildren();
+const focusWords = sentence.split(/\s+/).map((text, index, all) => {
+  const word = document.createElement('button'); word.type = 'button'; word.className = 'focus-word'; word.textContent = text; word.setAttribute('aria-pressed', 'false'); message.append(word); if (index < all.length - 1) message.append(document.createTextNode(' ')); return word;
+});
+let blurStarted = false, blurTimer, pointer = null, focused = null;
+function paintFocus() {
+  const center = pointer || (focused ? (() => { const r = focused.getBoundingClientRect(); return { x: r.left + r.width / 2, y: r.top + r.height / 2 }; })() : null);
+  focusWords.forEach(word => {
+    let blur = blurStarted && !reduced() ? 5 : 0;
+    if (blur && center) {
+      const box = word.getBoundingClientRect();
+      const dx = Math.max(0, Math.abs(center.x - (box.left + box.width / 2)) - box.width / 2);
+      const dy = Math.max(0, Math.abs(center.y - (box.top + box.height / 2)) - box.height / 2);
+      const distance = Math.hypot(dx / (innerWidth < 760 ? 145 : 250), dy / 48);
+      blur *= clamp((distance - .32) / .75);
+    }
+    word.style.setProperty('--word-blur', `${blur}px`);
+    word.setAttribute('aria-pressed', String(word === focused));
+  });
+}
+new IntersectionObserver(entries => {
+  if (entries.some(entry => entry.isIntersecting && entry.intersectionRatio >= .3) && !blurStarted && !blurTimer) blurTimer = setTimeout(() => { blurStarted = true; paintFocus(); }, 1300);
+}, { threshold: .3 }).observe(message);
+message.addEventListener('pointermove', event => { if (event.pointerType === 'mouse') { pointer = { x: event.clientX, y: event.clientY }; paintFocus(); } });
+message.addEventListener('pointerleave', () => { pointer = null; paintFocus(); });
+focusWords.forEach(word => {
+  word.addEventListener('focus', () => { focused = word; paintFocus(); });
+  word.addEventListener('click', () => { focused = word; pointer = null; paintFocus(); });
+});
+message.addEventListener('focusout', () => requestAnimationFrame(() => { if (!message.contains(document.activeElement)) { focused = null; paintFocus(); } }));
+addEventListener('scroll', () => { if (pointer || focused) paintFocus(); }, { passive: true });
+$('#reduce').addEventListener('change', paintFocus); motionMedia.addEventListener('change', paintFocus);
+
+// Matter.js bodies fall, collide, settle and can be dragged. Restore returns them to their measured text positions.
+(() => {
+  const trigger = $('.complexity-trigger'), toggle = $('.clarity-toggle'), conclusion = $('.complexity-conclusion');
+  const text = trigger.textContent; trigger.setAttribute('aria-label', text); trigger.replaceChildren();
+  text.split(/(\s+)/).forEach(part => { if (!part.trim()) trigger.append(document.createTextNode(part)); else { const word = document.createElement('span'); word.className = 'complexity-word'; word.textContent = part; word.setAttribute('aria-hidden', 'true'); trigger.append(word); } });
+  const words = [...trigger.querySelectorAll('.complexity-word')];
+  const { Engine, Bodies, Body, Composite, Constraint, Query, Sleeping } = Matter;
+  let engine = null, pieces = [], state = 'idle', frame = 0, lastTime = 0, drag = null, animations = [], generation = 0;
+  function label() { trigger.dataset.state = state; toggle.textContent = state === 'fallen' ? 'Restore clarity ↗' : state === 'clear' ? 'Let it fall again ↓' : 'Let words fall ↓'; toggle.setAttribute('aria-expanded', String(state === 'clear')); toggle.disabled = state === 'restoring'; }
+  function dispose() { cancelAnimationFrame(frame); frame = 0; if (engine) { Composite.clear(engine.world, false); Engine.clear(engine); engine = null; } drag = null; pieces = []; }
+  function draw() { pieces.forEach(({ word, body, x, y }) => { word.style.transform = `translate(${body.position.x - x}px,${body.position.y - y}px) rotate(${body.angle}rad)`; }); }
+  function tick(time) {
+    if (!engine) return;
+    const elapsed = lastTime ? Math.min(32, time - lastTime) : 16.67; lastTime = time;
+    Engine.update(engine, elapsed); draw();
+    if (drag || pieces.some(piece => !piece.body.isSleeping)) frame = requestAnimationFrame(tick); else frame = 0;
+  }
+  function wake() { if (!frame && engine) { lastTime = 0; frame = requestAnimationFrame(tick); } }
+  function fall() {
+    if (state === 'fallen' || state === 'restoring') return;
+    generation++; animations.forEach(animation => animation.cancel()); animations = [];
+    conclusion.hidden = true; state = 'fallen'; label();
+    if (reduced()) return;
+    const box = trigger.getBoundingClientRect(), width = box.width, height = box.height;
+    engine = Engine.create({ enableSleeping: true }); engine.gravity.y = 1;
+    const walls = [Bodies.rectangle(width / 2, height + 25, width + 100, 50, { isStatic: true }), Bodies.rectangle(-25, height / 2, 50, height * 3, { isStatic: true }), Bodies.rectangle(width + 25, height / 2, 50, height * 3, { isStatic: true })];
+    pieces = words.map((word, index) => {
+      const r = word.getBoundingClientRect(), x = r.left - box.left + r.width / 2, y = r.top - box.top + r.height / 2;
+      const body = Bodies.rectangle(x, y, r.width + 2, r.height * .78, { restitution: .42, friction: .35, frictionAir: .012, sleepThreshold: 65 });
+      Body.setVelocity(body, { x: ((index * 19) % 17 - 8) * .3, y: -.5 }); Body.setAngularVelocity(body, ((index * 13) % 15 - 7) * .007);
+      return { word, body, x, y };
+    });
+    Composite.add(engine.world, [...walls, ...pieces.map(piece => piece.body)]); wake();
+  }
+  async function restore() {
+    if (state !== 'fallen') return;
+    const run = ++generation, transforms = words.map(word => getComputedStyle(word).transform);
+    dispose(); state = 'restoring'; label();
+    animations = words.map((word, index) => {
+      word.style.transform = '';
+      return reduced() ? null : word.animate([{ transform: transforms[index] }, { transform: 'translate(0,0) rotate(0rad)' }], { duration: 950, delay: index * 7, easing: 'cubic-bezier(.22,1,.36,1)', fill: 'none' });
+    }).filter(Boolean);
+    await Promise.allSettled(animations.map(animation => animation.finished));
+    if (generation !== run) return;
+    animations = []; state = 'clear'; conclusion.hidden = false; label();
+    if (!reduced()) conclusion.animate([{ opacity: 0, transform: 'translateY(12px)' }, { opacity: 1, transform: 'translateY(0)' }], { duration: 650, easing: 'ease-out' });
+  }
+  trigger.addEventListener('pointerenter', event => { if (event.pointerType === 'mouse' && state === 'idle') fall(); });
+  trigger.addEventListener('focus', () => { if (state === 'idle') fall(); });
+  trigger.addEventListener('click', () => { if (state === 'idle' || state === 'clear') fall(); });
+  toggle.addEventListener('click', () => state === 'fallen' ? restore() : fall());
+  trigger.addEventListener('pointerdown', event => {
+    if (!engine || event.pointerType === 'touch') return;
+    const rect = trigger.getBoundingClientRect(), point = { x: event.clientX - rect.left, y: event.clientY - rect.top };
+    const body = Query.point(pieces.map(piece => piece.body), point)[0]; if (!body) return;
+    Sleeping.set(body, false); drag = Constraint.create({ pointA: point, bodyB: body, pointB: { x: point.x - body.position.x, y: point.y - body.position.y }, stiffness: .12, damping: .1 });
+    Composite.add(engine.world, drag); trigger.setPointerCapture(event.pointerId); wake();
+  });
+  trigger.addEventListener('pointermove', event => { if (!drag) return; const rect = trigger.getBoundingClientRect(); drag.pointA = { x: event.clientX - rect.left, y: event.clientY - rect.top }; wake(); });
+  function release() { if (drag && engine) { Composite.remove(engine.world, drag); drag = null; wake(); } }
+  trigger.addEventListener('pointerup', release); trigger.addEventListener('pointercancel', release);
+  function stable() {
+    generation++; dispose(); animations.forEach(animation => animation.cancel()); animations = []; words.forEach(word => word.style.transform = '');
+    state = 'clear'; conclusion.hidden = false; label();
+  }
+  addEventListener('resize', () => { if (state === 'fallen' || state === 'restoring') stable(); });
+  $('#reduce').addEventListener('change', () => { if (reduced()) stable(); }); motionMedia.addEventListener('change', () => { if (reduced()) stable(); });
+  if (reduced()) stable(); else label();
+})();
