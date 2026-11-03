@@ -58,7 +58,10 @@ revealGroups.forEach(group => {
 });
 
 // Short placement gestures are triggered by scroll landmarks, not dragged along an eased slide.
-const paperStates = new Map($$('.ephemera-piece').map(layer => [layer, { target: null, animation: null, generation: 0 }]));
+const paperStates = new Map($$('.ephemera-piece').map(layer => {
+  const shadow = layer.cloneNode(false); shadow.classList.remove('ephemera-piece'); shadow.classList.add('paper-ground-shadow'); shadow.setAttribute('aria-hidden','true'); shadow.alt = ''; layer.before(shadow);
+  return [layer, { target: null, animation: null, shadow, shadowAnimation: null, generation: 0 }];
+}));
 let paperLayoutChanged = false;
 function updatePaperChoreography(travel, stage, still) {
   const exitStarts = [1.43, 1.77, 1.66, 1.54];
@@ -69,8 +72,10 @@ function updatePaperChoreography(travel, stage, still) {
     const first = state.target === null || paperLayoutChanged;
     const previous = state.target;
     const current = first ? null : { transform: getComputedStyle(layer).transform, filter: getComputedStyle(layer).filter };
+    const currentShadow = first ? null : { transform: getComputedStyle(state.shadow).transform, filter: getComputedStyle(state.shadow).filter, opacity: getComputedStyle(state.shadow).opacity };
     state.generation++; const generation = state.generation;
     if (state.animation) state.animation.cancel();
+    if (state.shadowAnimation) state.shadowAnimation.cancel();
     const left = layer.offsetLeft, top = layer.offsetTop, width = layer.offsetWidth, height = layer.offsetHeight;
     const rotation = Number(layer.dataset.rotation);
     const transform = (x,y,z,rx,ry,rz) => `perspective(1400px) translate3d(${x}px,${y}px,${z}px) rotateX(${rx}deg) rotateY(${ry}deg) rotateZ(${rz}deg)`;
@@ -92,6 +97,13 @@ function updatePaperChoreography(travel, stage, still) {
     const finalTransform = target === 'placed' ? flat : target === 'hidden' ? entry : exit;
     state.target = target; layer.style.transition = 'none'; layer.style.opacity = still ? 0 : 1;
     layer.style.transform = finalTransform; layer.style.filter = contactShadow;
+    function project(pose) {
+      return pose.replace(/translate3d\(([-.\d]+)px,([-\.\d]+)px,([-\.\d]+)px\)/, (_,x,y,z) => `translate3d(${Number(x) + 5 + Number(z) * .4}px,${Number(y) + 7 + Number(z) * .62}px,0px)`).replace(/rotateX\([^)]*\)/,'rotateX(0deg)').replace(/rotateY\([^)]*\)/,'rotateY(0deg)');
+    }
+    state.shadow.style.transformOrigin = getComputedStyle(layer).transformOrigin;
+    state.shadow.style.transform = project(finalTransform);
+    state.shadow.style.filter = 'brightness(0) blur(3px)';
+    state.shadow.style.opacity = still ? 0 : .20;
     if (first || still || (previous !== 'placed' && target !== 'placed')) {
       layer.dataset.phase = target; state.animation = null; return;
     }
@@ -107,6 +119,12 @@ function updatePaperChoreography(travel, stage, still) {
       { transform:finalTransform, filter:raisedShadow, offset:1 }
     ];
     layer.dataset.phase = target === 'placed' ? 'arriving' : 'clearing';
+    const shadowFrames = frames.map((frame, frameIndex) => {
+      if (frameIndex === 0) return { ...currentShadow, offset: 0, easing: frame.easing };
+      const raised = frame.filter === raisedShadow;
+      return { transform: project(frame.transform), filter: `brightness(0) blur(${raised ? 17 : 3}px)`, opacity: raised ? .19 : .20, offset: frame.offset, easing: frame.easing };
+    });
+    state.shadowAnimation = state.shadow.animate(shadowFrames,{ duration, fill:'none' });
     const animation = layer.animate(frames,{ duration, fill:'none' }); state.animation = animation;
     animation.finished.then(() => { if (generation === state.generation) { state.animation = null; layer.dataset.phase = target; } }).catch(() => {});
   });
