@@ -20,11 +20,31 @@ const background = $('.word-columns');
 for (let column = 0; column < 6; column++) {
   const wrapper = document.createElement('div'); wrapper.className = 'consistent-column';
   const loop = document.createElement('div'); loop.className = 'background-loop';
-  loop.style.animationDuration = `${90 + column * 13}s`; loop.style.animationDelay = `${-column * 9}s`;
+  loop.style.animationDuration = `${1800 + column * 240}s`; loop.style.animationDelay = `${-column * 9}s`;
   const cycle = document.createElement('div'); cycle.className = 'background-cycle';
   for (let line = 0; line < 240; line++) { const word = document.createElement('span'); word.textContent = vocabulary[(line + column * 5) % vocabulary.length]; cycle.append(word); }
   loop.append(cycle, cycle.cloneNode(true)); wrapper.append(loop); background.append(wrapper);
 }
+
+// The idle drift is very slow; scroll velocity adds a temporary, smoothly decaying boost.
+let driftFrame = 0, driftBoost = 0, driftRate = 1, previousScroll = scrollY, previousScrollTime = performance.now(), driftTime = 0;
+function easeDrift(time) {
+  const dt = driftTime ? Math.min(64, time - driftTime) : 16; driftTime = time;
+  if (reduced()) { driftBoost = 0; driftRate = 1; driftFrame = 0; return; }
+  driftBoost *= Math.exp(-dt / 230);
+  driftRate += (1 + driftBoost - driftRate) * (1 - Math.exp(-dt / 200));
+  $$('.background-loop').forEach(loop => loop.getAnimations().forEach(animation => animation.updatePlaybackRate(driftRate)));
+  if (driftBoost > .005 || Math.abs(driftRate - 1) > .005) driftFrame = requestAnimationFrame(easeDrift);
+  else { $$('.background-loop').forEach(loop => loop.getAnimations().forEach(animation => animation.updatePlaybackRate(1))); driftFrame = 0; driftTime = 0; }
+}
+addEventListener('scroll', () => {
+  const now = performance.now(), elapsed = Math.max(16, Math.min(80, now - previousScrollTime));
+  const velocity = Math.abs(scrollY - previousScroll) / elapsed;
+  previousScroll = scrollY; previousScrollTime = now;
+  if (reduced()) return;
+  driftBoost = Math.min(19, velocity * 4);
+  if (!driftFrame) { driftTime = 0; driftFrame = requestAnimationFrame(easeDrift); }
+}, { passive: true });
 
 const revealGroups = [$('#ambiguity-title'), $('.note-one'), $('.note-two')];
 revealGroups.forEach(group => {
@@ -52,7 +72,7 @@ function paintScroll() {
   $$('.story-brief h2 span').forEach((line, index) => { const amount = still ? 1 : clamp((travel - .2 - index * .025) / .16); line.style.opacity = amount; line.style.transform = `translateY(${(1 - amount) * 28}px)`; line.style.clipPath = 'none'; });
   const opacity = still ? .07 : .36 - clamp(travel / .85) * .285;
   background.style.setProperty('opacity', document.body.classList.contains('contrast') ? .035 : opacity);
-  $$('.consistent-column').forEach((column, index) => { column.style.transform = still ? 'none' : `translateY(${Math.max(-240, Math.min(240, scrollY * (index % 2 ? .12 + index * .025 : -.10 - index * .02)))}px)`; });
+  $$('.consistent-column').forEach((column, index) => { column.style.transform = still ? 'none' : `translateY(${Math.max(-240, Math.min(240, scrollY * (index % 2 ? .018 + index * .004 : -.015 - index * .003)))}px)`; });
   const rect = $('.ambiguity-flow').getBoundingClientRect();
   const reveal = still ? 1 : clamp((innerHeight * .8 - rect.top) / (innerHeight * .42));
   revealGroups.forEach((group, groupIndex) => {
