@@ -67,6 +67,7 @@
 .story-still .background-loop{animation:none}
 @media(max-width:760px){.word-columns,.ambiguity-panel .ambiguity-grain,.barrier-panel>.reading-echo{inset:20px 16px 0;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}.consistent-column:nth-child(n+5){display:none}}
 @media(prefers-reduced-motion:reduce){.background-loop{animation:none}.focus-word,.focus-word.is-focused{transition:none}}
+.word-columns>.consistent-column,.ambiguity-grain>.consistent-column,.reading-echo>.consistent-column{font-size:clamp(10px,1.12vw,16px);line-height:1.04;letter-spacing:-.04em}
 </style></head><body><a class="skip" href="#main">Skip to content</a>
 <header class="top"><a class="logo" href="#top">FINDING<br>CLARITY.</a><span class="mid">AN INTERACTIVE ASSESSMENT STUDY / IADT</span><button id="prefs-open" aria-expanded="false" aria-controls="prefs">Experience settings</button></header>
 <div id="prefs" class="prefs" hidden><h2>Experience settings</h2><label><input type="checkbox" id="reduce"> Reduce animation</label><label><input type="checkbox" id="contrast"> High contrast</label><label><input type="checkbox" id="large"> Larger text</label><button id="prefs-close">Close</button></div>
