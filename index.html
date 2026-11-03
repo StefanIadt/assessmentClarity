@@ -74,6 +74,13 @@
 .story-still .ambiguity-scroll-word{transform:none!important;opacity:1!important;filter:none!important}
 @media(max-width:760px){.story-brief h2{font-size:12.4vw;line-height:1.12;margin-top:65px}}
 @media(prefers-reduced-motion:reduce){.ambiguity-scroll-word{transform:none!important;opacity:1!important;filter:none!important}}
+
+.complexity-section{min-height:100svh;display:flex;flex-direction:column;justify-content:center;padding-top:100px;padding-bottom:100px;overflow:hidden}
+.complexity-trigger{display:block;width:100%;padding:0;border:0;background:none;color:inherit;text-align:left;font-family:inherit;font-size:clamp(34px,5.6vw,86px);font-weight:500;line-height:1.08;letter-spacing:-.055em;cursor:pointer;position:relative}
+.complexity-word{display:inline-block;transform-origin:center;position:relative}
+.complexity-conclusion{font-size:clamp(24px,3.2vw,48px);line-height:1.15;letter-spacing:-.045em;max-width:27ch;margin:100px 0 0 auto}
+.visually-hidden{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+@media(max-width:760px){.complexity-section{min-height:850px;padding-top:80px;padding-bottom:80px}.complexity-trigger{font-size:37px;line-height:1.13}.complexity-conclusion{font-size:28px;margin-top:100px;max-width:24ch}}
 </style></head><body><a class="skip" href="#main">Skip to content</a>
 <header class="top"><a class="logo" href="#top">FINDING<br>CLARITY.</a><span class="mid">AN INTERACTIVE ASSESSMENT STUDY / IADT</span><button id="prefs-open" aria-expanded="false" aria-controls="prefs">Experience settings</button></header>
 <div id="prefs" class="prefs" hidden><h2>Experience settings</h2><label><input type="checkbox" id="reduce"> Reduce animation</label><label><input type="checkbox" id="contrast"> High contrast</label><label><input type="checkbox" id="large"> Larger text</label><button id="prefs-close">Close</button></div>
@@ -101,6 +108,11 @@
 <div class="reading-echo" aria-hidden="true"></div><div class="reading-art"><div class="reading-source"><span>ASSESSMENT / CRITICAL REFLECTION</span><div class="reveal-message" role="group" aria-label="Assessment text. Hover, focus or tap individual words to bring them into focus.">Demonstrate a critical synthesis of relevant theoretical perspectives through reflexive engagement with your practice, evidencing contextual understanding and a coherent articulation of your developmental trajectory.</div></div></div>
 <div class="reading-bottom"><p class="barrier-insight">The task is there. The meaning takes work.</p><a href="#clear-reading">Read without visual effects ↗</a><span>SCROLL TO REVEAL ↓</span></div>
 </div></div></section>
+<section class="section complexity-section" aria-label="The cost of complexity">
+<button type="button" class="complexity-trigger" aria-describedby="complexity-help">As complexity increases, students may spend more time decoding assessment systems than engaging with learning itself.</button>
+<span id="complexity-help" class="visually-hidden">Hover, focus or tap to let the words fall and return to their places.</span>
+<p class="complexity-conclusion" aria-live="polite" hidden>Assessment design should reduce unnecessary cognitive load, not add to it.</p>
+</section>
 <section id="clear-reading" class="section clear-reading" aria-labelledby="clear-title">
 <div class="meta"><span>04 / A CLEARER WAY IN</span><span>SAME EXPECTATIONS. LESS GUESSWORK.</span></div>
 <h2 id="clear-title">Make the task clear.<br>Leave room<br>for the thinking.</h2>
@@ -169,5 +181,28 @@ function schedule(){if(!pending){pending=true;requestAnimationFrame(update)}}add
  groups.forEach((group,g)=>{const words=group.querySelectorAll('.ambiguity-scroll-word');words.forEach((word,i)=>{const start=g===0?0:g===1?.045:.09;const span=g===0?.075:.08;const amount=reduced?1:Math.max(0,Math.min(1,(progress-start-i/words.length*span)/.035));const eased=1-Math.pow(1-amount,3);word.style.opacity=.14+.86*eased;word.style.transform='translateY('+((1-eased)*.65)+'em)';word.style.filter='blur('+((1-eased)*3)+'px)'})});
  }
  function schedule(){if(!queued){queued=true;requestAnimationFrame(update)}}addEventListener('scroll',schedule,{passive:true});addEventListener('resize',schedule);document.querySelector('#reduce').addEventListener('change',schedule);update();
+})();
+
+(()=>{
+ const trigger=document.querySelector('.complexity-trigger'),conclusion=document.querySelector('.complexity-conclusion'),media=matchMedia('(prefers-reduced-motion: reduce)');
+ const sentence=trigger.textContent;trigger.setAttribute('aria-label',sentence);trigger.replaceChildren();
+ sentence.split(/(\s+)/).forEach(text=>{if(!text.trim()){trigger.append(document.createTextNode(text));return}const word=document.createElement('span');word.className='complexity-word';word.setAttribute('aria-hidden','true');word.textContent=text;trigger.append(word)});
+ const words=[...trigger.querySelectorAll('.complexity-word')];let running=false,animations=[],generation=0;
+ const reduced=()=>media.matches||document.querySelector('#reduce').checked;
+ function reveal(){conclusion.hidden=false}
+ function reset(){generation++;animations.forEach(a=>a.cancel());animations=[];running=false;trigger.removeAttribute('data-falling');reveal()}
+ async function fall(){if(running)return;if(reduced()){reset();return}running=true;const run=++generation;trigger.dataset.falling='true';
+ animations=words.map((word,i)=>{const x=((i*37)%91)-45,angle=((i*23)%55)-27,drop=85+(i*17)%75;return word.animate([
+ {transform:'translate(0,0) rotate(0deg)',offset:0,easing:'cubic-bezier(.5,0,1,1)'},
+ {transform:'translate('+x+'px,'+drop+'px) rotate('+angle+'deg)',offset:.34,easing:'ease-out'},
+ {transform:'translate('+(x*.85)+'px,'+(drop-30)+'px) rotate('+(angle*.7)+'deg)',offset:.46,easing:'ease-in'},
+ {transform:'translate('+x+'px,'+drop+'px) rotate('+angle+'deg)',offset:.58,easing:'ease-in-out'},
+ {transform:'translate('+x+'px,'+drop+'px) rotate('+angle+'deg)',offset:.67,easing:'cubic-bezier(.22,.61,.36,1)'},
+ {transform:'translate(0,0) rotate(0deg)',offset:1}
+ ],{duration:2700,delay:i*22,fill:'none'})});
+ await Promise.allSettled(animations.map(a=>a.finished));if(run!==generation)return;animations=[];running=false;trigger.removeAttribute('data-falling');reveal();if(!reduced())conclusion.animate([{opacity:0,transform:'translateY(18px)'},{opacity:1,transform:'translateY(0)'}],{duration:800,easing:'ease-out'});
+ }
+ trigger.addEventListener('pointerenter',e=>{if(e.pointerType==='mouse')fall()});trigger.addEventListener('focus',fall);trigger.addEventListener('click',fall);
+ addEventListener('resize',()=>{if(running)reset()});media.addEventListener('change',()=>{if(reduced())reset()});document.querySelector('#reduce').addEventListener('change',()=>{if(reduced())reset()});if(reduced())reveal();
 })();
 </script></body></html>
