@@ -374,3 +374,9 @@ $('#reduce').addEventListener('change', paintFocus); motionMedia.addEventListene
   addEventListener('resize', scheduleMeasure); $('#reduce').addEventListener('change', scheduleMeasure); motionMedia.addEventListener('change', scheduleMeasure);
   document.fonts.ready.then(scheduleMeasure); measure();
 })();
+
+// Readable alternatives remain available while the next story scenes are being developed.
+$$('[data-readable]').forEach(link => link.addEventListener('click', event => {
+  event.preventDefault(); $('#reduce').checked = true; $('#reduce').dispatchEvent(new Event('change'));
+  requestAnimationFrame(() => requestAnimationFrame(() => $('#reading-passage').scrollIntoView({ behavior: 'instant', block: 'start' })));
+}));
