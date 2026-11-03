@@ -57,7 +57,63 @@ revealGroups.forEach(group => {
   });
 });
 
-let scheduled = false, papersInitialized = false;
+// Short placement gestures are triggered by scroll landmarks, not dragged along an eased slide.
+const paperStates = new Map($$('.ephemera-piece').map(layer => [layer, { target: null, animation: null, generation: 0 }]));
+let paperLayoutChanged = false;
+function updatePaperChoreography(travel, stage, still) {
+  const exitStarts = [1.43, 1.77, 1.66, 1.54];
+  $$('.ephemera-piece').forEach((layer, index) => {
+    const state = paperStates.get(layer), start = Number(layer.dataset.start);
+    const target = still || travel < start ? 'hidden' : travel >= exitStarts[index] ? 'removed' : 'placed';
+    if (state.target === target && !paperLayoutChanged) return;
+    const first = state.target === null || paperLayoutChanged;
+    const previous = state.target;
+    const current = first ? null : { transform: getComputedStyle(layer).transform, filter: getComputedStyle(layer).filter };
+    state.generation++; const generation = state.generation;
+    if (state.animation) state.animation.cancel();
+    const left = layer.offsetLeft, top = layer.offsetTop, width = layer.offsetWidth, height = layer.offsetHeight;
+    const rotation = Number(layer.dataset.rotation);
+    const transform = (x,y,z,rx,ry,rz) => `perspective(1400px) translate3d(${x}px,${y}px,${z}px) rotateX(${rx}deg) rotateY(${ry}deg) rotateZ(${rz}deg)`;
+    const entry = [
+      transform(80,-top-height-300,45,-9,-5,rotation-14),
+      transform(stage.clientWidth-left+300,-45,30,11,-12,rotation+12),
+      transform(-90,stage.clientHeight-top+380,45,-16,7,rotation-13),
+      transform(100,stage.clientHeight-top+380,55,-14,-8,rotation+15)
+    ][index];
+    const exit = [
+      transform(120,-top-height-300,90,-18,-8,rotation+16),
+      transform(stage.clientWidth-left+340,-110,65,14,-15,rotation+19),
+      transform(-left-width-340,120,55,-12,9,rotation-18),
+      transform(140,stage.clientHeight-top+380,70,-18,-10,rotation+17)
+    ][index];
+    const flat = transform(0,0,0,0,0,rotation);
+    const contactShadow = 'drop-shadow(0px 1px 0.65px rgba(37,29,20,.32)) drop-shadow(2px 5px 3.5px rgba(37,29,20,.20))';
+    const raisedShadow = 'drop-shadow(5px 19px 13px rgba(37,29,20,.23)) drop-shadow(1px 2px 1px rgba(37,29,20,.10))';
+    const finalTransform = target === 'placed' ? flat : target === 'hidden' ? entry : exit;
+    state.target = target; layer.style.transition = 'none'; layer.style.opacity = still ? 0 : 1;
+    layer.style.transform = finalTransform; layer.style.filter = contactShadow;
+    if (first || still || (previous !== 'placed' && target !== 'placed')) {
+      layer.dataset.phase = target; state.animation = null; return;
+    }
+    const duration = target === 'placed' ? [570,460,530,490][index] : [470,520,450,490][index];
+    const frames = target === 'placed' ? [
+      { ...current, offset:0, easing:'cubic-bezier(.35,.05,.7,1)' },
+      { transform:transform(index%2?17:-14,-22,45,-7,index%2?-5:5,rotation+(index%2?3:-3)), filter:raisedShadow, offset:.54, easing:'cubic-bezier(.4,0,.85,.55)' },
+      { transform:transform(0,2,0,.7,0,rotation+.45), filter:contactShadow, offset:.82, easing:'ease-out' },
+      { transform:flat, filter:contactShadow, offset:1 }
+    ] : [
+      { ...current, offset:0, easing:'cubic-bezier(.2,.1,.6,1)' },
+      { transform:transform(index%2?12:-9,-18,65,-13,index%2?-8:7,rotation+(index%2?4:-4)), filter:raisedShadow, offset:.31, easing:'cubic-bezier(.6,0,.9,.5)' },
+      { transform:finalTransform, filter:raisedShadow, offset:1 }
+    ];
+    layer.dataset.phase = target === 'placed' ? 'arriving' : 'clearing';
+    const animation = layer.animate(frames,{ duration, fill:'none' }); state.animation = animation;
+    animation.finished.then(() => { if (generation === state.generation) { state.animation = null; layer.dataset.phase = target; } }).catch(() => {});
+  });
+  paperLayoutChanged = false;
+}
+addEventListener('resize', () => { paperLayoutChanged = true; });
+let scheduled = false;
 function paintScroll() {
   scheduled = false;
   const still = reduced(); document.body.classList.toggle('story-still', still);
@@ -70,45 +126,7 @@ function paintScroll() {
   stage.style.setProperty('--brief-opacity', inclusion);
 
   stage.style.setProperty('--clarity', clamp(travel / .75));
-  const papers = $$('.ephemera-piece');
-  const geometry = papers.map(layer => ({ left: layer.offsetLeft, top: layer.offsetTop, width: layer.offsetWidth, height: layer.offsetHeight }));
-  papers.forEach((layer, index) => {
-    if (!papersInitialized) layer.style.transition = 'none';
-    const box = geometry[index], start = Number(layer.dataset.start);
-    const entering = clamp((travel - start) / .34);
-    const exitStarts = [1.43, 1.77, 1.66, 1.54];
-    const leaving = clamp((travel - exitStarts[index]) / .39);
-    const arrived = 1 - Math.pow(1 - entering, 4);
-    // Each sheet has a distinct edge of entry and a full, opaque route off the desk.
-    const entryRoutes = [
-      { x: stage.clientWidth - box.left + 180, y: -80 },
-      { x: stage.clientWidth - box.left + 180, y: 110 },
-      { x: -box.left - box.width - 180, y: 160 },
-      { x: 100, y: stage.clientHeight - box.top + 180 }
-    ];
-    const exitRoutes = [
-      { x: stage.clientWidth - box.left + 180, y: -box.top - box.height - 100 },
-      { x: stage.clientWidth - box.left + 180, y: 70 },
-      { x: -box.left - box.width - 180, y: 180 },
-      { x: 120, y: stage.clientHeight - box.top + 180 }
-    ];
-    const lifted = Math.sin(Math.min(1, leaving * 2) * Math.PI / 2);
-    const removal = Math.pow(clamp((leaving - .1) / .9), 1.65);
-    const entry = entryRoutes[index], exit = exitRoutes[index];
-    const x = (1 - arrived) * entry.x + removal * exit.x;
-    const y = (1 - arrived) * entry.y + removal * exit.y - lifted * 12;
-    const height = (1 - arrived) * 24 + lifted * 32;
-    const tilt = (1 - arrived) * (index % 2 ? -8 : 7) + lifted * (index % 2 ? 6 : -5);
-    const settle = Math.sin(entering * Math.PI * 2) * Math.pow(1 - entering, 2) * 2;
-    const rotation = Number(layer.dataset.rotation) + (1 - arrived) * (index % 2 ? 13 : -11) + settle + removal * (index % 2 ? 7 : -8);
-    layer.style.opacity = still ? 0 : 1;
-    layer.style.transform = `perspective(1200px) translate3d(${x}px,${y}px,${height}px) rotateX(${tilt}deg) rotateY(${tilt * -.45}deg) rotateZ(${rotation}deg)`;
-    const shadow = (1 - arrived) * .6 + lifted;
-    layer.style.filter = `drop-shadow(${1 + shadow * 5}px ${3 + shadow * 14}px ${2 + shadow * 12}px rgba(40,31,20,${.10 + shadow * .07}))`;
-    layer.dataset.phase = entering < 1 ? 'arriving' : leaving > 0 ? 'clearing' : 'placed';
-  });
-
-  if (!papersInitialized) { papersInitialized = true; requestAnimationFrame(() => papers.forEach(layer => layer.style.transition = '')); }
+  updatePaperChoreography(travel, stage, still);
 
   const takeaway = $('.inclusion-takeaway'), clearing = still ? 1 : clamp((travel - 1.92) / .26);
   takeaway.style.opacity = clearing; takeaway.style.transform = `translateY(${(1 - clearing) * 15}px)`;
