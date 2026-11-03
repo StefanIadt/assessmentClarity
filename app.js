@@ -68,8 +68,17 @@ function paintScroll() {
   stage.style.setProperty('--title-opacity', 1 - titleFade);
   stage.style.setProperty('--title-y', `${-titleFade * 30}px`);
   stage.style.setProperty('--brief-opacity', inclusion);
-  $('.scene-loop').inert = !still && inclusion < .9;
+
   stage.style.setProperty('--clarity', clamp(travel / .75));
+  $$('.ephemera-piece').forEach((layer, index) => {
+    const start = Number(layer.dataset.start), entered = clamp((travel - start) / .27);
+    const leaving = clamp((travel - 1.48 - index * .035) / .38);
+    const ease = 1 - Math.pow(1 - entered, 3), opacity = still ? 0 : entered * (1 - leaving);
+    const rotate = Number(layer.dataset.rotation), x = Number(layer.dataset.x), y = Number(layer.dataset.y);
+    layer.style.opacity = opacity;
+    layer.style.transform = `translate(${(1 - ease) * x + leaving * (index % 2 ? 110 : -110)}px,${(1 - ease) * y - leaving * (70 + index * 12)}px) rotate(${rotate + (1 - ease) * (index % 2 ? 7 : -6) + leaving * (index % 2 ? 4 : -4)}deg)`;
+  });
+
   $$('.story-brief h2 span').forEach((line, index) => { const amount = still ? 1 : clamp((travel - .2 - index * .025) / .16); line.style.opacity = amount; line.style.transform = `translateY(${(1 - amount) * 28}px)`; line.style.clipPath = 'none'; });
   const opacity = still ? .07 : .36 - clamp(travel / .85) * .285;
   background.style.setProperty('opacity', document.body.classList.contains('contrast') ? .035 : opacity);
@@ -264,33 +273,3 @@ $('#reduce').addEventListener('change', paintFocus); motionMedia.addEventListene
   document.fonts.ready.then(rebuild); build();
 })();
 
-// A restrained, draggable text loop doubles as the next-scene navigation.
-(() => {
-  const link = $('.scene-loop'), text = link.querySelector('textPath');
-  const phrase = 'Scroll down to find out more  ·  ';
-  text.textContent = phrase.repeat(12);
-  let period = 400, offset = 0, frame = 0, last = 0, visible = false, held = false, dragged = false, startX = 0, previousX = 0;
-  function measure() { period = text.getComputedTextLength() / 12 || 400; }
-  function paint() { text.setAttribute('startOffset', String(-offset)); }
-  function tick(time) {
-    frame = 0;
-    if (!visible || reduced()) { last = 0; return; }
-    const dt = last ? Math.min(50, time - last) : 16; last = time;
-    if (!held) offset = (offset + dt * .018) % period;
-    paint(); frame = requestAnimationFrame(tick);
-  }
-  function wake() { if (visible && !reduced() && !frame) { last = 0; frame = requestAnimationFrame(tick); } }
-  new IntersectionObserver(entries => { visible = entries[0].isIntersecting; if (visible) wake(); else { cancelAnimationFrame(frame); frame = 0; } }).observe(link);
-  link.addEventListener('pointerdown', event => { if (reduced()) return; held = true; dragged = false; startX = previousX = event.clientX; link.setPointerCapture(event.pointerId); });
-  link.addEventListener('pointermove', event => {
-    if (!held) return;
-    if (Math.abs(event.clientX - startX) > 7) dragged = true;
-    const scale = 560 / link.getBoundingClientRect().width;
-    offset = ((offset - (event.clientX - previousX) * scale) % period + period) % period; previousX = event.clientX; paint();
-  });
-  function release() { held = false; wake(); }
-  link.addEventListener('pointerup', release); link.addEventListener('pointercancel', () => { dragged = false; release(); });
-  link.addEventListener('click', event => { if (dragged) { event.preventDefault(); dragged = false; } });
-  motionMedia.addEventListener('change', wake); $('#reduce').addEventListener('change', wake);
-  document.fonts.ready.then(measure); addEventListener('resize', measure); measure();
-})();
