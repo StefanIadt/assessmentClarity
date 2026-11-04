@@ -147,15 +147,15 @@ function paintScroll() {
   background.style.setProperty('opacity', document.body.classList.contains('contrast') ? .035 : columnOpacity);
   $$('.consistent-column').forEach((column, index) => { column.style.transform = still ? 'none' : `translateY(${Math.max(-240, Math.min(240, scrollY * (index % 2 ? .018 + index * .004 : -.015 - index * .003)))}px)`; });
   const rect = $('.ambiguity-flow').getBoundingClientRect();
-  const reveal = still ? 1 : clamp((innerHeight * .8 - rect.top) / (innerHeight * .42));
+  const reveal = still ? 1 : clamp((innerHeight * .55 - rect.top) / (innerHeight * .75));
   revealGroups.forEach((group, groupIndex) => {
     const words = [...group.querySelectorAll('.ambiguity-scroll-word')];
     words.forEach((word, index) => {
       const amount = still ? 1 : clamp((reveal - groupIndex * .16 - index / words.length * .21) / .18);
-      const eased = 1 - Math.pow(1 - amount, 3);
+      const eased = amount * amount * (3 - 2 * amount);
       word.style.opacity = eased;
       const particleWord = word.closest('.particle-word'); if (particleWord) particleWord.style.setProperty('--particle-reveal', eased);
-      word.style.transform = `translateY(${(1 - eased) * .45}em)`; word.style.filter = `blur(${(1 - eased) * 2}px)`;
+      word.style.transform = `translateY(${(1 - eased) * .55}em)`; word.style.filter = `blur(${(1 - eased) * 2}px)`;
     });
   });
 }
