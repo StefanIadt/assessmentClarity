@@ -220,6 +220,13 @@ scheduleFocus();
   const text = trigger.textContent; trigger.setAttribute('aria-label', text); trigger.replaceChildren();
   text.split(/(\s+)/).forEach(part => { if (!part.trim()) trigger.append(document.createTextNode(part)); else { const word = document.createElement('span'); word.className = 'complexity-word' + (part.toLowerCase() === 'complexity' ? ' complexity-signal' : ''); word.textContent = part; word.setAttribute('aria-hidden', 'true'); trigger.append(word); } });
   const words = [...trigger.querySelectorAll('.complexity-word')];
+  const breathingWord=trigger.querySelector('.complexity-signal');
+  function measureBreathingWord(){
+   const sample=breathingWord.cloneNode(true);sample.style.cssText='position:absolute;visibility:hidden;animation:none;font-weight:650;font-variation-settings:"wght" 650;white-space:nowrap;width:auto;';
+   trigger.append(sample);const width=sample.getBoundingClientRect().width;sample.remove();if(width)breathingWord.style.width=`${Math.ceil(width)}px`;
+  }
+  document.fonts.ready.then(measureBreathingWord);addEventListener('resize',measureBreathingWord);
+
   const { Engine, Bodies, Body, Composite, Constraint, Query, Sleeping } = Matter;
   let engine = null, pieces = [], state = 'idle', frame = 0, lastTime = 0, drag = null, animations = [], generation = 0;
   function label() { trigger.dataset.state = state; toggle.textContent = state === 'fallen' || state === 'restoring' ? 'Restore clarity ↗' : 'Lose the thread ↘'; toggle.setAttribute('aria-expanded', String(state === 'clear')); toggle.disabled = state === 'restoring'; }
@@ -419,12 +426,12 @@ scheduleFocus();
  const title = $('#anatomy-title'), description = $('.anatomy-description'), evidence = $('.anatomy-evidence'), hint = $('.anatomy-hint');
  const chapters = [
  ['Structure.', 'The assessment brief uses consistent headings and a clear order, so students know where to find the task, submission requirements and assessment criteria.', 'W3C', 'https://www.w3.org/WAI/WCAG2/supplemental/patterns/o2p03-page-structure/'],
- ['Manageable detail.', 'Explore one group at a time. Its detail opens without losing its place in the whole.', 'CAST UDL', 'https://udlguidelines.cast.org/action-expression/strategy-development/organize-information/'],
+ ['Manageable detail.', 'Related information is grouped into sections. Smaller details are revealed within each group, while the whole stays visible.', 'CAST UDL', 'https://udlguidelines.cast.org/action-expression/strategy-development/organize-information/'],
  ['Alignment.', 'Learning outcomes, the task and assessment criteria connect to form a coherent whole.', 'Project design principles', '#anatomy'],
  ['Planning.', 'Visible stages and milestones help turn a final deadline into a process students can plan.', 'CAST UDL', 'https://udlguidelines.cast.org/action-expression/strategy-development/'],
  ['Checking and reflection.', 'Review the work against the assessment requirements. Identify what is complete and what needs another look.', 'CAST UDL', 'https://udlguidelines.cast.org/action-expression/strategy-development/monitor-progress/']
  ];
- let current = -1, queued = false, selected = 0, open = false;
+ let current = -1, queued = false, selected = 0;
  const chapterText = document.createElement('div'); chapterText.className = 'anatomy-chapter-text';
  title.before(chapterText); chapterText.append(title, description, evidence);
  let outgoing = null, entrance = null;
@@ -441,15 +448,6 @@ scheduleFocus();
   change();
   entrance = chapterText.animate([{ opacity:0, transform:'translateY(9px)' }, { opacity:1, transform:'translateY(0)' }], { duration:520, easing:'cubic-bezier(.22,1,.36,1)' });
  }
- const drawer = $('.anatomy-compartment');
- function toggleDetail() {
-  open = !open; drawer.setAttribute('aria-expanded', String(open));
-  drawer.setAttribute('aria-label', open ? 'Close grouped information' : 'Open grouped information');
-  $('.compartment-detail').setAttribute('visibility', open ? 'visible' : 'hidden');
-  // Detail opens inside the fixed compartment; the fitted dividers stay seated.
- }
- drawer.addEventListener('click', toggleDetail);
- drawer.addEventListener('keydown', event => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); toggleDetail(); } });
  function paint() {
   queued = false;
   const rect = section.getBoundingClientRect();
@@ -459,11 +457,19 @@ scheduleFocus();
    const data = chapters[step];
    transitionChapter(() => {
     title.textContent = data[0]; description.textContent = data[1];
-    evidence.textContent = `Design rationale: ${data[2]} ↗`; evidence.href = data[3]; evidence.hidden = step === 2;
+    if(step===2){
+     description.replaceChildren();
+     ['Learning outcomes', 'the task', 'assessment criteria'].forEach((text,index)=>{
+      if(index)description.append(index===1?', ':' and ');
+      const term=document.createElement('span');term.className='alignment-term';term.dataset.term=index;term.textContent=text;description.append(term);
+     });
+     description.append(' connect to form a coherent whole.');
+    }
+    evidence.textContent = `Design rationale: ${data[2]} ↗`; evidence.href = data[3]; evidence.hidden = step === 1 || step === 2;
    });
    current = step;
    buttons.forEach((button, index) => { if (index === step) button.setAttribute('aria-current', 'step'); else button.removeAttribute('aria-current'); });
-   hint.textContent = step === 1 ? 'Select the compartment to open or close its detail.' : step === 4 ? 'Scroll to look again, then bring the whole together.' : 'Scroll to assemble the parts.';
+   hint.textContent = step === 1 ? 'Scroll to reveal the detail within each group.' : step === 4 ? 'Scroll to look again, then bring the whole together.' : 'Scroll to assemble the parts.';
   }
   parts.forEach((part, index) => {
    const amount = reduced() ? 1 : index === 0 ? clamp((progress - .1) / .085) : clamp((progress - index * .2) / .13);
@@ -492,10 +498,11 @@ scheduleFocus();
    $('.assembly-object').style.visibility = 'hidden';
    $('.review-object').setAttribute('visibility', 'visible');drawReview(1);
   }
-  $$('[data-joint]').forEach((joint, index) => {
-   const entry = reduced() ? 1 : clamp((progress - (.4 + index * .065)) / .06);
-   const exit = reduced() ? (selected === 2 ? 1 : 0) : 1 - clamp((progress - .585) / .035);
-   joint.querySelector('text').style.opacity = entry * exit;
+  const detailAmount=reduced()?1:smooth((progress-.27)/.11);
+  const detail=$('.compartment-detail');detail.setAttribute('visibility','visible');detail.style.opacity=detailAmount;detail.style.transform=`translateY(${-(1-detailAmount)*18}px)`;
+  description.querySelectorAll('.alignment-term').forEach((term,index)=>{
+   const amount=reduced()?1:smooth((progress-(.4+index*.065))/.06);
+   term.style.fontWeight=String(400+250*amount);
   });
   // The illustration occupies the cleared half of the same continuous background.
   background.style.setProperty('--bridge-columns', reduced() || !section.getClientRects().length ? 1 : 1 - clamp((innerHeight - rect.top) / (innerHeight * .7)));
@@ -558,13 +565,11 @@ scheduleFocus();
  }
  // Review uses the same world dimensions, reprojected as a real turn rather than a flat SVG spin.
  const smooth = value => { const t=clamp(value);return t*t*(3-2*t); };
- function projectScene(boxes,angle=0,seams=[],cameraMix=0) {
+ function projectScene(boxes,angle=0,seams=[]) {
   const cos=Math.cos(angle),sin=Math.sin(angle);
   const world=([x,y,z])=>[90+(x-90)*cos-(y-90)*sin,90+(x-90)*sin+(y-90)*cos,z];
-  // Equal world-axis scales at the review camera: no independent vertical compression.
-  const isoScale=1.12*2/Math.sqrt(3);
-  const verticalPlan=.54+(isoScale*.5-.54)*cameraMix;
-  const verticalHeight=1+(isoScale-1)*cameraMix;
+  // The projection stays fixed through the entire turn; only the object angle changes.
+  const verticalPlan=.54,verticalHeight=1;
   const point=v=>{const[x,y,z]=world(v);return `${(325+(x-y)*1.12).toFixed(2)},${(490+(x+y)*verticalPlan-z*verticalHeight).toFixed(2)}`;};
   const faces=[];
   function face(v,kind){const depth=v.reduce((sum,p)=>{const[x,y,z]=world(p);return sum+x+y+z*1000;},0)/v.length;faces.push({depth,html:`<polygon class="review-${kind}" points="${v.map(point).join(' ')}"/>`});}
@@ -585,20 +590,18 @@ scheduleFocus();
   }));
   return faces.sort((a,b)=>a.depth-b.depth).map(f=>f.html).join('');
  }
- function trackBoxes(progress=1) {
-  const boxes=[];
-  for(let index=0;index<4;index++){
+ function trackBoxes(){return [0,1,2,3].map(index=>[index*45,0,86,45,180,5]);}
+ function drawPlanning(progress){
+  $('.planning-track').innerHTML=trackBoxes().map((box,index)=>{
    const amount=reduced()?1:smooth((progress-.6-index*.032)/.035);
-   if(amount>0)boxes.push([index*45,0,86+(1-amount)*30,45,180,5]);
-  }
-  return boxes;
+   return `<g opacity="${amount}">${projectScene([box])}</g>`;
+  }).join('');
  }
- function drawPlanning(progress){$('.planning-track').innerHTML=projectScene(trackBoxes(progress));}
  function drawReview(progress){
   const turn=smooth((progress-.8)/.135);
   const compact=smooth((progress-.94)/.055);
   const angle=turn * (180 * Math.PI / 180);
-  const cameraMix=smooth(turn/.15);
+
   const boxes=[];
   // Identical frames and their fitted divisions remain visible during the inspection.
   for(const offset of [-48,-24,0]){
@@ -608,11 +611,11 @@ scheduleFocus();
   }
   boxes.push([88,4,12,4,172,14],[92,88,12,84,4,14]);
   boxes.push([0,0,34-compact*10,180,180,44]);
-  boxes.push(...trackBoxes(1).map(([x,y,z,w,d,h])=>[x,y,z-compact*12,w,d,h]));
+  boxes.push(...trackBoxes().map(([x,y,z,w,d,h])=>[x,y,z-compact*12,w,d,h]));
   const jointSeams=[[[60,0,78],[60,60,78],[120,60,78],[120,120,78],[60,120,78],[60,180,78]],[[120,120,78],[180,120,78]]];
-  const inspection=projectScene(boxes,angle,jointSeams,cameraMix);
+  const inspection=projectScene(boxes,angle,jointSeams);
   // The outer form closes after the turn; internal seams quietly disappear.
-  const solid=projectScene([[0,0,7,180,180,84]],angle,[],cameraMix);
+  const solid=projectScene([[0,0,7,180,180,84]],angle);
 
   $('.review-object').innerHTML=`<g opacity="${1-compact}">${inspection}</g><g opacity="${compact}">${solid}</g>`;
  }
