@@ -261,11 +261,12 @@ scheduleFocus();
     dispose(); state = 'restoring'; label();
     animations = words.map((word, index) => {
       word.style.transform = '';
-      return reduced() ? null : word.animate([{ transform: transforms[index] }, { transform: 'translate(0,0) rotate(0rad)' }], { duration: 950, delay: index * 7, easing: 'cubic-bezier(.22,1,.36,1)', fill: 'none' });
+      return reduced() ? null : word.animate([{ transform: transforms[index] }, { transform: 'translate(0,0) rotate(0rad)' }], { duration: 950, delay: index * 7, easing: 'cubic-bezier(.22,1,.36,1)', fill: 'both' });
     }).filter(Boolean);
     await Promise.allSettled(animations.map(animation => animation.finished));
     if (generation !== run) return;
-    animations = []; state = 'clear'; conclusion.hidden = false; label();
+    words.forEach(word => { word.style.transform = ''; });
+    animations.forEach(animation => animation.cancel()); animations = []; state = 'clear'; conclusion.hidden = false; label();
     if (!reduced()) conclusion.animate([{ opacity: 0, transform: 'translateY(12px)' }, { opacity: 1, transform: 'translateY(0)' }], { duration: 650, easing: 'ease-out' });
   }
   trigger.addEventListener('click', () => { if (state === 'idle' || state === 'clear') fall(); });
@@ -593,8 +594,11 @@ scheduleFocus();
  function trackBoxes(){return [0,1,2,3].map(index=>[index*45,0,86,45,180,5]);}
  function drawPlanning(progress){
   $('.planning-track').innerHTML=trackBoxes().map((box,index)=>{
-   const amount=reduced()?1:smooth((progress-.6-index*.032)/.035);
-   return `<g opacity="${amount}">${projectScene([box])}</g>`;
+   const start=.6+index*.032;
+   const amount=reduced()?1:smooth((progress-start)/.018);
+   const settle=reduced()?1:smooth((progress-start-.014)/.052);
+   const placed=[...box];placed[2]+=24*(1-settle);
+   return `<g opacity="${amount}">${projectScene([placed])}</g>`;
   }).join('');
  }
  function drawReview(progress){
