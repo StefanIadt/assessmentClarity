@@ -343,6 +343,15 @@ body.dark.contrast{background:var(--surface);color:var(--foreground)}
 .story-still .inclusion-takeaway{position:relative;inset:auto;margin:35px 0 0;opacity:1;transform:none}
 .story-still .story-track{display:none}
 @media(max-width:400px){#motion-toggle{position:static;font-size:12px}.experience-notice{padding-right:0}.experience-controls{gap:10px}}
+
+.reveal-message{position:relative}
+.torch-base{display:block}
+.torch-clear{position:absolute;inset:0;pointer-events:none;user-select:none;color:inherit;mask-image:linear-gradient(transparent,transparent)}
+.torch-clear>span{display:inline-block}
+.focus-word,.focus-word.is-near{transition:filter .18s ease-out}
+.story-still .torch-clear{display:none}.story-still .torch-base{mask-image:none!important}
+@media(prefers-reduced-motion:reduce){.torch-clear{display:none}.torch-base{mask-image:none!important}}
+.focus-word:focus-visible{filter:none!important}
 </style></head><body><a class="skip" href="#main">Skip to content</a>
 <header class="top"><a class="logo" href="#top">FINDING<br>CLARITY.</a><span class="mid">AN INTERACTIVE ASSESSMENT STUDY / IADT</span><nav class="experience-controls" aria-label="Reading options"><button type="button" id="motion-toggle" aria-pressed="false">Pause motion</button><button type="button" id="prefs-open" aria-haspopup="dialog" aria-controls="prefs">Settings</button><a class="readable-shortcut" href="readable.html" aria-label="Go straight to the readable version"><span class="readable-long">Go straight to the readable version</span><span class="readable-small">Readable version</span> ↗</a></nav></header><dialog id="prefs" class="prefs" aria-labelledby="prefs-title"><div class="prefs-heading"><h2 id="prefs-title">Your reading preferences</h2><button type="button" id="prefs-close">Close <span aria-hidden="true">×</span></button></div><p>Choose what makes this page comfortable for you. Your preferences are saved on this browser.</p><div class="preference-list"><label><span><strong>Reduce motion</strong><small>Stop moving text and effects. Read with normal scrolling.</small></span><input type="checkbox" id="reduce"></label><label><span><strong>Dark mode</strong><small>A dark background with light text.</small></span><input type="checkbox" id="dark"></label><label><span><strong>High contrast</strong><small>Remove background text and strengthen contrast.</small></span><input type="checkbox" id="contrast"></label><label><span><strong>Larger text</strong><small>Increase the size of supporting text.</small></span><input type="checkbox" id="large"></label></div><a class="prefs-readable" href="readable.html">Go straight to the readable version ↗</a></dialog><div class="word-columns" aria-hidden="true"></div><main id="main"><section id="top" class="scroll-story" aria-labelledby="story-title">
 <div class="story-stage"><p class="experience-notice">This version includes moving text, pinned scenes and interactive effects. <a href="readable.html">Read without animation or pinned scrolling ↗</a></p>

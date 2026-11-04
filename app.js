@@ -170,40 +170,49 @@ const sentence = message.textContent.trim(); message.replaceChildren();
 const focusWords = sentence.split(/\s+/).map((text, index, all) => {
   const word = document.createElement('button'); word.type = 'button'; word.className = 'focus-word'; word.textContent = text; word.setAttribute('aria-pressed', 'false'); message.append(word); if (index < all.length - 1) message.append(document.createTextNode(' ')); return word;
 });
-let pointer = null, focused = null, focusFrame = 0;
-function paintFocus() {
+// Crossfade between identical blurred and clear text with one feathered spatial mask.
+const torchBase = document.createElement('span'); torchBase.className = 'torch-base';
+while (message.firstChild) torchBase.append(message.firstChild);
+const torchClear = document.createElement('span'); torchClear.className = 'torch-clear';torchClear.setAttribute('aria-hidden','true');
+focusWords.forEach((word,index) => { if(index)torchClear.append(' ');const span=document.createElement('span');span.textContent=word.textContent;torchClear.append(span); });
+message.append(torchBase,torchClear);
+let pointer = null, focused = null, focusFrame = 0, lens = null, lensStrength = 0, lensTime = 0;
+function paintFocus(time=performance.now()) {
   focusFrame = 0;
+  const dt=Math.min(50,lensTime ? time-lensTime : 16.7);lensTime=time;
   const bounds = message.getBoundingClientRect();
   const distanceFromCenter = Math.abs(bounds.top + bounds.height / 2 - innerHeight * .5);
   const proximity = clamp(1 - distanceFromCenter / (innerHeight * .44));
   const emphasis = proximity * proximity * (3 - 2 * proximity);
   const baseBlur = reduced() ? 0 : (innerWidth < 760 ? 4.8 : 6.2) * emphasis;
-  const center = pointer || (focused ? (() => { const r = focused.getBoundingClientRect(); return { x: r.left + r.width / 2, y: r.top + r.height / 2 }; })() : null);
-  focusWords.forEach(word => {
-    let blur = baseBlur;
-    if (blur && center) {
-      const box = word.getBoundingClientRect();
-      const dx = Math.max(0, Math.abs(center.x - (box.left + box.width / 2)) - box.width / 2);
-      const dy = Math.max(0, Math.abs(center.y - (box.top + box.height / 2)) - box.height / 2);
-      const distance = Math.hypot(dx / (innerWidth < 760 ? 70 : 95), dy / 28);
-      blur *= clamp((distance - .55) / .7);
-    }
-    word.classList.toggle('is-near', Boolean(center) && blur < baseBlur * .6);
-    word.style.setProperty('--word-blur', `${blur}px`);
-    word.setAttribute('aria-pressed', String(word === focused));
-  });
+  const target = pointer || (focused ? (() => { const r = focused.getBoundingClientRect(); return { x: r.left + r.width / 2, y: r.top + r.height / 2 }; })() : null);
+  if(target && !lens)lens={...target};
+  const follow=1-Math.exp(-dt/75);
+  if(target){lens.x+=(target.x-lens.x)*follow;lens.y+=(target.y-lens.y)*follow;}
+  const wanted=target && !reduced()?1:0;
+  lensStrength+=(wanted-lensStrength)*(1-Math.exp(-dt/(wanted?100:230)));
+  const x=lens?lens.x-bounds.left:0,y=lens?lens.y-bounds.top:0;
+  const width=innerWidth<760?145:220,height=innerWidth<760?70:100;
+  const core=1-lensStrength;
+  const gradient=`ellipse ${width}px ${height}px at ${x}px ${y}px`;
+  torchClear.style.maskImage=`radial-gradient(${gradient},rgba(0,0,0,${lensStrength}) 0%,rgba(0,0,0,${lensStrength}) 20%,rgba(0,0,0,${lensStrength*.85}) 45%,rgba(0,0,0,${lensStrength*.4}) 72%,transparent 100%)`;
+  torchBase.style.maskImage=`radial-gradient(${gradient},rgba(0,0,0,${core}) 0%,rgba(0,0,0,${core}) 20%,rgba(0,0,0,${1-lensStrength*.85}) 45%,rgba(0,0,0,${1-lensStrength*.4}) 72%,black 100%)`;
+  focusWords.forEach(word=>{word.style.setProperty('--word-blur',`${baseBlur}px`);word.setAttribute('aria-pressed',String(word===focused));});
+  const travelling=target && lens && Math.hypot(target.x-lens.x,target.y-lens.y)>.2;
+  if(travelling || Math.abs(wanted-lensStrength)>.002)focusFrame=requestAnimationFrame(paintFocus);
+  else lensTime=0;
 }
-message.addEventListener('pointermove', event => { if (event.pointerType === 'mouse') { pointer = { x: event.clientX, y: event.clientY }; paintFocus(); } });
-message.addEventListener('pointerleave', () => { pointer = null; paintFocus(); });
-focusWords.forEach(word => {
-  word.addEventListener('focus', () => { focused = word; paintFocus(); });
-  word.addEventListener('click', () => { focused = word; pointer = null; paintFocus(); });
+function scheduleFocus(){if(!focusFrame)focusFrame=requestAnimationFrame(paintFocus);}
+message.addEventListener('pointermove',event=>{if(event.pointerType==='mouse'){pointer={x:event.clientX,y:event.clientY};scheduleFocus();}});
+message.addEventListener('pointerleave',()=>{pointer=null;scheduleFocus();});
+focusWords.forEach(word=>{
+ word.addEventListener('focus',()=>{focused=word;scheduleFocus();});
+ word.addEventListener('click',()=>{focused=word;pointer=null;scheduleFocus();});
 });
-message.addEventListener('focusout', () => requestAnimationFrame(() => { if (!message.contains(document.activeElement)) { focused = null; paintFocus(); } }));
-function scheduleFocus() { if (!focusFrame) focusFrame = requestAnimationFrame(paintFocus); }
-addEventListener('scroll', scheduleFocus, { passive: true }); addEventListener('resize', scheduleFocus);
-paintFocus();
-$('#reduce').addEventListener('change', paintFocus); motionMedia.addEventListener('change', paintFocus);
+message.addEventListener('focusout',()=>requestAnimationFrame(()=>{if(!message.contains(document.activeElement)){focused=null;scheduleFocus();}}));
+addEventListener('scroll',scheduleFocus,{passive:true});addEventListener('resize',scheduleFocus);
+$('#reduce').addEventListener('change',scheduleFocus);motionMedia.addEventListener('change',scheduleFocus);
+scheduleFocus();
 
 // Matter.js bodies fall, collide, settle and can be dragged. Restore returns them to their measured text positions.
 (() => {
