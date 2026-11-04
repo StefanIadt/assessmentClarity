@@ -5,14 +5,7 @@ const clamp = value => Math.max(0, Math.min(1, value));
 const motionMedia = matchMedia('(prefers-reduced-motion: reduce)');
 const reduced = () => motionMedia.matches || $('#reduce').checked;
 
-// Preferences remain available for every scene.
-const prefs = $('#prefs');
-$('#reduce').checked = motionMedia.matches;
-$('#prefs-open').onclick = () => { prefs.hidden = !prefs.hidden; $('#prefs-open').setAttribute('aria-expanded', String(!prefs.hidden)); };
-$('#prefs-close').onclick = () => { prefs.hidden = true; $('#prefs-open').setAttribute('aria-expanded', 'false'); $('#prefs-open').focus(); };
-document.addEventListener('keydown', event => { if (event.key === 'Escape' && !prefs.hidden) $('#prefs-close').click(); });
-$('#contrast').onchange = event => document.body.classList.toggle('contrast', event.target.checked);
-$('#large').onchange = event => { document.body.classList.toggle('large', event.target.checked); dispatchEvent(new Event('resize')); };
+// Reading preferences are initialised before the effects start.
 
 // A single continuous backdrop prevents seams between scenes.
 const vocabulary = ['Assessment brief','Learning outcomes','What is expected?','Research','Prototype','Submission deadline','Feedback','Assessment criteria','Reflection','Accessibility','Academic integrity','Learning together','Module requirements','Concept and research','Make a plan','Evidence of process','Design for inclusion','Weighting 30%','Task navigation','What do I submit?','11 December','17:00','Review and refine','Student success'];
@@ -385,12 +378,6 @@ $('#reduce').addEventListener('change', paintFocus); motionMedia.addEventListene
   document.fonts.ready.then(scheduleMeasure); measure();
 })();
 
-// Readable alternatives remain available while the next story scenes are being developed.
-$$('[data-readable]').forEach(link => link.addEventListener('click', event => {
-  event.preventDefault(); $('#reduce').checked = true; $('#reduce').dispatchEvent(new Event('change'));
-  requestAnimationFrame(() => requestAnimationFrame(() => $('#reading-passage').scrollIntoView({ behavior: 'instant', block: 'start' })));
-}));
-
 // Scroll supplies the playhead: no timer, blur, or automatic progression.
 (() => {
   const section = $('.brief-bridge');
@@ -525,7 +512,7 @@ $$('[data-readable]').forEach(link => link.addEventListener('click', event => {
  let lastMesh = '';
  function drawJoinery(progress) {
   const amounts = [0,1,2].map(index => reduced() ? 1 : clamp((progress - (.4 + index * .065)) / .06));
-  const heights = amounts.map(amount => 42 + 125 * (1 - amount * amount * (3 - 2 * amount)));
+  const heights = amounts.map(amount => 34 + 125 * (1 - amount * amount * (3 - 2 * amount)));
   const visible = amounts.map(amount => amount > 0);
   const faces = [];
   const project = ([x,y,z]) => `${(325+(x-y)*1.12).toFixed(2)},${(490+(x+y)*.54-z).toFixed(2)}`;
@@ -538,7 +525,7 @@ $$('[data-readable]').forEach(link => link.addEventListener('click', event => {
   cells.forEach(cell => {
    if (!visible[cell.part]) return;
    const opacity=amounts[cell.part]*amounts[cell.part]*(3-2*amounts[cell.part]);
-   const x=cell.x*60,y=cell.y*60,z=heights[cell.part],top=z+60;
+   const x=cell.x*60,y=cell.y*60,z=heights[cell.part],top=z+44;
    const corners=[[x,y,top],[x+60,y,top],[x+60,y+60,top],[x,y+60,top]];
    const neighbours=[[0,-1],[1,0],[0,1],[-1,0]].map(([dx,dy])=>byPosition.get(`${cell.x+dx},${cell.y+dy}`));
    const edges=[];
@@ -551,7 +538,7 @@ $$('[data-readable]').forEach(link => link.addEventListener('click', event => {
     const neighbour=byPosition.get(`${cell.x+dx},${cell.y+dy}`);
     let intervals=[[z,top]];
     if (neighbour && visible[neighbour.part]) {
-     const bottom=heights[neighbour.part],upper=bottom+60;
+     const bottom=heights[neighbour.part],upper=bottom+44;
      intervals=intervals.flatMap(([lo,hi])=> upper<=lo || bottom>=hi ? [[lo,hi]] : [[lo,Math.min(hi,bottom)],[Math.max(lo,upper),hi]].filter(([a,b])=>b-a>.01));
     }
     intervals.forEach(([lo,hi])=>{
@@ -604,7 +591,7 @@ $$('[data-readable]').forEach(link => link.addEventListener('click', event => {
   const boxes=[];
   for(let index=0;index<4;index++){
    const amount=reduced()?1:smooth((progress-.6-index*.032)/.035);
-   if(amount>0)boxes.push([index*45,0,110+(1-amount)*30,45,180,5]);
+   if(amount>0)boxes.push([index*45,0,86+(1-amount)*30,45,180,5]);
   }
   return boxes;
  }
@@ -612,22 +599,22 @@ $$('[data-readable]').forEach(link => link.addEventListener('click', event => {
  function drawReview(progress){
   const turn=smooth((progress-.8)/.135);
   const compact=smooth((progress-.94)/.055);
-  const angle=turn*Math.PI;
+  const angle=turn * (180 * Math.PI / 180);
   const cameraMix=smooth(turn/.15);
   const boxes=[];
   // Identical frames and their fitted divisions remain visible during the inspection.
-  for(const offset of [-64,-32,0]){
+  for(const offset of [-48,-24,0]){
    const base=7+offset*(1-compact);
    boxes.push([0,0,base,180,180,5]);
    boxes.push([0,0,base+5,4,180,14],[4,0,base+5,176,4,14],[176,4,base+5,4,176,14],[4,176,base+5,172,4,14]);
   }
   boxes.push([88,4,12,4,172,14],[92,88,12,84,4,14]);
-  boxes.push([0,0,42-compact*16,180,180,60]);
-  boxes.push(...trackBoxes(1).map(([x,y,z,w,d,h])=>[x,y,z-compact*24,w,d,h]));
-  const jointSeams=[[[60,0,102],[60,60,102],[120,60,102],[120,120,102],[60,120,102],[60,180,102]],[[120,120,102],[180,120,102]]];
+  boxes.push([0,0,34-compact*10,180,180,44]);
+  boxes.push(...trackBoxes(1).map(([x,y,z,w,d,h])=>[x,y,z-compact*12,w,d,h]));
+  const jointSeams=[[[60,0,78],[60,60,78],[120,60,78],[120,120,78],[60,120,78],[60,180,78]],[[120,120,78],[180,120,78]]];
   const inspection=projectScene(boxes,angle,jointSeams,cameraMix);
   // The outer form closes after the turn; internal seams quietly disappear.
-  const solid=projectScene([[0,0,7,180,180,110]],angle,[],cameraMix);
+  const solid=projectScene([[0,0,7,180,180,84]],angle,[],cameraMix);
 
   $('.review-object').innerHTML=`<g opacity="${1-compact}">${inspection}</g><g opacity="${compact}">${solid}</g>`;
  }
