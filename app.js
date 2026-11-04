@@ -484,7 +484,7 @@ $$('[data-readable]').forEach(link => link.addEventListener('click', event => {
   $('.structure-repeat').style.opacity = repeatEase;
   $('.structure-repeat').style.transform = `translateY(${32 - (1 - repeatEase) * 50}px)`;
   $('.tray-front').style.opacity = parts[0].style.opacity;
-  $('.anatomy-drawing .assembly-guide').style.opacity = '1';
+  $('.anatomy-drawing .assembly-guide').style.opacity = reduced() ? (selected === 4 ? 0 : 1) : 1 - smooth((progress - .8) / .025);
   drawJoinery(progress);
   drawPlanning(progress);
   const review = !reduced() && progress >= .8;
@@ -561,10 +561,14 @@ $$('[data-readable]').forEach(link => link.addEventListener('click', event => {
  }
  // Review uses the same world dimensions, reprojected as a real turn rather than a flat SVG spin.
  const smooth = value => { const t=clamp(value);return t*t*(3-2*t); };
- function projectScene(boxes,angle=0,seams=[]) {
+ function projectScene(boxes,angle=0,seams=[],cameraMix=0) {
   const cos=Math.cos(angle),sin=Math.sin(angle);
   const world=([x,y,z])=>[90+(x-90)*cos-(y-90)*sin,90+(x-90)*sin+(y-90)*cos,z];
-  const point=v=>{const[x,y,z]=world(v);return `${(325+(x-y)*1.12).toFixed(2)},${(490+(x+y)*.54-z).toFixed(2)}`;};
+  // Equal world-axis scales at the review camera: no independent vertical compression.
+  const isoScale=1.12*2/Math.sqrt(3);
+  const verticalPlan=.54+(isoScale*.5-.54)*cameraMix;
+  const verticalHeight=1+(isoScale-1)*cameraMix;
+  const point=v=>{const[x,y,z]=world(v);return `${(325+(x-y)*1.12).toFixed(2)},${(490+(x+y)*verticalPlan-z*verticalHeight).toFixed(2)}`;};
   const faces=[];
   function face(v,kind){const depth=v.reduce((sum,p)=>{const[x,y,z]=world(p);return sum+x+y+z*1000;},0)/v.length;faces.push({depth,html:`<polygon class="review-${kind}" points="${v.map(point).join(' ')}"/>`});}
   boxes.forEach(([x,y,z,w,d,h])=>{
@@ -596,7 +600,8 @@ $$('[data-readable]').forEach(link => link.addEventListener('click', event => {
  function drawReview(progress){
   const turn=smooth((progress-.8)/.135);
   const compact=smooth((progress-.94)/.055);
-  const angle=turn*Math.PI*2;
+  const angle=turn*Math.PI;
+  const cameraMix=smooth(turn/.15);
   const boxes=[];
   // Identical frames and their fitted divisions remain visible during the inspection.
   for(const offset of [-64,-32,0]){
@@ -608,9 +613,9 @@ $$('[data-readable]').forEach(link => link.addEventListener('click', event => {
   boxes.push([0,0,42-compact*16,180,180,60]);
   boxes.push(...trackBoxes(1).map(([x,y,z,w,d,h])=>[x,y,z-compact*24,w,d,h]));
   const jointSeams=[[[60,0,102],[60,60,102],[120,60,102],[120,120,102],[60,120,102],[60,180,102]],[[120,120,102],[180,120,102]]];
-  const inspection=projectScene(boxes,angle,jointSeams);
+  const inspection=projectScene(boxes,angle,jointSeams,cameraMix);
   // The outer form closes after the turn; internal seams quietly disappear.
-  const solid=projectScene([[0,0,7,180,180,110]],angle);
+  const solid=projectScene([[0,0,7,180,180,110]],angle,[],cameraMix);
 
   $('.review-object').innerHTML=`<g opacity="${1-compact}">${inspection}</g><g opacity="${compact}">${solid}</g>`;
  }
