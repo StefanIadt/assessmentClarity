@@ -400,11 +400,11 @@ $$('[data-readable]').forEach(link => link.addEventListener('click', event => {
   function paint() {
     queued = false;
     const box = section.getBoundingClientRect();
-    const progress = clamp((innerHeight * .85 - box.top) / (innerHeight * 1.1));
+    const progress = clamp((innerHeight * .65 - box.top) / (innerHeight * 1.5));
     groups.forEach((words, group) => words.forEach((word, index) => {
-      const start = group ? .38 + index / words.length * .12 : index / words.length * .12;
-      const amount = reduced() ? 1 : clamp((progress - start) / .36);
-      const ease = 1 - Math.pow(1 - amount, 3);
+      const start = group ? .5 + index / words.length * .1 : .08 + index / words.length * .12;
+      const amount = reduced() ? 1 : clamp((progress - start) / (group ? .35 : .5));
+      const ease = amount * amount * (3 - 2 * amount);
       word.style.opacity = ease;
       word.style.filter = `blur(${(1 - ease) * 5}px)`;
       word.style.transform = `translateY(${(1 - ease) * 24}px)`;

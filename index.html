@@ -183,15 +183,15 @@ main,header,footer{position:relative;z-index:1}main{background:transparent}.stor
 .story-still .ambiguity-flow,.story-still .barrier-flow,.story-still .complexity-flow{min-height:0}.story-still .ambiguity-panel,.story-still .barrier-panel,.story-still .complexity-section{position:relative;min-height:0}.story-still .reading-thread-ink{stroke-dashoffset:0!important}
 @media(prefers-reduced-motion:reduce){.ambiguity-flow,.barrier-flow,.complexity-flow{min-height:0}.ambiguity-flow .ambiguity-panel,.barrier-flow .barrier-panel,.complexity-flow .complexity-section{position:relative;min-height:0}.reading-thread-ink{stroke-dashoffset:0!important}}
 /* A short, reversible bridge from the problem to the anatomy of the brief. */
-.brief-bridge{position:relative;min-height:155svh}
+.brief-bridge{position:relative;min-height:185svh}
 .bridge-stage{position:sticky;overflow:clip;top:0;min-height:100svh;box-sizing:border-box;display:flex;flex-direction:column;justify-content:center;padding:60px var(--space);gap:42px}
-.bridge-stage h2{margin:0;max-width:15ch;font-size:clamp(46px,7.4vw,114px);font-weight:400;line-height:1.02;letter-spacing:-.065em}
+.bridge-stage h2{margin:0;max-width:20ch;font-size:clamp(46px,7.4vw,114px);font-weight:400;line-height:1.02;letter-spacing:-.065em}
 .bridge-stage p{margin:0;max-width:30ch;font-size:clamp(25px,3.1vw,46px);line-height:1.15;letter-spacing:-.04em}
 .bridge-word{display:inline-block;will-change:transform,filter,opacity}
 .bridge-word[data-action]{font-weight:500}
 .word-columns>.consistent-column:nth-child(n+4){opacity:var(--bridge-columns,1)}
 .story-still .brief-bridge{min-height:0}.story-still .bridge-stage{position:relative;min-height:70svh}.story-still .bridge-word{opacity:1!important;filter:none!important;transform:none!important}
-@media(max-width:760px){.brief-bridge{min-height:145svh}.bridge-stage{padding:42px 20px;gap:32px}.bridge-stage h2{font-size:clamp(44px,10vw,72px)}}
+@media(max-width:760px){.brief-bridge{min-height:180svh}.bridge-stage{padding:42px 20px;gap:32px}.bridge-stage h2{font-size:clamp(44px,10vw,72px)}}
 @media(prefers-reduced-motion:reduce){.brief-bridge{min-height:0}.bridge-stage{position:relative;min-height:70svh}.bridge-word{opacity:1!important;filter:none!important;transform:none!important}}
 
 /* A common left edge and message scale across the reading scenes. */
@@ -232,6 +232,9 @@ main,header,footer{position:relative;z-index:1}main{background:transparent}.stor
 .anatomy-nav button{transition:color .45s ease}
 .anatomy-part path,.anatomy-part polygon{transition:stroke .45s ease,stroke-width .45s ease,fill .45s ease}
 @media(prefers-reduced-motion:reduce){.anatomy-nav button,.anatomy-part path,.anatomy-part polygon{transition:none}}
+
+.bridge-stage h2,.bridge-stage p,.anatomy-copy h2,.anatomy-description,.barrier-heading h2,.complexity-conclusion{text-wrap:balance}
+.ambiguity-note,.barrier-description,.complexity-trigger{text-wrap:pretty}
 </style></head><body><a class="skip" href="#main">Skip to content</a>
 <header class="top"><a class="logo" href="#top">FINDING<br>CLARITY.</a><span class="mid">AN INTERACTIVE ASSESSMENT STUDY / IADT</span><button id="prefs-open" aria-expanded="false" aria-controls="prefs">Experience settings</button></header>
 <div id="prefs" class="prefs" hidden><h2>Experience settings</h2><label><input type="checkbox" id="reduce"> Reduce animation</label><label><input type="checkbox" id="contrast"> High contrast</label><label><input type="checkbox" id="large"> Larger text</label><button id="prefs-close">Close</button></div>
