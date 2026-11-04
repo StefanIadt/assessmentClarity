@@ -478,13 +478,13 @@ $$('[data-readable]').forEach(link => link.addEventListener('click', event => {
    part.style.transform = `translateY(${-separation - (1 - ease) * arrival}px)`;
    part.classList.toggle('is-active', index === step);
   });
-  $('.assembly-object').style.transform = `translateY(${-180 * (1 - clamp(progress / .4))}px)`;
+  $('.assembly-object').style.transform = 'none';
   const repeatAmount = reduced() ? 1 : clamp((progress - .025) / .075);
   const repeatEase = repeatAmount * repeatAmount * (3 - 2 * repeatAmount);
   $('.structure-repeat').style.opacity = repeatEase;
   $('.structure-repeat').style.transform = `translateY(${32 - (1 - repeatEase) * 50}px)`;
   $('.tray-front').style.opacity = parts[0].style.opacity;
-  $('.anatomy-drawing .assembly-guide').style.opacity = clamp((progress - .2) / .15);
+  $('.anatomy-drawing .assembly-guide').style.opacity = '1';
   drawJoinery(progress);
   drawPlanning(progress);
   const review = !reduced() && progress >= .8;
@@ -594,9 +594,9 @@ $$('[data-readable]').forEach(link => link.addEventListener('click', event => {
  }
  function drawPlanning(progress){$('.planning-track').innerHTML=projectScene(trackBoxes(progress));}
  function drawReview(progress){
-  const turn=smooth((progress-.8)/.12);
-  const compact=smooth((progress-.93)/.065);
-  const angle=turn*Math.PI/10;
+  const turn=smooth((progress-.8)/.135);
+  const compact=smooth((progress-.94)/.055);
+  const angle=turn*Math.PI*2;
   const boxes=[];
   // Identical frames and their fitted divisions remain visible during the inspection.
   for(const offset of [-64,-32,0]){
