@@ -28,16 +28,21 @@
  addEventListener('resize',()=>{if(dialog.open)positionClose();});
  function stopAnimations(){menuAnimations.forEach(animation=>animation.cancel());menuAnimations=[];}
  function animate(element,keyframes,options){if(!element)return;const animation=element.animate(keyframes,options);menuAnimations.push(animation);return animation;}
+ function finishClose(){
+  dialog.querySelector('.menu-sheet').style.visibility='hidden';
+  dialog.close();
+  stopAnimations();
+ }
  function closeMenu(){
   if(closing||!dialog.open)return;
-  if(motion.matches||controls.reduce.checked){stopAnimations();dialog.close();return;}
+  if(motion.matches||controls.reduce.checked){finishClose();return;}
   closing=true;stopAnimations();dialog.classList.add('is-closing');
   const animation=animate(dialog.querySelector('.menu-sheet'),[{transform:'translateX(0)'},{transform:'translateX(105%)'}],{duration:380,easing:'cubic-bezier(.4,0,.2,1)',fill:'forwards'});
-  if(animation)animation.finished.then(()=>{dialog.close();closing=false;stopAnimations();}).catch(()=>{});else{dialog.close();closing=false;}
+  if(animation)animation.finished.then(()=>{finishClose();closing=false;}).catch(()=>{});else{finishClose();closing=false;}
  }
  get('prefs-open').setAttribute('aria-expanded','false');
  get('prefs-open').addEventListener('click',()=>{
-  closing=false;stopAnimations();positionClose();dialog.classList.remove('is-closing');dialog.showModal();get('prefs-open').setAttribute('aria-expanded','true');
+  closing=false;stopAnimations();positionClose();dialog.classList.remove('is-closing');dialog.querySelector('.menu-sheet').style.visibility='';dialog.showModal();get('prefs-open').setAttribute('aria-expanded','true');
   if(motion.matches||controls.reduce.checked)return;
   animate(dialog.querySelector('.menu-sheet'),[{transform:'translateX(100%)'},{transform:'translateX(0)'}],{duration:380,easing:'cubic-bezier(.4,0,.2,1)',fill:'backwards'});
   dialog.querySelectorAll('.stagger-item').forEach((element,index)=>animate(element,[{opacity:0,transform:'translateY(12px)'},{opacity:1,transform:'translateY(0)'}],{duration:300,delay:70+index*25,easing:'cubic-bezier(.22,1,.36,1)',fill:'backwards'}));

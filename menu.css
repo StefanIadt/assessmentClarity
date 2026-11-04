@@ -41,3 +41,9 @@ body:not(.readable-page) main section{scroll-margin-top:96px}
 @media(max-width:760px){.back-to-top{right:16px;bottom:16px}}
 @media(prefers-reduced-motion:reduce){.back-to-top{transition:none}.back-to-top:hover{transform:none}}
 .story-still .back-to-top{transition:none}.story-still .back-to-top:hover{transform:none}
+
+/* Avoid showing two labels through the transparent end of the drawer slide. */
+body:has(#prefs[open]) #prefs-open{visibility:hidden}
+.staggered-menu #prefs-close{transition:opacity .16s ease}
+.staggered-menu.is-closing #prefs-close{opacity:0;pointer-events:none}
+@media(prefers-reduced-motion:reduce){.staggered-menu #prefs-close{transition:none}}

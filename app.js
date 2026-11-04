@@ -85,18 +85,18 @@ function updatePaperChoreography(travel, stage, still) {
       transform(140,stage.clientHeight-top+380,70,-18,-10,rotation+17)
     ][index];
     const flat = transform(0,0,0,0,0,rotation);
-    const contactShadow = 'drop-shadow(0px 1px 0.65px rgba(37,29,20,.32)) drop-shadow(2px 5px 3.5px rgba(37,29,20,.20))';
-    const raisedShadow = 'drop-shadow(5px 19px 13px rgba(37,29,20,.23)) drop-shadow(1px 2px 1px rgba(37,29,20,.10))';
+    const contactShadow = 'drop-shadow(0px .6px .8px rgba(37,29,20,.16))';
+    const raisedShadow = 'drop-shadow(1px 3px 3px rgba(37,29,20,.07))';
     const finalTransform = target === 'placed' ? flat : target === 'hidden' ? entry : exit;
     state.target = target; layer.style.transition = 'none'; layer.style.opacity = still ? 0 : 1;
     layer.style.transform = finalTransform; layer.style.filter = contactShadow;
     function project(pose) {
-      return pose.replace(/translate3d\(([-.\d]+)px,([-\.\d]+)px,([-\.\d]+)px\)/, (_,x,y,z) => `translate3d(${Number(x) + 5 + Number(z) * .4}px,${Number(y) + 7 + Number(z) * .62}px,0px)`).replace(/rotateX\([^)]*\)/,'rotateX(0deg)').replace(/rotateY\([^)]*\)/,'rotateY(0deg)');
+      return pose.replace(/translate3d\(([-.\d]+)px,([-\.\d]+)px,([-\.\d]+)px\)/, (_,x,y,z) => `translate3d(${Number(x) + 1 + Number(z) * .16}px,${Number(y) + 1.5 + Number(z) * .24}px,0px)`).replace(/rotateX\([^)]*\)/,'rotateX(0deg)').replace(/rotateY\([^)]*\)/,'rotateY(0deg)');
     }
     state.shadow.style.transformOrigin = getComputedStyle(layer).transformOrigin;
     state.shadow.style.transform = project(finalTransform);
-    state.shadow.style.filter = 'brightness(0) blur(3px)';
-    state.shadow.style.opacity = still ? 0 : .20;
+    state.shadow.style.filter = 'brightness(0) blur(2px)';
+    state.shadow.style.opacity = still ? 0 : .07;
     if (first || still || (previous !== 'placed' && target !== 'placed')) {
       layer.dataset.phase = target; state.animation = null; return;
     }
@@ -115,7 +115,7 @@ function updatePaperChoreography(travel, stage, still) {
     const shadowFrames = frames.map((frame, frameIndex) => {
       if (frameIndex === 0) return { ...currentShadow, offset: 0, easing: frame.easing };
       const raised = frame.filter === raisedShadow;
-      return { transform: project(frame.transform), filter: `brightness(0) blur(${raised ? 17 : 3}px)`, opacity: raised ? .19 : .20, offset: frame.offset, easing: frame.easing };
+      return { transform: project(frame.transform), filter: `brightness(0) blur(${raised ? 12 : 2}px)`, opacity: raised ? .09 : .07, offset: frame.offset, easing: frame.easing };
     });
     state.shadowAnimation = state.shadow.animate(shadowFrames,{ duration, fill:'none' });
     const animation = layer.animate(frames,{ duration, fill:'none' }); state.animation = animation;
