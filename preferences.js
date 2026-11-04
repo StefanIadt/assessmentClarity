@@ -20,6 +20,12 @@
   saved[name]=input.checked;try{localStorage.setItem('clarity-preferences',JSON.stringify(saved));}catch{}paint();if(name==='reduce'&&input.checked){stopAnimations();}if(name==='large')dispatchEvent(new Event('resize'));
  });
  let closing=false,menuAnimations=[];
+ function positionClose(){
+  const rect=get('prefs-open').getBoundingClientRect();
+  dialog.style.setProperty('--menu-close-x',`${rect.left}px`);dialog.style.setProperty('--menu-close-y',`${rect.top}px`);
+  dialog.style.setProperty('--menu-close-width',`${rect.width}px`);dialog.style.setProperty('--menu-close-height',`${rect.height}px`);
+ }
+ addEventListener('resize',()=>{if(dialog.open)positionClose();});
  function stopAnimations(){menuAnimations.forEach(animation=>animation.cancel());menuAnimations=[];}
  function animate(element,keyframes,options){if(!element)return;const animation=element.animate(keyframes,options);menuAnimations.push(animation);return animation;}
  function closeMenu(){
@@ -31,7 +37,7 @@
  }
  get('prefs-open').setAttribute('aria-expanded','false');
  get('prefs-open').addEventListener('click',()=>{
-  closing=false;stopAnimations();dialog.classList.remove('is-closing');dialog.showModal();get('prefs-open').setAttribute('aria-expanded','true');
+  closing=false;stopAnimations();positionClose();dialog.classList.remove('is-closing');dialog.showModal();get('prefs-open').setAttribute('aria-expanded','true');
   if(motion.matches||controls.reduce.checked)return;
   animate(dialog.querySelector('.menu-sheet'),[{transform:'translateX(100%)'},{transform:'translateX(0)'}],{duration:380,easing:'cubic-bezier(.4,0,.2,1)',fill:'backwards'});
   dialog.querySelectorAll('.stagger-item').forEach((element,index)=>animate(element,[{opacity:0,transform:'translateY(12px)'},{opacity:1,transform:'translateY(0)'}],{duration:300,delay:70+index*25,easing:'cubic-bezier(.22,1,.36,1)',fill:'backwards'}));

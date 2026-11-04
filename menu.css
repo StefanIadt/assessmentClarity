@@ -25,3 +25,12 @@ body:not(.readable-page) main section{scroll-margin-top:96px}
 @media(max-width:370px){.top{flex-wrap:nowrap;min-height:76px;gap:10px}.top .experience-controls{width:auto;justify-content:flex-end;gap:10px}body:not(.readable-page){padding-top:76px}}
 @media(prefers-reduced-motion:reduce){.staggered-menu[open]::backdrop,.staggered-menu.is-closing::backdrop{animation:none}.theme-icon{transition:none}}
 .story-still .staggered-menu[open]::backdrop,.story-still .staggered-menu.is-closing::backdrop{animation:none}
+
+.staggered-menu #prefs-close{position:fixed;left:var(--menu-close-x);top:var(--menu-close-y);width:var(--menu-close-width);height:var(--menu-close-height);min-height:44px;min-width:0;z-index:4;border:0;background:none;color:var(--foreground);padding:0;font:inherit;font-size:13px;letter-spacing:0;line-height:1;text-align:left;text-decoration:underline;text-underline-offset:5px}
+.menu-sheet{padding-top:88px}.menu-heading{margin-bottom:18px}
+.menu-reading-choice{margin:0 0 24px;max-width:48ch}.menu-reading-choice p{font-size:15px;line-height:1.5;letter-spacing:-.015em;margin:0 0 10px;color:var(--subtle)}.menu-reading-choice a{display:inline-flex;align-items:center;min-height:44px;font-size:18px;line-height:1.35;text-underline-offset:5px}.menu-reading-choice .menu-reading-note{font-size:13px;margin-top:3px}
+.chapter-menu a:hover{color:var(--foreground)}.chapter-menu a>span:last-child{display:inline-block;transition:transform .22s cubic-bezier(.22,1,.36,1)}.chapter-menu a:hover>span:last-child,.chapter-menu a:focus-visible>span:last-child{transform:translateX(7px)}
+.menu-reading-choice a{transition:transform .22s ease}.menu-reading-choice a:hover{transform:translateX(4px)}
+@media(max-width:760px){.menu-sheet{padding-top:86px}.menu-reading-choice{margin-bottom:18px}.menu-reading-choice a{font-size:17px}.menu-reading-choice p{font-size:14px}.chapter-menu a{font-size:31px}.staggered-menu #prefs-close{font-size:12px}}
+@media(prefers-reduced-motion:reduce){.chapter-menu a>span:last-child,.menu-reading-choice a{transition:none}.chapter-menu a:hover>span:last-child,.chapter-menu a:focus-visible>span:last-child,.menu-reading-choice a:hover{transform:none}}
+.story-still .chapter-menu a>span:last-child,.story-still .menu-reading-choice a{transition:none}.story-still .chapter-menu a:hover>span:last-child,.story-still .chapter-menu a:focus-visible>span:last-child,.story-still .menu-reading-choice a:hover{transform:none}
