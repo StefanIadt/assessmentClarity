@@ -626,3 +626,14 @@ scheduleFocus();
  addEventListener('scroll', schedule, { passive:true }); addEventListener('resize', schedule);
  $('#reduce').addEventListener('change', schedule); motionMedia.addEventListener('change', schedule); paint();
 })();
+
+// Overall reading position; informational only, never alters the scroll position.
+(() => {
+ const progress=document.getElementById('site-progress');if(!progress)return;
+ const bar=progress.querySelector('span');let queued=false,last=-1;
+ function paint(){queued=false;const range=document.documentElement.scrollHeight-innerHeight;const fraction=range>0?clamp(scrollY/range):0;bar.style.transform=`scaleX(${fraction})`;const percent=Math.round(fraction*100);if(percent!==last){progress.setAttribute('aria-valuenow',String(percent));last=percent;}}
+ function schedule(){if(!queued){queued=true;requestAnimationFrame(paint);}}
+ addEventListener('scroll',schedule,{passive:true});addEventListener('resize',schedule);
+ document.getElementById('reduce').addEventListener('change',schedule);
+ new ResizeObserver(schedule).observe(document.querySelector('main'));paint();
+})();
