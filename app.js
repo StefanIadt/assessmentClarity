@@ -508,14 +508,15 @@ $$('[data-readable]').forEach(link => link.addEventListener('click', event => {
   const visible = amounts.map(amount => amount > 0);
   const faces = [];
   const project = ([x,y,z]) => `${(325+(x-y)*1.12).toFixed(2)},${(490+(x+y)*.54-z).toFixed(2)}`;
-  function addFace(vertices,kind,edges) {
+  function addFace(vertices,kind,edges,opacity) {
    const depth = vertices.reduce((sum,[x,y,z]) => sum+x+y+z*1.08,0)/vertices.length;
    const fill = `<polygon class="mesh-${kind}" points="${vertices.map(project).join(' ')}"/>`;
    const lines = edges.map(([a,b]) => `M${project(a)}L${project(b)}`).join('');
-   faces.push({depth,html:fill+(lines ? `<path class="mesh-edge" d="${lines}"/>` : '')});
+   faces.push({depth,html:`<g opacity="${opacity.toFixed(4)}">`+fill+(lines ? `<path class="mesh-edge" d="${lines}"/>` : '')+'</g>'});
   }
   cells.forEach(cell => {
    if (!visible[cell.part]) return;
+   const opacity=amounts[cell.part]*amounts[cell.part]*(3-2*amounts[cell.part]);
    const x=cell.x*60,y=cell.y*60,z=heights[cell.part],top=z+60;
    const corners=[[x,y,top],[x+60,y,top],[x+60,y+60,top],[x,y+60,top]];
    const neighbours=[[0,-1],[1,0],[0,1],[-1,0]].map(([dx,dy])=>byPosition.get(`${cell.x+dx},${cell.y+dy}`));
@@ -523,7 +524,7 @@ $$('[data-readable]').forEach(link => link.addEventListener('click', event => {
    neighbours.forEach((neighbour,index)=>{
     if (!neighbour || !visible[neighbour.part] || neighbour.part !== cell.part) edges.push([corners[index],corners[(index+1)%4]]);
    });
-   addFace(corners,'top',edges);
+   addFace(corners,'top',edges,opacity);
    // Only camera-facing sides exist in the drawing. Subtract any occupied neighbour volume.
    for (const [dx,dy,kind] of [[1,0,'side-x'],[0,1,'side-y']]) {
     const neighbour=byPosition.get(`${cell.x+dx},${cell.y+dy}`);
@@ -542,7 +543,7 @@ $$('[data-readable]').forEach(link => link.addEventListener('click', event => {
      const after=byPosition.get(`${cell.x+(dx?0:1)},${cell.y+(dx?1:0)}`);
      if (!before || before.part!==cell.part) edges.push([a,d]);
      if (!after || after.part!==cell.part) edges.push([b,c]);
-     addFace([a,b,c,d],kind,edges);
+     addFace([a,b,c,d],kind,edges,opacity);
     });
    }
   });
