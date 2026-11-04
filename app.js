@@ -150,10 +150,7 @@ function paintScroll() {
   takeaway.style.opacity = clearing; takeaway.style.transform = `translateY(${(1 - clearing) * 15}px)`;
 
   $$('.story-brief h2 span').forEach((line, index) => { const amount = still ? 1 : clamp((travel - .2 - index * .025) / .16); line.style.opacity = amount; line.style.transform = `translateY(${(1 - amount) * 28}px)`; line.style.clipPath = 'none'; });
-  const ambiguityBounds = $('.ambiguity-flow').getBoundingClientRect();
-  const ambiguityPresence = clamp((innerHeight * .7 - ambiguityBounds.top) / (innerHeight * .35)) * clamp(ambiguityBounds.bottom / (innerHeight * .65));
-  const opacity = still ? .07 : Math.max(.36 - clamp(travel / .85) * .285, .075 + .285 * ambiguityPresence);
-  background.style.setProperty('opacity', document.body.classList.contains('contrast') ? .035 : opacity);
+  background.style.setProperty('opacity', document.body.classList.contains('contrast') ? .035 : .36);
   $$('.consistent-column').forEach((column, index) => { column.style.transform = still ? 'none' : `translateY(${Math.max(-240, Math.min(240, scrollY * (index % 2 ? .018 + index * .004 : -.015 - index * .003)))}px)`; });
   const rect = $('.ambiguity-flow').getBoundingClientRect();
   const reveal = still ? 1 : clamp((innerHeight * .8 - rect.top) / (innerHeight * .42));
@@ -409,7 +406,7 @@ $$('[data-readable]').forEach(link => link.addEventListener('click', event => {
       word.style.filter = `blur(${(1 - ease) * 5}px)`;
       word.style.transform = `translateY(${(1 - ease) * 24}px)`;
     }));
-    background.style.setProperty('--bridge-columns', reduced() ? 1 : 1 - clamp((progress - .72) / .28));
+    background.style.setProperty('--bridge-columns', '1');
   }
   function schedule() { if (!queued) { queued = true; requestAnimationFrame(paint); } }
   addEventListener('scroll', schedule, { passive: true }); addEventListener('resize', schedule);
@@ -480,7 +477,7 @@ $$('[data-readable]').forEach(link => link.addEventListener('click', event => {
   });
   $$('[data-joint]').forEach((joint, index) => { joint.style.transform = `translateY(${-(index ? 140 : 55) * (1 - clamp((progress - .8) / .2))}px)`; });
   // The illustration occupies the cleared half of the same continuous background.
-  if (rect.top < innerHeight) background.style.setProperty('--bridge-columns', reduced() ? 1 : 1 - clamp((innerHeight - rect.top) / (innerHeight * .7)));
+  background.style.setProperty('--bridge-columns', '1');
  }
  function schedule() { if (!queued) { queued = true; requestAnimationFrame(paint); } }
  buttons.forEach((button, index) => button.addEventListener('click', () => {
@@ -493,20 +490,3 @@ $$('[data-readable]').forEach(link => link.addEventListener('click', event => {
  $('#reduce').addEventListener('change', schedule); motionMedia.addEventListener('change', schedule); paint();
 })();
 
-// Quiet the background during movement, then let it return as the reader pauses.
-(() => {
- let idleTimer;
- function settle() {
-  background.classList.remove('is-scrolling');
-  background.style.setProperty('--scroll-presence', '1');
- }
- addEventListener('scroll', () => {
-  clearTimeout(idleTimer);
-  if (reduced()) { settle(); return; }
-  background.classList.add('is-scrolling');
-  background.style.setProperty('--scroll-presence', '.18');
-  idleTimer = setTimeout(settle, 200);
- }, { passive:true });
- $('#reduce').addEventListener('change', () => { clearTimeout(idleTimer); settle(); });
- motionMedia.addEventListener('change', () => { clearTimeout(idleTimer); settle(); });
-})();
