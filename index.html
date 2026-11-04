@@ -182,6 +182,17 @@ main,header,footer{position:relative;z-index:1}main{background:transparent}.stor
 @media(max-width:760px){.ambiguity-flow,.barrier-flow,.complexity-flow{min-height:115svh}.ambiguity-flow .ambiguity-panel,.barrier-flow .barrier-panel,.complexity-flow .complexity-section{padding:40px 20px}.reading-thread{left:5px;width:11px}.reading-thread-ink{stroke-width:1.5;opacity:.45}.barrier-panel .reading-art{margin:35px 0 26px}}
 .story-still .ambiguity-flow,.story-still .barrier-flow,.story-still .complexity-flow{min-height:0}.story-still .ambiguity-panel,.story-still .barrier-panel,.story-still .complexity-section{position:relative;min-height:0}.story-still .reading-thread-ink{stroke-dashoffset:0!important}
 @media(prefers-reduced-motion:reduce){.ambiguity-flow,.barrier-flow,.complexity-flow{min-height:0}.ambiguity-flow .ambiguity-panel,.barrier-flow .barrier-panel,.complexity-flow .complexity-section{position:relative;min-height:0}.reading-thread-ink{stroke-dashoffset:0!important}}
+/* A short, reversible bridge from the problem to the anatomy of the brief. */
+.brief-bridge{position:relative;min-height:155svh}
+.bridge-stage{position:sticky;top:0;min-height:100svh;box-sizing:border-box;display:flex;flex-direction:column;justify-content:center;padding:60px var(--space);gap:42px}
+.bridge-stage h2{margin:0;max-width:15ch;font-size:clamp(46px,7.4vw,114px);font-weight:400;line-height:1.02;letter-spacing:-.065em}
+.bridge-stage p{margin:0;max-width:30ch;font-size:clamp(25px,3.1vw,46px);line-height:1.15;letter-spacing:-.04em}
+.bridge-word{display:inline-block;will-change:transform,opacity}
+.bridge-word[data-action]{font-weight:500}
+.word-columns>.consistent-column:nth-child(n+4){opacity:var(--bridge-columns,1)}
+.story-still .brief-bridge{min-height:0}.story-still .bridge-stage{position:relative;min-height:70svh}.story-still .bridge-word{opacity:1!important;transform:none!important}
+@media(max-width:760px){.brief-bridge{min-height:145svh}.bridge-stage{padding:42px 20px;gap:32px}.bridge-stage h2{font-size:clamp(44px,10vw,72px)}}
+@media(prefers-reduced-motion:reduce){.brief-bridge{min-height:0}.bridge-stage{position:relative;min-height:70svh}.bridge-word{opacity:1!important;transform:none!important}}
 </style></head><body><a class="skip" href="#main">Skip to content</a>
 <header class="top"><a class="logo" href="#top">FINDING<br>CLARITY.</a><span class="mid">AN INTERACTIVE ASSESSMENT STUDY / IADT</span><button id="prefs-open" aria-expanded="false" aria-controls="prefs">Experience settings</button></header>
 <div id="prefs" class="prefs" hidden><h2>Experience settings</h2><label><input type="checkbox" id="reduce"> Reduce animation</label><label><input type="checkbox" id="contrast"> High contrast</label><label><input type="checkbox" id="large"> Larger text</label><button id="prefs-close">Close</button></div>
@@ -224,6 +235,10 @@ main,header,footer{position:relative;z-index:1}main{background:transparent}.stor
 <span id="complexity-help" class="visually-hidden">Hover, focus or tap to let the words fall. Use Restore clarity to put them back.</span>
 <button type="button" class="clarity-toggle" aria-controls="complexity-conclusion" aria-expanded="false">Let words fall ↓</button>
 <p id="complexity-conclusion" class="complexity-conclusion" aria-live="polite" hidden>Assessment design should reduce unnecessary cognitive load, not add to it.</p>
+</div></section>
+<section class="brief-bridge" aria-labelledby="bridge-title"><div class="bridge-stage">
+<h2 id="bridge-title">What does that mean for an assessment brief?</h2>
+<p>How information is grouped, connected and revealed matters.</p>
 </div></section>
 </main>
 <script src="assets/matter.min.js"></script>

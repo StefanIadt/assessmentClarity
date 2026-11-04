@@ -380,3 +380,42 @@ $$('[data-readable]').forEach(link => link.addEventListener('click', event => {
   event.preventDefault(); $('#reduce').checked = true; $('#reduce').dispatchEvent(new Event('change'));
   requestAnimationFrame(() => requestAnimationFrame(() => $('#reading-passage').scrollIntoView({ behavior: 'instant', block: 'start' })));
 }));
+
+// Scroll supplies the playhead: no timer, blur, or automatic progression.
+(() => {
+  const section = $('.brief-bridge');
+  const groups = [...section.querySelectorAll('h2, p')].map(element => {
+    const text = element.textContent;
+    element.setAttribute('aria-label', text);
+    element.textContent = '';
+    return text.split(/\s+/).map((text, index) => {
+      if (index) element.append(' ');
+      const word = document.createElement('span');
+      word.className = 'bridge-word'; word.textContent = text; word.setAttribute('aria-hidden', 'true');
+      if (['grouped,', 'connected', 'revealed'].includes(text)) word.dataset.action = text.replace(',', '');
+      element.append(word); return word;
+    });
+  });
+  let queued = false;
+  function paint() {
+    queued = false;
+    const box = section.getBoundingClientRect();
+    const progress = clamp((innerHeight * .85 - box.top) / (innerHeight * 1.05));
+    groups.forEach((words, group) => words.forEach((word, index) => {
+      const start = group ? .42 + index / words.length * .28 : index / words.length * .3;
+      const amount = reduced() ? 1 : clamp((progress - start) / .17);
+      const ease = 1 - Math.pow(1 - amount, 3);
+      word.style.opacity = ease;
+      let x = 0, y = (1 - ease) * 20;
+      if (word.dataset.action === 'grouped') x = (1 - ease) * -24;
+      if (word.dataset.action === 'connected') x = (1 - ease) * 18;
+      if (word.dataset.action === 'revealed') y = (1 - ease) * 32;
+      word.style.transform = `translate(${x}px,${y}px)`;
+    }));
+    background.style.setProperty('--bridge-columns', reduced() ? 1 : 1 - clamp((progress - .72) / .28));
+  }
+  function schedule() { if (!queued) { queued = true; requestAnimationFrame(paint); } }
+  addEventListener('scroll', schedule, { passive: true }); addEventListener('resize', schedule);
+  $('#reduce').addEventListener('change', schedule); motionMedia.addEventListener('change', schedule);
+  paint();
+})();
