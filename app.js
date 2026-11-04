@@ -421,7 +421,7 @@ $$('[data-readable]').forEach(link => link.addEventListener('click', event => {
  const section = $('#anatomy'), parts = $$('.anatomy-part'), buttons = $$('[data-chapter]');
  const title = $('#anatomy-title'), description = $('.anatomy-description'), evidence = $('.anatomy-evidence'), hint = $('.anatomy-hint');
  const chapters = [
- ['Structure.', 'Related information has a recognisable place within a consistent whole.', 'W3C', 'https://www.w3.org/WAI/WCAG2/supplemental/patterns/o2p03-page-structure/'],
+ ['Structure.', 'The assessment brief uses consistent headings and a clear order, so students know where to find the task, submission requirements and assessment criteria.', 'W3C', 'https://www.w3.org/WAI/WCAG2/supplemental/patterns/o2p03-page-structure/'],
  ['Manageable detail.', 'Explore one group at a time. Its detail opens without losing its place in the whole.', 'CAST UDL', 'https://udlguidelines.cast.org/action-expression/strategy-development/organize-information/'],
  ['Alignment.', 'Learning outcomes, the task and assessment criteria connect to form a coherent whole.', 'Project design principles', '#anatomy'],
  ['Planning.', 'Visible stages and milestones help turn a final deadline into a process students can plan.', 'CAST UDL', 'https://udlguidelines.cast.org/action-expression/strategy-development/'],
@@ -471,7 +471,7 @@ $$('[data-readable]').forEach(link => link.addEventListener('click', event => {
   parts.forEach((part, index) => {
    const amount = reduced() ? 1 : clamp((progress * 5 - index + .75) / .75);
    const ease = 1 - Math.pow(1 - amount, 3);
-   part.style.opacity = .12 + .88 * ease;
+   part.style.opacity = index === 1 ? ease : .12 + .88 * ease;
    const close = clamp((progress - .8) / .2);
    const separation = [0, 20, 50, 190, 250][index] * (1 - close);
    part.style.transform = `translateY(${-separation - (1 - ease) * (80 + index * 24)}px)`;
