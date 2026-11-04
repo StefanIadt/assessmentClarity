@@ -283,6 +283,10 @@ main,header,footer{position:relative;z-index:1}main{background:transparent}.stor
 @media(max-width:760px){.complexity-flow{margin-top:100px}.complexity-section .complexity-trigger,.complexity-section:has(.complexity-conclusion:not([hidden])) .complexity-trigger{padding-bottom:160px}}
 @media(prefers-reduced-motion:reduce){.complexity-signal{animation:none!important}}
 .story-still .complexity-signal{animation:none!important}
+
+.reveal-message,.complexity-section .complexity-trigger{font-size:clamp(28px,4vw,61px);font-weight:400;line-height:1.12;letter-spacing:-.05em}
+.complexity-flow{margin-top:clamp(180px,42svh,600px)}
+@media(max-width:760px){.reveal-message,.complexity-section .complexity-trigger{font-size:clamp(28px,6.8vw,38px);font-weight:400}.complexity-flow{margin-top:220px}}
 </style></head><body><a class="skip" href="#main">Skip to content</a>
 <header class="top"><a class="logo" href="#top">FINDING<br>CLARITY.</a><span class="mid">AN INTERACTIVE ASSESSMENT STUDY / IADT</span><button id="prefs-open" aria-expanded="false" aria-controls="prefs">Experience settings</button></header>
 <div id="prefs" class="prefs" hidden><h2>Experience settings</h2><label><input type="checkbox" id="reduce"> Reduce animation</label><label><input type="checkbox" id="contrast"> High contrast</label><label><input type="checkbox" id="large"> Larger text</label><button id="prefs-close">Close</button></div>
