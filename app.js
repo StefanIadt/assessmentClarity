@@ -471,10 +471,10 @@ $$('[data-readable]').forEach(link => link.addEventListener('click', event => {
   parts.forEach((part, index) => {
    const amount = reduced() ? 1 : index === 0 ? clamp((progress - .1) / .085) : clamp((progress - index * .2) / .13);
    const ease = 1 - Math.pow(1 - amount, 3);
-   part.style.opacity = ease;
+   part.style.opacity = index === 2 ? 1 : ease;
    const close = clamp((progress - .8) / .2);
-   const separation = [0, 0, 50, 190, 250][index] * (1 - close);
-   const arrival = index === 1 ? 42 : (index === 0 ? 0 : 80 + index * 24);
+   const separation = [0, 0, 0, 190, 250][index] * (1 - close);
+   const arrival = index === 1 ? 42 : (index === 0 || index === 2 ? 0 : 80 + index * 24);
    part.style.transform = `translateY(${-separation - (1 - ease) * arrival}px)`;
    part.classList.toggle('is-active', index === step);
   });
@@ -485,7 +485,16 @@ $$('[data-readable]').forEach(link => link.addEventListener('click', event => {
   $('.structure-repeat').style.transform = `translateY(${32 - (1 - repeatEase) * 50}px)`;
   $('.tray-front').style.opacity = parts[0].style.opacity;
   $('.anatomy-drawing .assembly-guide').style.opacity = clamp((progress - .2) / .15);
-  $$('[data-joint]').forEach((joint, index) => { joint.style.transform = `translateY(${-(index ? 140 : 55) * (1 - clamp((progress - .8) / .2))}px)`; });
+  $$('[data-joint]').forEach((joint, index) => {
+   const amount = reduced() ? 1 : clamp((progress - (.4 + index * .065)) / .06);
+   const ease = amount * amount * (3 - 2 * amount);
+   const offsets = [[-110,-65],[0,-130],[110,-35]];
+   joint.style.opacity = amount > 0 ? 1 : 0;
+   joint.style.transform = `translate(${offsets[index][0] * (1 - ease)}px,${offsets[index][1] * (1 - ease)}px)`;
+  });
+  const united = reduced() || progress >= .59;
+  $('.united-block').setAttribute('visibility', united ? 'visible' : 'hidden');
+  $$('[data-joint] polygon').forEach(face => { face.style.visibility = united ? 'hidden' : ''; });
   // The illustration occupies the cleared half of the same continuous background.
   background.style.setProperty('--bridge-columns', reduced() ? 1 : 1 - clamp((innerHeight - rect.top) / (innerHeight * .7)));
  }
