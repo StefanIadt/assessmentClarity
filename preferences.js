@@ -12,7 +12,7 @@
   document.body.classList.toggle('light',!controls.dark.checked);
   for(const name of ['dark','contrast','large'])document.body.classList.toggle(name,controls[name].checked);
   document.body.classList.toggle('story-still',controls.reduce.checked||motion.matches);
-  const theme=get('theme-toggle');if(theme){theme.textContent=controls.dark.checked?'Light mode':'Dark mode';theme.setAttribute('aria-pressed',String(controls.dark.checked));}
+  const theme=get('theme-toggle');if(theme){theme.setAttribute('aria-label',controls.dark.checked?'Switch to light mode':'Switch to dark mode');theme.setAttribute('title',controls.dark.checked?'Switch to light mode':'Switch to dark mode');theme.setAttribute('aria-pressed',String(controls.dark.checked));}
   const paused=controls.reduce.checked||motion.matches,button=get('motion-toggle');
   if(button){button.textContent=paused?'Motion paused':'Pause motion';button.setAttribute('aria-pressed',String(paused));}
  }
@@ -25,20 +25,20 @@
  function closeMenu(){
   if(closing||!dialog.open)return;
   if(motion.matches||controls.reduce.checked){stopAnimations();dialog.close();return;}
-  closing=true;stopAnimations();
-  const animation=animate(dialog.querySelector('.menu-sheet'),[{transform:'translateX(0)'},{transform:'translateX(105%)'}],{duration:260,easing:'cubic-bezier(.55,0,1,.45)',fill:'forwards'});
+  closing=true;stopAnimations();dialog.classList.add('is-closing');
+  const animation=animate(dialog.querySelector('.menu-sheet'),[{transform:'translateX(0)'},{transform:'translateX(105%)'}],{duration:380,easing:'cubic-bezier(.4,0,.2,1)',fill:'forwards'});
   if(animation)animation.finished.then(()=>{dialog.close();closing=false;stopAnimations();}).catch(()=>{});else{dialog.close();closing=false;}
  }
  get('prefs-open').setAttribute('aria-expanded','false');
  get('prefs-open').addEventListener('click',()=>{
-  closing=false;stopAnimations();dialog.showModal();get('prefs-open').setAttribute('aria-expanded','true');
+  closing=false;stopAnimations();dialog.classList.remove('is-closing');dialog.showModal();get('prefs-open').setAttribute('aria-expanded','true');
   if(motion.matches||controls.reduce.checked)return;
-  for(const[element,index]of [...dialog.querySelectorAll('.menu-layer'),dialog.querySelector('.menu-sheet')].map((element,index)=>[element,index]))animate(element,[{transform:'translateX(105%)'},{transform:'translateX(0)'}],{duration:480,delay:index*65,easing:'cubic-bezier(.22,1,.36,1)',fill:'backwards'});
-  dialog.querySelectorAll('.stagger-item').forEach((element,index)=>animate(element,[{opacity:0,transform:'translateY(22px)'},{opacity:1,transform:'translateY(0)'}],{duration:390,delay:180+index*34,easing:'cubic-bezier(.22,1,.36,1)',fill:'backwards'}));
+  animate(dialog.querySelector('.menu-sheet'),[{transform:'translateX(100%)'},{transform:'translateX(0)'}],{duration:380,easing:'cubic-bezier(.4,0,.2,1)',fill:'backwards'});
+  dialog.querySelectorAll('.stagger-item').forEach((element,index)=>animate(element,[{opacity:0,transform:'translateY(12px)'},{opacity:1,transform:'translateY(0)'}],{duration:300,delay:70+index*25,easing:'cubic-bezier(.22,1,.36,1)',fill:'backwards'}));
  });
  get('prefs-close').addEventListener('click',closeMenu);
  dialog.addEventListener('cancel',event=>{event.preventDefault();closeMenu();});
- dialog.addEventListener('close',()=>{get('prefs-open').setAttribute('aria-expanded','false');closing=false;stopAnimations();});
+ dialog.addEventListener('close',()=>{get('prefs-open').setAttribute('aria-expanded','false');closing=false;dialog.classList.remove('is-closing');stopAnimations();});
  dialog.querySelectorAll('a').forEach(link=>link.addEventListener('click',()=>{stopAnimations();dialog.close();}));
  dialog.addEventListener('click',event=>{if(event.target===dialog){const r=dialog.getBoundingClientRect();if(event.clientX<r.left||event.clientX>r.right||event.clientY<r.top||event.clientY>r.bottom)closeMenu();}});
  get('theme-toggle')?.addEventListener('click',()=>{controls.dark.checked=!controls.dark.checked;controls.dark.dispatchEvent(new Event('change'));});

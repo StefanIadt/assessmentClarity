@@ -13,3 +13,15 @@
 @media(max-width:370px){.top{flex-wrap:wrap;min-height:104px;gap:0;padding-top:8px;padding-bottom:8px}.top .experience-controls{width:100%;justify-content:space-between}.top .logo{font-size:12px}body:not(.readable-page){padding-top:104px}.chapter-menu a{font-size:29px}}
 @media(prefers-reduced-motion:reduce){.menu-sheet,.menu-layer,.stagger-item{animation:none!important;transition:none!important}}
 body:not(.readable-page) main section{scroll-margin-top:96px}
+
+.top .experience-controls .theme-toggle,.theme-toggle{display:inline-flex;align-items:center;justify-content:center;width:44px;height:44px;min-width:44px;padding:0;border:0;background:none;color:inherit;text-decoration:none}
+.theme-icon{display:block;width:21px;height:21px;border:1px solid currentColor;border-radius:50%;background:linear-gradient(90deg,currentColor 50%,transparent 50%);transition:transform .25s ease}
+.theme-toggle[aria-pressed="true"] .theme-icon{transform:rotate(180deg)}
+.staggered-menu[open]::backdrop{background:#0004;animation:menu-backdrop-in .38s ease both}
+.staggered-menu.is-closing::backdrop{animation:menu-backdrop-out .38s ease both}
+@keyframes menu-backdrop-in{from{background:#0000}to{background:#0004}}
+@keyframes menu-backdrop-out{from{background:#0004}to{background:#0000}}
+@media(max-width:760px){.experience-controls{gap:14px;font-size:12px}}
+@media(max-width:370px){.top{flex-wrap:nowrap;min-height:76px;gap:10px}.top .experience-controls{width:auto;justify-content:flex-end;gap:10px}body:not(.readable-page){padding-top:76px}}
+@media(prefers-reduced-motion:reduce){.staggered-menu[open]::backdrop,.staggered-menu.is-closing::backdrop{animation:none}.theme-icon{transition:none}}
+.story-still .staggered-menu[open]::backdrop,.story-still .staggered-menu.is-closing::backdrop{animation:none}
