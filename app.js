@@ -151,7 +151,7 @@ function paintScroll() {
 
   $$('.story-brief h2 span').forEach((line, index) => { const amount = still ? 1 : clamp((travel - .2 - index * .025) / .16); line.style.opacity = amount; line.style.transform = `translateY(${(1 - amount) * 28}px)`; line.style.clipPath = 'none'; });
   const inclusionPresence = clamp((travel - .18) / .22) * clamp(story.getBoundingClientRect().bottom / (innerHeight * .7));
-  const columnOpacity = .36 - .325 * inclusionPresence;
+  const columnOpacity = .36 - .285 * inclusionPresence - .12 * clamp((travel - .05) / .15) * (1 - inclusionPresence);
   background.style.setProperty('opacity', document.body.classList.contains('contrast') ? .035 : columnOpacity);
   $$('.consistent-column').forEach((column, index) => { column.style.transform = still ? 'none' : `translateY(${Math.max(-240, Math.min(240, scrollY * (index % 2 ? .018 + index * .004 : -.015 - index * .003)))}px)`; });
   const rect = $('.ambiguity-flow').getBoundingClientRect();
