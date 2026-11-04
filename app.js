@@ -492,3 +492,21 @@ $$('[data-readable]').forEach(link => link.addEventListener('click', event => {
  addEventListener('scroll', schedule, { passive:true }); addEventListener('resize', schedule);
  $('#reduce').addEventListener('change', schedule); motionMedia.addEventListener('change', schedule); paint();
 })();
+
+// Quiet the background during movement, then let it return as the reader pauses.
+(() => {
+ let idleTimer;
+ function settle() {
+  background.classList.remove('is-scrolling');
+  background.style.setProperty('--scroll-presence', '1');
+ }
+ addEventListener('scroll', () => {
+  clearTimeout(idleTimer);
+  if (reduced()) { settle(); return; }
+  background.classList.add('is-scrolling');
+  background.style.setProperty('--scroll-presence', '.18');
+  idleTimer = setTimeout(settle, 200);
+ }, { passive:true });
+ $('#reduce').addEventListener('change', () => { clearTimeout(idleTimer); settle(); });
+ motionMedia.addEventListener('change', () => { clearTimeout(idleTimer); settle(); });
+})();
