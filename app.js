@@ -588,7 +588,7 @@ $$('[data-readable]').forEach(link => link.addEventListener('click', event => {
   const boxes=[];
   for(let index=0;index<4;index++){
    const amount=reduced()?1:smooth((progress-.6-index*.032)/.035);
-   if(amount>0)boxes.push([index*45,26,110+(1-amount)*30,42,128,5]);
+   if(amount>0)boxes.push([index*45,0,110+(1-amount)*30,45,180,5]);
   }
   return boxes;
  }
@@ -596,7 +596,7 @@ $$('[data-readable]').forEach(link => link.addEventListener('click', event => {
  function drawReview(progress){
   const turn=smooth((progress-.8)/.12);
   const compact=smooth((progress-.93)/.065);
-  const angle=turn*Math.PI/2;
+  const angle=turn*Math.PI/10;
   const boxes=[];
   // Identical frames and their fitted divisions remain visible during the inspection.
   for(const offset of [-64,-32,0]){
