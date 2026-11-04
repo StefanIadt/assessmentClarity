@@ -400,7 +400,7 @@ $$('[data-readable]').forEach(link => link.addEventListener('click', event => {
   function paint() {
     queued = false;
     const box = section.getBoundingClientRect();
-    const progress = clamp((innerHeight * .15 - box.top) / (innerHeight * .65));
+    const progress = clamp((innerHeight * .85 - box.top) / (innerHeight * 1.1));
     groups.forEach((words, group) => words.forEach((word, index) => {
       const start = group ? .38 + index / words.length * .12 : index / words.length * .12;
       const amount = reduced() ? 1 : clamp((progress - start) / .36);
