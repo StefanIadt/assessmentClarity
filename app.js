@@ -425,7 +425,7 @@ $$('[data-readable]').forEach(link => link.addEventListener('click', event => {
  ['Manageable detail.', 'Explore one group at a time. Its detail opens without losing its place in the whole.', 'CAST UDL', 'https://udlguidelines.cast.org/action-expression/strategy-development/organize-information/'],
  ['Alignment.', 'Learning outcomes, the task and assessment criteria connect to form a coherent whole.', 'Project design principles', '#anatomy'],
  ['Planning.', 'Visible stages and milestones help turn a final deadline into a process students can plan.', 'CAST UDL', 'https://udlguidelines.cast.org/action-expression/strategy-development/'],
- ['Checking and reflection.', 'Return to the requirements, check progress and identify what needs attention.', 'CAST UDL', 'https://udlguidelines.cast.org/action-expression/strategy-development/monitor-progress/']
+ ['Checking and reflection.', 'Review the work against the assessment requirements. Identify what is complete and what needs another look.', 'CAST UDL', 'https://udlguidelines.cast.org/action-expression/strategy-development/monitor-progress/']
  ];
  let current = -1, queued = false, selected = 0, open = false;
  const chapterText = document.createElement('div'); chapterText.className = 'anatomy-chapter-text';
@@ -466,15 +466,15 @@ $$('[data-readable]').forEach(link => link.addEventListener('click', event => {
    });
    current = step;
    buttons.forEach((button, index) => { if (index === step) button.setAttribute('aria-current', 'step'); else button.removeAttribute('aria-current'); });
-   hint.textContent = step === 1 ? 'Select the compartment to open or close its detail.' : 'Scroll to assemble the parts.';
+   hint.textContent = step === 1 ? 'Select the compartment to open or close its detail.' : step === 4 ? 'Scroll to look again, then bring the whole together.' : 'Scroll to assemble the parts.';
   }
   parts.forEach((part, index) => {
    const amount = reduced() ? 1 : index === 0 ? clamp((progress - .1) / .085) : clamp((progress - index * .2) / .13);
    const ease = 1 - Math.pow(1 - amount, 3);
    part.style.opacity = index === 2 ? 1 : ease;
    const close = clamp((progress - .8) / .2);
-   const separation = [0, 0, 0, 190, 250][index] * (1 - close);
-   const arrival = index === 1 ? 42 : (index === 0 || index === 2 ? 0 : 80 + index * 24);
+   const separation = 0;
+   const arrival = index === 1 ? 42 : (index === 0 || index === 2 || index === 3 ? 0 : 80 + index * 24);
    part.style.transform = `translateY(${-separation - (1 - ease) * arrival}px)`;
    part.classList.toggle('is-active', index === step);
   });
@@ -486,6 +486,15 @@ $$('[data-readable]').forEach(link => link.addEventListener('click', event => {
   $('.tray-front').style.opacity = parts[0].style.opacity;
   $('.anatomy-drawing .assembly-guide').style.opacity = clamp((progress - .2) / .15);
   drawJoinery(progress);
+  drawPlanning(progress);
+  const review = !reduced() && progress >= .8;
+  $('.assembly-object').style.visibility = review ? 'hidden' : 'visible';
+  $('.review-object').setAttribute('visibility', review ? 'visible' : 'hidden');
+  if (review) drawReview(progress);
+  if (reduced() && selected === 4) {
+   $('.assembly-object').style.visibility = 'hidden';
+   $('.review-object').setAttribute('visibility', 'visible');drawReview(1);
+  }
   $$('[data-joint]').forEach((joint, index) => {
    const entry = reduced() ? 1 : clamp((progress - (.4 + index * .065)) / .06);
    const exit = reduced() ? (selected === 2 ? 1 : 0) : 1 - clamp((progress - .585) / .035);
@@ -549,6 +558,61 @@ $$('[data-readable]').forEach(link => link.addEventListener('click', event => {
   });
   const html=faces.sort((a,b)=>a.depth-b.depth).map(face=>face.html).join('');
   if (html!==lastMesh) { $('.joinery-mesh').innerHTML=html;lastMesh=html; }
+ }
+ // Review uses the same world dimensions, reprojected as a real turn rather than a flat SVG spin.
+ const smooth = value => { const t=clamp(value);return t*t*(3-2*t); };
+ function projectScene(boxes,angle=0,seams=[]) {
+  const cos=Math.cos(angle),sin=Math.sin(angle);
+  const world=([x,y,z])=>[90+(x-90)*cos-(y-90)*sin,90+(x-90)*sin+(y-90)*cos,z];
+  const point=v=>{const[x,y,z]=world(v);return `${(325+(x-y)*1.12).toFixed(2)},${(490+(x+y)*.54-z).toFixed(2)}`;};
+  const faces=[];
+  function face(v,kind){const depth=v.reduce((sum,p)=>{const[x,y,z]=world(p);return sum+x+y+z*1000;},0)/v.length;faces.push({depth,html:`<polygon class="review-${kind}" points="${v.map(point).join(' ')}"/>`});}
+  boxes.forEach(([x,y,z,w,d,h])=>{
+   const X=x+w,Y=y+d,Z=z+h;
+   face([[x,y,Z],[X,y,Z],[X,Y,Z],[x,Y,Z]],'top');
+   const sides=[
+    [1,0,[[X,y,z],[X,Y,z],[X,Y,Z],[X,y,Z]]],
+    [0,1,[[x,Y,z],[X,Y,z],[X,Y,Z],[x,Y,Z]]],
+    [-1,0,[[x,y,z],[x,Y,z],[x,Y,Z],[x,y,Z]]],
+    [0,-1,[[x,y,z],[X,y,z],[X,y,Z],[x,y,Z]]]
+   ];
+   sides.forEach(([nx,ny,v])=>{const facing=(nx*cos-ny*sin)+(nx*sin+ny*cos);if(facing>.001)face(v,nx?'side-x':'side-y');});
+  });
+  seams.forEach(vertices=>vertices.slice(1).forEach((b,index)=>{
+   const a=vertices[index];const depth=[a,b].reduce((sum,p)=>{const[x,y,z]=world(p);return sum+x+y+z*1000;},0)/2+.01;
+   faces.push({depth,html:`<path class="review-seam" d="M${point(a)}L${point(b)}"/>`});
+  }));
+  return faces.sort((a,b)=>a.depth-b.depth).map(f=>f.html).join('');
+ }
+ function trackBoxes(progress=1) {
+  const boxes=[];
+  for(let index=0;index<4;index++){
+   const amount=reduced()?1:smooth((progress-.6-index*.032)/.035);
+   if(amount>0)boxes.push([index*45,26,110+(1-amount)*30,42,128,5]);
+  }
+  return boxes;
+ }
+ function drawPlanning(progress){$('.planning-track').innerHTML=projectScene(trackBoxes(progress));}
+ function drawReview(progress){
+  const turn=smooth((progress-.8)/.12);
+  const compact=smooth((progress-.93)/.065);
+  const angle=turn*Math.PI/2;
+  const boxes=[];
+  // Identical frames and their fitted divisions remain visible during the inspection.
+  for(const offset of [-64,-32,0]){
+   const base=7+offset*(1-compact);
+   boxes.push([0,0,base,180,180,5]);
+   boxes.push([0,0,base+5,4,180,14],[4,0,base+5,176,4,14],[176,4,base+5,4,176,14],[4,176,base+5,172,4,14]);
+  }
+  boxes.push([88,4,12,4,172,14],[92,88,12,84,4,14]);
+  boxes.push([0,0,42-compact*16,180,180,60]);
+  boxes.push(...trackBoxes(1).map(([x,y,z,w,d,h])=>[x,y,z-compact*24,w,d,h]));
+  const jointSeams=[[[60,0,102],[60,60,102],[120,60,102],[120,120,102],[60,120,102],[60,180,102]],[[120,120,102],[180,120,102]]];
+  const inspection=projectScene(boxes,angle,jointSeams);
+  // The outer form closes after the turn; internal seams quietly disappear.
+  const solid=projectScene([[0,0,7,180,180,110]],angle);
+
+  $('.review-object').innerHTML=`<g opacity="${1-compact}">${inspection}</g><g opacity="${compact}">${solid}</g>`;
  }
  function schedule() { if (!queued) { queued = true; requestAnimationFrame(paint); } }
  buttons.forEach((button, index) => button.addEventListener('click', () => {
