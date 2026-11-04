@@ -19,6 +19,8 @@
  for(const[name,input]of Object.entries(controls))input.addEventListener('change',()=>{
   saved[name]=input.checked;try{localStorage.setItem('clarity-preferences',JSON.stringify(saved));}catch{}paint();if(name==='reduce'&&input.checked){stopAnimations();}if(name==='large')dispatchEvent(new Event('resize'));
  });
+ function alignTopControl(){const control=get('theme-toggle');if(control)document.body.style.setProperty('--top-control-right',`${innerWidth-control.getBoundingClientRect().right}px`);}
+ addEventListener('resize',alignTopControl);alignTopControl();
  let closing=false,menuAnimations=[];
  function positionClose(){
   const rect=get('prefs-open').getBoundingClientRect();
