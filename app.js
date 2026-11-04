@@ -493,8 +493,14 @@ $$('[data-readable]').forEach(link => link.addEventListener('click', event => {
    joint.style.transform = `translate(${offsets[index][0] * (1 - ease)}px,${offsets[index][1] * (1 - ease)}px)`;
   });
   const united = reduced() || progress >= .59;
+  const paired = !united && progress >= .524;
+  $('.united-pair').setAttribute('visibility', paired ? 'visible' : 'hidden');
   $('.united-block').setAttribute('visibility', united ? 'visible' : 'hidden');
-  $$('[data-joint] polygon').forEach(face => { face.style.visibility = united ? 'hidden' : ''; });
+  $$('[data-joint]').forEach((joint, index) => {
+   joint.querySelectorAll('polygon').forEach(face => { face.style.visibility = united || (paired && index < 2) ? 'hidden' : ''; });
+   const labelOpacity = reduced() ? (selected === 2 ? 1 : 0) : 1 - clamp((progress - .585) / .035);
+   joint.querySelector('text').style.opacity = labelOpacity;
+  });
   // The illustration occupies the cleared half of the same continuous background.
   background.style.setProperty('--bridge-columns', reduced() ? 1 : 1 - clamp((innerHeight - rect.top) / (innerHeight * .7)));
  }
