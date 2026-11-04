@@ -150,8 +150,7 @@ function paintScroll() {
   takeaway.style.opacity = clearing; takeaway.style.transform = `translateY(${(1 - clearing) * 15}px)`;
 
   $$('.story-brief h2 span').forEach((line, index) => { const amount = still ? 1 : clamp((travel - .2 - index * .025) / .16); line.style.opacity = amount; line.style.transform = `translateY(${(1 - amount) * 28}px)`; line.style.clipPath = 'none'; });
-  const inclusionPresence = clamp((travel - .18) / .22) * clamp(story.getBoundingClientRect().bottom / (innerHeight * .7));
-  const columnOpacity = .36 - .285 * inclusionPresence - .12 * clamp((travel - .05) / .15) * (1 - inclusionPresence);
+  const columnOpacity = .36 - .285 * clamp((travel - .18) / .22);
   background.style.setProperty('opacity', document.body.classList.contains('contrast') ? .035 : columnOpacity);
   $$('.consistent-column').forEach((column, index) => { column.style.transform = still ? 'none' : `translateY(${Math.max(-240, Math.min(240, scrollY * (index % 2 ? .018 + index * .004 : -.015 - index * .003)))}px)`; });
   const rect = $('.ambiguity-flow').getBoundingClientRect();
@@ -408,7 +407,8 @@ $$('[data-readable]').forEach(link => link.addEventListener('click', event => {
       word.style.filter = `blur(${(1 - ease) * 5}px)`;
       word.style.transform = `translateY(${(1 - ease) * 24}px)`;
     }));
-    background.style.setProperty('--bridge-columns', '1');
+    const anatomyTop = $('#anatomy').getBoundingClientRect().top;
+    background.style.setProperty('--bridge-columns', 1 - clamp((innerHeight - anatomyTop) / (innerHeight * .7)));
   }
   function schedule() { if (!queued) { queued = true; requestAnimationFrame(paint); } }
   addEventListener('scroll', schedule, { passive: true }); addEventListener('resize', schedule);
@@ -479,7 +479,7 @@ $$('[data-readable]').forEach(link => link.addEventListener('click', event => {
   });
   $$('[data-joint]').forEach((joint, index) => { joint.style.transform = `translateY(${-(index ? 140 : 55) * (1 - clamp((progress - .8) / .2))}px)`; });
   // The illustration occupies the cleared half of the same continuous background.
-  background.style.setProperty('--bridge-columns', '1');
+  background.style.setProperty('--bridge-columns', reduced() ? 1 : 1 - clamp((innerHeight - rect.top) / (innerHeight * .7)));
  }
  function schedule() { if (!queued) { queued = true; requestAnimationFrame(paint); } }
  buttons.forEach((button, index) => button.addEventListener('click', () => {
