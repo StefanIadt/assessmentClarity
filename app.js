@@ -400,17 +400,16 @@ $$('[data-readable]').forEach(link => link.addEventListener('click', event => {
   function paint() {
     queued = false;
     const box = section.getBoundingClientRect();
-    const progress = clamp((innerHeight * .85 - box.top) / (innerHeight * 1.05));
+    const progress = clamp((innerHeight * .15 - box.top) / (innerHeight * .65));
     groups.forEach((words, group) => words.forEach((word, index) => {
-      const start = group ? .42 + index / words.length * .28 : index / words.length * .3;
-      const amount = reduced() ? 1 : clamp((progress - start) / .17);
+      const start = group ? .38 + index / words.length * .12 : index / words.length * .12;
+      const amount = reduced() ? 1 : clamp((progress - start) / .36);
       const ease = 1 - Math.pow(1 - amount, 3);
-      word.style.opacity = ease;
-      let x = 0, y = (1 - ease) * 20;
-      if (word.dataset.action === 'grouped') x = (1 - ease) * -24;
-      if (word.dataset.action === 'connected') x = (1 - ease) * 18;
-      if (word.dataset.action === 'revealed') y = (1 - ease) * 32;
-      word.style.transform = `translate(${x}px,${y}px)`;
+      // Each word begins beyond the viewport, rather than fading in at its destination.
+      const distance = innerWidth + 160;
+      const x = (1 - ease) * distance * (group ? 1 : -1);
+      word.style.opacity = 1;
+      word.style.transform = `translateX(${x}px)`;
     }));
     background.style.setProperty('--bridge-columns', reduced() ? 1 : 1 - clamp((progress - .72) / .28));
   }
