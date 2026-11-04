@@ -260,8 +260,6 @@ $('#reduce').addEventListener('change', paintFocus); motionMedia.addEventListene
     animations = []; state = 'clear'; conclusion.hidden = false; label();
     if (!reduced()) conclusion.animate([{ opacity: 0, transform: 'translateY(12px)' }, { opacity: 1, transform: 'translateY(0)' }], { duration: 650, easing: 'ease-out' });
   }
-  trigger.addEventListener('pointerenter', event => { if (event.pointerType === 'mouse' && state === 'idle') fall(); });
-  trigger.addEventListener('focus', () => { if (state === 'idle') fall(); });
   trigger.addEventListener('click', () => { if (state === 'idle' || state === 'clear') fall(); });
   toggle.addEventListener('click', () => state === 'fallen' ? restore() : fall());
   trigger.addEventListener('pointerdown', event => {
