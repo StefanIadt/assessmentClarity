@@ -449,7 +449,7 @@ $$('[data-readable]').forEach(link => link.addEventListener('click', event => {
   open = !open; drawer.setAttribute('aria-expanded', String(open));
   drawer.setAttribute('aria-label', open ? 'Close grouped information' : 'Open grouped information');
   $('.compartment-detail').setAttribute('visibility', open ? 'visible' : 'hidden');
-  drawer.style.transform = open ? 'translate(-16px,18px)' : '';
+  // Detail opens inside the fixed compartment; the fitted dividers stay seated.
  }
  drawer.addEventListener('click', toggleDetail);
  drawer.addEventListener('keydown', event => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); toggleDetail(); } });
@@ -473,10 +473,12 @@ $$('[data-readable]').forEach(link => link.addEventListener('click', event => {
    const ease = 1 - Math.pow(1 - amount, 3);
    part.style.opacity = index === 1 ? ease : .12 + .88 * ease;
    const close = clamp((progress - .8) / .2);
-   const separation = [0, 20, 50, 190, 250][index] * (1 - close);
-   part.style.transform = `translateY(${-separation - (1 - ease) * (80 + index * 24)}px)`;
+   const separation = [0, 0, 50, 190, 250][index] * (1 - close);
+   const arrival = index === 1 ? 42 : (index === 0 ? 0 : 80 + index * 24);
+   part.style.transform = `translateY(${-separation - (1 - ease) * arrival}px)`;
    part.classList.toggle('is-active', index === step);
   });
+  $('.tray-front').style.opacity = parts[0].style.opacity;
   $$('[data-joint]').forEach((joint, index) => { joint.style.transform = `translateY(${-(index ? 140 : 55) * (1 - clamp((progress - .8) / .2))}px)`; });
   // The illustration occupies the cleared half of the same continuous background.
   background.style.setProperty('--bridge-columns', reduced() ? 1 : 1 - clamp((innerHeight - rect.top) / (innerHeight * .7)));
