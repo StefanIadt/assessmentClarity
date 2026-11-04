@@ -429,6 +429,22 @@ $$('[data-readable]').forEach(link => link.addEventListener('click', event => {
  ['Checking and reflection.', 'Return to the requirements, check progress and identify what needs attention.', 'CAST UDL', 'https://udlguidelines.cast.org/action-expression/strategy-development/monitor-progress/']
  ];
  let current = -1, queued = false, selected = 0, open = false;
+ const chapterText = document.createElement('div'); chapterText.className = 'anatomy-chapter-text';
+ title.before(chapterText); chapterText.append(title, description, evidence);
+ let outgoing = null, entrance = null;
+ function transitionChapter(change) {
+  if (outgoing) { outgoing.remove(); outgoing = null; }
+  if (entrance) { entrance.cancel(); entrance = null; }
+  if (current < 0 || reduced()) { change(); return; }
+  outgoing = chapterText.cloneNode(true);
+  outgoing.classList.add('anatomy-chapter-outgoing'); outgoing.setAttribute('aria-hidden', 'true'); outgoing.inert = true;
+  outgoing.querySelectorAll('[id]').forEach(node => node.removeAttribute('id'));
+  chapterText.before(outgoing);
+  const previous = outgoing;
+  previous.animate([{ opacity:1, transform:'translateY(0)' }, { opacity:0, transform:'translateY(-9px)' }], { duration:440, easing:'ease-in-out', fill:'forwards' }).finished.then(() => { previous.remove(); if (outgoing === previous) outgoing = null; }).catch(() => {});
+  change();
+  entrance = chapterText.animate([{ opacity:0, transform:'translateY(9px)' }, { opacity:1, transform:'translateY(0)' }], { duration:520, easing:'cubic-bezier(.22,1,.36,1)' });
+ }
  const drawer = $('.anatomy-compartment');
  function toggleDetail() {
   open = !open; drawer.setAttribute('aria-expanded', String(open));
@@ -444,9 +460,12 @@ $$('[data-readable]').forEach(link => link.addEventListener('click', event => {
   const progress = reduced() ? selected / 4 : clamp(-rect.top / Math.max(1, section.offsetHeight - innerHeight));
   const step = Math.min(4, Math.floor(progress * 5));
   if (step !== current) {
-   current = step; const data = chapters[step]; title.textContent = data[0]; description.textContent = data[1];
-   evidence.textContent = `Design rationale: ${data[2]} ↗`; evidence.href = data[3];
-   evidence.hidden = step === 2;
+   const data = chapters[step];
+   transitionChapter(() => {
+    title.textContent = data[0]; description.textContent = data[1];
+    evidence.textContent = `Design rationale: ${data[2]} ↗`; evidence.href = data[3]; evidence.hidden = step === 2;
+   });
+   current = step;
    buttons.forEach((button, index) => { if (index === step) button.setAttribute('aria-current', 'step'); else button.removeAttribute('aria-current'); });
    hint.textContent = step === 1 ? 'Select the compartment to open or close its detail.' : 'Scroll to assemble the parts.';
   }
