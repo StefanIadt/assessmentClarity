@@ -150,7 +150,9 @@ function paintScroll() {
   takeaway.style.opacity = clearing; takeaway.style.transform = `translateY(${(1 - clearing) * 15}px)`;
 
   $$('.story-brief h2 span').forEach((line, index) => { const amount = still ? 1 : clamp((travel - .2 - index * .025) / .16); line.style.opacity = amount; line.style.transform = `translateY(${(1 - amount) * 28}px)`; line.style.clipPath = 'none'; });
-  background.style.setProperty('opacity', document.body.classList.contains('contrast') ? .035 : .36);
+  const inclusionPresence = clamp((travel - .18) / .22) * clamp(story.getBoundingClientRect().bottom / (innerHeight * .7));
+  const columnOpacity = .36 - .285 * inclusionPresence;
+  background.style.setProperty('opacity', document.body.classList.contains('contrast') ? .035 : columnOpacity);
   $$('.consistent-column').forEach((column, index) => { column.style.transform = still ? 'none' : `translateY(${Math.max(-240, Math.min(240, scrollY * (index % 2 ? .018 + index * .004 : -.015 - index * .003)))}px)`; });
   const rect = $('.ambiguity-flow').getBoundingClientRect();
   const reveal = still ? 1 : clamp((innerHeight * .8 - rect.top) / (innerHeight * .42));
@@ -489,4 +491,3 @@ $$('[data-readable]').forEach(link => link.addEventListener('click', event => {
  addEventListener('scroll', schedule, { passive:true }); addEventListener('resize', schedule);
  $('#reduce').addEventListener('change', schedule); motionMedia.addEventListener('change', schedule); paint();
 })();
-
