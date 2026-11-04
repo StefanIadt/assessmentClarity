@@ -405,9 +405,9 @@ $$('[data-readable]').forEach(link => link.addEventListener('click', event => {
       const start = group ? .38 + index / words.length * .12 : index / words.length * .12;
       const amount = reduced() ? 1 : clamp((progress - start) / .36);
       const ease = 1 - Math.pow(1 - amount, 3);
-      word.style.opacity = .25 + .75 * ease;
+      word.style.opacity = ease;
       word.style.filter = `blur(${(1 - ease) * 5}px)`;
-      word.style.transform = 'none';
+      word.style.transform = `translateY(${(1 - ease) * 24}px)`;
     }));
     background.style.setProperty('--bridge-columns', reduced() ? 1 : 1 - clamp((progress - .72) / .28));
   }
