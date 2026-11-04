@@ -37,6 +37,7 @@
  }
  function closeMenu(){
   if(closing||!dialog.open)return;
+  get('prefs-close').textContent='Menu';get('prefs-close').setAttribute('aria-label','Menu closing');
   if(motion.matches||controls.reduce.checked){finishClose();return;}
   closing=true;stopAnimations();dialog.classList.add('is-closing');
   const animation=animate(dialog.querySelector('.menu-sheet'),[{transform:'translateX(0)'},{transform:'translateX(105%)'}],{duration:380,easing:'cubic-bezier(.4,0,.2,1)',fill:'forwards'});
@@ -44,7 +45,7 @@
  }
  get('prefs-open').setAttribute('aria-expanded','false');
  get('prefs-open').addEventListener('click',()=>{
-  closing=false;stopAnimations();positionClose();dialog.classList.remove('is-closing');dialog.querySelector('.menu-sheet').style.visibility='';dialog.showModal();get('prefs-open').setAttribute('aria-expanded','true');
+  closing=false;stopAnimations();get('prefs-close').textContent='Close';get('prefs-close').setAttribute('aria-label','Close menu');positionClose();dialog.classList.remove('is-closing');dialog.querySelector('.menu-sheet').style.visibility='';dialog.showModal();get('prefs-open').setAttribute('aria-expanded','true');
   if(motion.matches||controls.reduce.checked)return;
   animate(dialog.querySelector('.menu-sheet'),[{transform:'translateX(100%)'},{transform:'translateX(0)'}],{duration:380,easing:'cubic-bezier(.4,0,.2,1)',fill:'backwards'});
   dialog.querySelectorAll('.stagger-item').forEach((element,index)=>animate(element,[{opacity:0,transform:'translateY(12px)'},{opacity:1,transform:'translateY(0)'}],{duration:300,delay:70+index*25,easing:'cubic-bezier(.22,1,.36,1)',fill:'backwards'}));
