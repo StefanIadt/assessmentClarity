@@ -217,16 +217,6 @@ scheduleFocus();
 // Matter.js bodies fall, collide, settle and can be dragged. Restore returns them to their measured text positions.
 (() => {
   const trigger = $('.complexity-trigger'), toggle = $('.clarity-toggle'), conclusion = $('.complexity-conclusion');
-  const continueButton = $('.complexity-continue');
-  document.body.classList.toggle('awaiting-complexity', !reduced());
-  continueButton.hidden = reduced();
-  function unlock() {
-    document.body.classList.remove('awaiting-complexity');continueButton.hidden = true;
-    dispatchEvent(new Event('scroll'));
-  }
-  continueButton.addEventListener('click', () => {
-    unlock();$('.brief-bridge').scrollIntoView({behavior:reduced()?'instant':'smooth',block:'start'});
-  });
   const text = trigger.textContent; trigger.setAttribute('aria-label', text); trigger.replaceChildren();
   text.split(/(\s+)/).forEach(part => { if (!part.trim()) trigger.append(document.createTextNode(part)); else { const word = document.createElement('span'); word.className = 'complexity-word' + (part.toLowerCase() === 'complexity' ? ' complexity-signal' : ''); word.textContent = part; word.setAttribute('aria-hidden', 'true'); trigger.append(word); } });
   const words = [...trigger.querySelectorAll('.complexity-word')];
@@ -245,7 +235,7 @@ scheduleFocus();
   function fall() {
     if (state === 'fallen' || state === 'restoring') return;
     generation++; animations.forEach(animation => animation.cancel()); animations = [];
-    conclusion.hidden = true; state = 'fallen'; label(); unlock();
+    conclusion.hidden = true; state = 'fallen'; label();
     if (reduced()) return;
     const box = trigger.getBoundingClientRect(), width = box.width, height = box.height;
     engine = Engine.create({ enableSleeping: true }); engine.gravity.y = 1;
@@ -284,7 +274,6 @@ scheduleFocus();
   function release() { if (drag && engine) { Composite.remove(engine.world, drag); drag = null; wake(); } }
   trigger.addEventListener('pointerup', release); trigger.addEventListener('pointercancel', release);
   function stable() {
-    unlock();
     generation++; dispose(); animations.forEach(animation => animation.cancel()); animations = []; words.forEach(word => word.style.transform = '');
     state = 'clear'; conclusion.hidden = false; label();
   }
