@@ -150,7 +150,9 @@ function paintScroll() {
   takeaway.style.opacity = clearing; takeaway.style.transform = `translateY(${(1 - clearing) * 15}px)`;
 
   $$('.story-brief h2 span').forEach((line, index) => { const amount = still ? 1 : clamp((travel - .2 - index * .025) / .16); line.style.opacity = amount; line.style.transform = `translateY(${(1 - amount) * 28}px)`; line.style.clipPath = 'none'; });
-  const opacity = still ? .07 : .36 - clamp(travel / .85) * .285;
+  const ambiguityBounds = $('.ambiguity-flow').getBoundingClientRect();
+  const ambiguityPresence = clamp((innerHeight * .7 - ambiguityBounds.top) / (innerHeight * .35)) * clamp(ambiguityBounds.bottom / (innerHeight * .65));
+  const opacity = still ? .07 : Math.max(.36 - clamp(travel / .85) * .285, .075 + .285 * ambiguityPresence);
   background.style.setProperty('opacity', document.body.classList.contains('contrast') ? .035 : opacity);
   $$('.consistent-column').forEach((column, index) => { column.style.transform = still ? 'none' : `translateY(${Math.max(-240, Math.min(240, scrollY * (index % 2 ? .018 + index * .004 : -.015 - index * .003)))}px)`; });
   const rect = $('.ambiguity-flow').getBoundingClientRect();
