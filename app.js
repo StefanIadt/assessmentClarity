@@ -184,7 +184,7 @@ function paintFocus() {
   const distanceFromCenter = Math.abs(bounds.top + bounds.height / 2 - innerHeight * .5);
   const proximity = clamp(1 - distanceFromCenter / (innerHeight * .44));
   const emphasis = proximity * proximity * (3 - 2 * proximity);
-  const baseBlur = reduced() ? 0 : (innerWidth < 760 ? 3.5 : 4.5) * emphasis;
+  const baseBlur = reduced() ? 0 : (innerWidth < 760 ? 4.8 : 6.2) * emphasis;
   const center = pointer || (focused ? (() => { const r = focused.getBoundingClientRect(); return { x: r.left + r.width / 2, y: r.top + r.height / 2 }; })() : null);
   focusWords.forEach(word => {
     let blur = baseBlur;
@@ -195,6 +195,7 @@ function paintFocus() {
       const distance = Math.hypot(dx / (innerWidth < 760 ? 70 : 95), dy / 28);
       blur *= clamp((distance - .55) / .7);
     }
+    word.classList.toggle('is-near', Boolean(center) && blur < baseBlur * .6);
     word.style.setProperty('--word-blur', `${blur}px`);
     word.setAttribute('aria-pressed', String(word === focused));
   });
