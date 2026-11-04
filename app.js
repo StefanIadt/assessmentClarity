@@ -469,16 +469,22 @@ $$('[data-readable]').forEach(link => link.addEventListener('click', event => {
    hint.textContent = step === 1 ? 'Select the compartment to open or close its detail.' : 'Scroll to assemble the parts.';
   }
   parts.forEach((part, index) => {
-   const amount = reduced() ? 1 : clamp((progress * 5 - index + .75) / .75);
+   const amount = reduced() ? 1 : index === 0 ? clamp((progress - .1) / .085) : clamp((progress - index * .2) / .13);
    const ease = 1 - Math.pow(1 - amount, 3);
-   part.style.opacity = index === 1 ? ease : .12 + .88 * ease;
+   part.style.opacity = ease;
    const close = clamp((progress - .8) / .2);
    const separation = [0, 0, 50, 190, 250][index] * (1 - close);
    const arrival = index === 1 ? 42 : (index === 0 ? 0 : 80 + index * 24);
    part.style.transform = `translateY(${-separation - (1 - ease) * arrival}px)`;
    part.classList.toggle('is-active', index === step);
   });
+  $('.assembly-object').style.transform = `translateY(${-180 * (1 - clamp(progress / .4))}px)`;
+  const repeatAmount = reduced() ? 1 : clamp((progress - .025) / .075);
+  const repeatEase = repeatAmount * repeatAmount * (3 - 2 * repeatAmount);
+  $('.structure-repeat').style.opacity = repeatEase;
+  $('.structure-repeat').style.transform = `translateY(${32 - (1 - repeatEase) * 50}px)`;
   $('.tray-front').style.opacity = parts[0].style.opacity;
+  $('.anatomy-drawing .assembly-guide').style.opacity = clamp((progress - .2) / .15);
   $$('[data-joint]').forEach((joint, index) => { joint.style.transform = `translateY(${-(index ? 140 : 55) * (1 - clamp((progress - .8) / .2))}px)`; });
   // The illustration occupies the cleared half of the same continuous background.
   background.style.setProperty('--bridge-columns', reduced() ? 1 : 1 - clamp((innerHeight - rect.top) / (innerHeight * .7)));
