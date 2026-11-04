@@ -405,11 +405,9 @@ $$('[data-readable]').forEach(link => link.addEventListener('click', event => {
       const start = group ? .38 + index / words.length * .12 : index / words.length * .12;
       const amount = reduced() ? 1 : clamp((progress - start) / .36);
       const ease = 1 - Math.pow(1 - amount, 3);
-      // Each word begins beyond the viewport, rather than fading in at its destination.
-      const distance = innerWidth + 160;
-      const x = (1 - ease) * distance * (group ? 1 : -1);
-      word.style.opacity = 1;
-      word.style.transform = `translateX(${x}px)`;
+      word.style.opacity = .25 + .75 * ease;
+      word.style.filter = `blur(${(1 - ease) * 5}px)`;
+      word.style.transform = 'none';
     }));
     background.style.setProperty('--bridge-columns', reduced() ? 1 : 1 - clamp((progress - .72) / .28));
   }
