@@ -485,24 +485,69 @@ $$('[data-readable]').forEach(link => link.addEventListener('click', event => {
   $('.structure-repeat').style.transform = `translateY(${32 - (1 - repeatEase) * 50}px)`;
   $('.tray-front').style.opacity = parts[0].style.opacity;
   $('.anatomy-drawing .assembly-guide').style.opacity = clamp((progress - .2) / .15);
+  drawJoinery(progress);
   $$('[data-joint]').forEach((joint, index) => {
-   const amount = reduced() ? 1 : clamp((progress - (.4 + index * .065)) / .06);
-   const ease = amount * amount * (3 - 2 * amount);
-   const offsets = [[-110,-65],[0,-130],[110,-35]];
-   joint.style.opacity = amount > 0 ? 1 : 0;
-   joint.style.transform = `translate(${offsets[index][0] * (1 - ease)}px,${offsets[index][1] * (1 - ease)}px)`;
-  });
-  const united = reduced() || progress >= .59;
-  const paired = !united && progress >= .524;
-  $('.united-pair').setAttribute('visibility', paired ? 'visible' : 'hidden');
-  $('.united-block').setAttribute('visibility', united ? 'visible' : 'hidden');
-  $$('[data-joint]').forEach((joint, index) => {
-   joint.querySelectorAll('polygon').forEach(face => { face.style.visibility = united || (paired && index < 2) ? 'hidden' : ''; });
-   const labelOpacity = reduced() ? (selected === 2 ? 1 : 0) : 1 - clamp((progress - .585) / .035);
-   joint.querySelector('text').style.opacity = labelOpacity;
+   const entry = reduced() ? 1 : clamp((progress - (.4 + index * .065)) / .06);
+   const exit = reduced() ? (selected === 2 ? 1 : 0) : 1 - clamp((progress - .585) / .035);
+   joint.querySelector('text').style.opacity = entry * exit;
   });
   // The illustration occupies the cleared half of the same continuous background.
   background.style.setProperty('--bridge-columns', reduced() ? 1 : 1 - clamp((innerHeight - rect.top) / (innerHeight * .7)));
+ }
+ // Draw all three solids together, with exposed faces determined from shared cell geometry.
+ const cells = [
+  ...[[0,0],[0,1],[1,1],[0,2]].map(([x,y]) => ({x,y,part:0})),
+  ...[[1,0],[2,0],[2,1]].map(([x,y]) => ({x,y,part:1})),
+  ...[[1,2],[2,2]].map(([x,y]) => ({x,y,part:2}))
+ ];
+ const byPosition = new Map(cells.map(cell => [`${cell.x},${cell.y}`,cell]));
+ let lastMesh = '';
+ function drawJoinery(progress) {
+  const amounts = [0,1,2].map(index => reduced() ? 1 : clamp((progress - (.4 + index * .065)) / .06));
+  const heights = amounts.map(amount => 42 + 125 * (1 - amount * amount * (3 - 2 * amount)));
+  const visible = amounts.map(amount => amount > 0);
+  const faces = [];
+  const project = ([x,y,z]) => `${(325+(x-y)*1.12).toFixed(2)},${(490+(x+y)*.54-z).toFixed(2)}`;
+  function addFace(vertices,kind,edges) {
+   const depth = vertices.reduce((sum,[x,y,z]) => sum+x+y+z*1.08,0)/vertices.length;
+   const fill = `<polygon class="mesh-${kind}" points="${vertices.map(project).join(' ')}"/>`;
+   const lines = edges.map(([a,b]) => `M${project(a)}L${project(b)}`).join('');
+   faces.push({depth,html:fill+(lines ? `<path class="mesh-edge" d="${lines}"/>` : '')});
+  }
+  cells.forEach(cell => {
+   if (!visible[cell.part]) return;
+   const x=cell.x*60,y=cell.y*60,z=heights[cell.part],top=z+60;
+   const corners=[[x,y,top],[x+60,y,top],[x+60,y+60,top],[x,y+60,top]];
+   const neighbours=[[0,-1],[1,0],[0,1],[-1,0]].map(([dx,dy])=>byPosition.get(`${cell.x+dx},${cell.y+dy}`));
+   const edges=[];
+   neighbours.forEach((neighbour,index)=>{
+    if (!neighbour || !visible[neighbour.part] || neighbour.part !== cell.part) edges.push([corners[index],corners[(index+1)%4]]);
+   });
+   addFace(corners,'top',edges);
+   // Only camera-facing sides exist in the drawing. Subtract any occupied neighbour volume.
+   for (const [dx,dy,kind] of [[1,0,'side-x'],[0,1,'side-y']]) {
+    const neighbour=byPosition.get(`${cell.x+dx},${cell.y+dy}`);
+    let intervals=[[z,top]];
+    if (neighbour && visible[neighbour.part]) {
+     const bottom=heights[neighbour.part],upper=bottom+60;
+     intervals=intervals.flatMap(([lo,hi])=> upper<=lo || bottom>=hi ? [[lo,hi]] : [[lo,Math.min(hi,bottom)],[Math.max(lo,upper),hi]].filter(([a,b])=>b-a>.01));
+    }
+    intervals.forEach(([lo,hi])=>{
+     const a=dx ? [x+60,y,lo] : [x,y+60,lo];
+     const b=dx ? [x+60,y+60,lo] : [x+60,y+60,lo];
+     const c=[b[0],b[1],hi],d=[a[0],a[1],hi];
+     const edges=[[a,b]];
+     // Merge coplanar side cells: no false vertical seams inside a single piece.
+     const before=byPosition.get(`${cell.x+(dx?0:-1)},${cell.y+(dx?-1:0)}`);
+     const after=byPosition.get(`${cell.x+(dx?0:1)},${cell.y+(dx?1:0)}`);
+     if (!before || before.part!==cell.part) edges.push([a,d]);
+     if (!after || after.part!==cell.part) edges.push([b,c]);
+     addFace([a,b,c,d],kind,edges);
+    });
+   }
+  });
+  const html=faces.sort((a,b)=>a.depth-b.depth).map(face=>face.html).join('');
+  if (html!==lastMesh) { $('.joinery-mesh').innerHTML=html;lastMesh=html; }
  }
  function schedule() { if (!queued) { queued = true; requestAnimationFrame(paint); } }
  buttons.forEach((button, index) => button.addEventListener('click', () => {
