@@ -268,6 +268,21 @@ main,header,footer{position:relative;z-index:1}main{background:transparent}.stor
 
 .ambiguity-panel h2,.barrier-heading h2{font-size:clamp(50px,6.9vw,110px);font-weight:400;line-height:1.02;letter-spacing:-.065em}
 @media(max-width:760px){.ambiguity-panel h2,.barrier-heading h2{font-size:7.5vw;font-weight:400;line-height:1.06;letter-spacing:-.055em}}
+
+/* Let the sentence be read, then offer a quiet invitation to disrupt it. */
+.complexity-flow{margin-top:clamp(90px,18svh,230px);overflow-anchor:none}
+.complexity-trigger[data-state="idle"] .complexity-signal,.complexity-trigger[data-state="clear"] .complexity-signal{animation:complexity-pulse 2.8s ease-in-out infinite}
+@keyframes complexity-pulse{0%,100%{opacity:1}50%{opacity:.5}}
+.complexity-section .clarity-toggle{border:0;border-radius:0;background:none;padding:8px 0;color:inherit;font-size:16px;text-decoration:underline;text-underline-offset:7px;cursor:pointer;min-height:44px}
+.complexity-section .clarity-toggle:hover{background:none;color:inherit;opacity:.7}
+.complexity-section .clarity-toggle:disabled{cursor:default;opacity:.6}
+.complexity-section .complexity-trigger,.complexity-section:has(.complexity-conclusion:not([hidden])) .complexity-trigger{padding-bottom:210px}
+.complexity-section .complexity-conclusion{display:block;min-height:3.5em;margin:30px 0 0;overflow-anchor:none}
+.complexity-section .complexity-conclusion[hidden]{display:block!important;visibility:hidden}
+.complexity-section .clarity-toggle,.complexity-section:has(.complexity-conclusion:not([hidden])) .clarity-toggle{margin-top:24px!important}
+@media(max-width:760px){.complexity-flow{margin-top:100px}.complexity-section .complexity-trigger,.complexity-section:has(.complexity-conclusion:not([hidden])) .complexity-trigger{padding-bottom:160px}}
+@media(prefers-reduced-motion:reduce){.complexity-signal{animation:none!important}}
+.story-still .complexity-signal{animation:none!important}
 </style></head><body><a class="skip" href="#main">Skip to content</a>
 <header class="top"><a class="logo" href="#top">FINDING<br>CLARITY.</a><span class="mid">AN INTERACTIVE ASSESSMENT STUDY / IADT</span><button id="prefs-open" aria-expanded="false" aria-controls="prefs">Experience settings</button></header>
 <div id="prefs" class="prefs" hidden><h2>Experience settings</h2><label><input type="checkbox" id="reduce"> Reduce animation</label><label><input type="checkbox" id="contrast"> High contrast</label><label><input type="checkbox" id="large"> Larger text</label><button id="prefs-close">Close</button></div>
@@ -307,8 +322,8 @@ main,header,footer{position:relative;z-index:1}main{background:transparent}.stor
 </div></section>
 <section class="complexity-flow" aria-label="The cost of complexity"><div class="section complexity-section">
 <button type="button" class="complexity-trigger" aria-describedby="complexity-help">As complexity increases, students may spend more time decoding assessment systems than engaging with learning itself.</button>
-<span id="complexity-help" class="visually-hidden">Select this sentence or Let words fall to collapse the text. Use Restore clarity to put it back.</span>
-<button type="button" class="clarity-toggle" aria-controls="complexity-conclusion" aria-expanded="false">Let words fall ↓</button>
+<span id="complexity-help" class="visually-hidden">Select this sentence or Lose the thread to collapse the text. Use Restore clarity to put it back.</span>
+<button type="button" class="clarity-toggle" aria-controls="complexity-conclusion" aria-expanded="false">Lose the thread ↘</button>
 <p id="complexity-conclusion" class="complexity-conclusion" aria-live="polite" hidden>Assessment design should reduce unnecessary cognitive load, not add to it.</p>
 </div></section>
 <section class="brief-bridge" aria-labelledby="bridge-title"><div class="bridge-stage">

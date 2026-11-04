@@ -215,11 +215,11 @@ $('#reduce').addEventListener('change', paintFocus); motionMedia.addEventListene
 (() => {
   const trigger = $('.complexity-trigger'), toggle = $('.clarity-toggle'), conclusion = $('.complexity-conclusion');
   const text = trigger.textContent; trigger.setAttribute('aria-label', text); trigger.replaceChildren();
-  text.split(/(\s+)/).forEach(part => { if (!part.trim()) trigger.append(document.createTextNode(part)); else { const word = document.createElement('span'); word.className = 'complexity-word'; word.textContent = part; word.setAttribute('aria-hidden', 'true'); trigger.append(word); } });
+  text.split(/(\s+)/).forEach(part => { if (!part.trim()) trigger.append(document.createTextNode(part)); else { const word = document.createElement('span'); word.className = 'complexity-word' + (part.toLowerCase() === 'complexity' ? ' complexity-signal' : ''); word.textContent = part; word.setAttribute('aria-hidden', 'true'); trigger.append(word); } });
   const words = [...trigger.querySelectorAll('.complexity-word')];
   const { Engine, Bodies, Body, Composite, Constraint, Query, Sleeping } = Matter;
   let engine = null, pieces = [], state = 'idle', frame = 0, lastTime = 0, drag = null, animations = [], generation = 0;
-  function label() { trigger.dataset.state = state; toggle.textContent = state === 'fallen' ? 'Restore clarity ↗' : state === 'clear' ? 'Let it fall again ↓' : 'Let words fall ↓'; toggle.setAttribute('aria-expanded', String(state === 'clear')); toggle.disabled = state === 'restoring'; }
+  function label() { trigger.dataset.state = state; toggle.textContent = state === 'fallen' || state === 'restoring' ? 'Restore clarity ↗' : 'Lose the thread ↘'; toggle.setAttribute('aria-expanded', String(state === 'clear')); toggle.disabled = state === 'restoring'; }
   function dispose() { cancelAnimationFrame(frame); frame = 0; if (engine) { Composite.clear(engine.world, false); Engine.clear(engine); engine = null; } drag = null; pieces = []; }
   function draw() { pieces.forEach(({ word, body, x, y }) => { word.style.transform = `translate(${body.position.x - x}px,${body.position.y - y}px) rotate(${body.angle}rad)`; }); }
   function tick(time) {
