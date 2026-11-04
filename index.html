@@ -287,6 +287,14 @@ main,header,footer{position:relative;z-index:1}main{background:transparent}.stor
 .reveal-message,.complexity-section .complexity-trigger{font-size:clamp(28px,4vw,61px);font-weight:400;line-height:1.12;letter-spacing:-.05em}
 .complexity-flow{margin-top:clamp(180px,42svh,600px)}
 @media(max-width:760px){.reveal-message,.complexity-section .complexity-trigger{font-size:clamp(28px,6.8vw,38px);font-weight:400}.complexity-flow{margin-top:220px}}
+
+@keyframes complexity-pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.18;transform:scale(1.035)}}
+.complexity-trigger[data-state="idle"] .complexity-signal,.complexity-trigger[data-state="clear"] .complexity-signal{animation-duration:1.65s;transform-origin:center}
+.awaiting-complexity .brief-bridge,.awaiting-complexity .anatomy-story{display:none}
+.awaiting-complexity .complexity-flow{min-height:100svh}
+.awaiting-complexity .complexity-section{position:relative;min-height:100svh}
+.complexity-continue{order:3;align-self:flex-start;border:0;background:none;padding:12px 0;font:inherit;font-size:13px;color:#66655f;text-decoration:underline;text-underline-offset:5px;min-height:44px}
+.complexity-continue[hidden]{display:none}
 </style></head><body><a class="skip" href="#main">Skip to content</a>
 <header class="top"><a class="logo" href="#top">FINDING<br>CLARITY.</a><span class="mid">AN INTERACTIVE ASSESSMENT STUDY / IADT</span><button id="prefs-open" aria-expanded="false" aria-controls="prefs">Experience settings</button></header>
 <div id="prefs" class="prefs" hidden><h2>Experience settings</h2><label><input type="checkbox" id="reduce"> Reduce animation</label><label><input type="checkbox" id="contrast"> High contrast</label><label><input type="checkbox" id="large"> Larger text</label><button id="prefs-close">Close</button></div>
@@ -326,6 +334,7 @@ main,header,footer{position:relative;z-index:1}main{background:transparent}.stor
 </div></section>
 <section class="complexity-flow" aria-label="The cost of complexity"><div class="section complexity-section">
 <button type="button" class="complexity-trigger" aria-describedby="complexity-help">As complexity increases, students may spend more time decoding assessment systems than engaging with learning itself.</button>
+<button type="button" class="complexity-continue">Continue without interaction ↗</button>
 <span id="complexity-help" class="visually-hidden">Select this sentence or Lose the thread to collapse the text. Use Restore clarity to put it back.</span>
 <button type="button" class="clarity-toggle" aria-controls="complexity-conclusion" aria-expanded="false">Lose the thread ↘</button>
 <p id="complexity-conclusion" class="complexity-conclusion" aria-live="polite" hidden>Assessment design should reduce unnecessary cognitive load, not add to it.</p>

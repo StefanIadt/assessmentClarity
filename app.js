@@ -214,6 +214,16 @@ $('#reduce').addEventListener('change', paintFocus); motionMedia.addEventListene
 // Matter.js bodies fall, collide, settle and can be dragged. Restore returns them to their measured text positions.
 (() => {
   const trigger = $('.complexity-trigger'), toggle = $('.clarity-toggle'), conclusion = $('.complexity-conclusion');
+  const continueButton = $('.complexity-continue');
+  document.body.classList.toggle('awaiting-complexity', !reduced());
+  continueButton.hidden = reduced();
+  function unlock() {
+    document.body.classList.remove('awaiting-complexity');continueButton.hidden = true;
+    dispatchEvent(new Event('scroll'));
+  }
+  continueButton.addEventListener('click', () => {
+    unlock();$('.brief-bridge').scrollIntoView({behavior:reduced()?'instant':'smooth',block:'start'});
+  });
   const text = trigger.textContent; trigger.setAttribute('aria-label', text); trigger.replaceChildren();
   text.split(/(\s+)/).forEach(part => { if (!part.trim()) trigger.append(document.createTextNode(part)); else { const word = document.createElement('span'); word.className = 'complexity-word' + (part.toLowerCase() === 'complexity' ? ' complexity-signal' : ''); word.textContent = part; word.setAttribute('aria-hidden', 'true'); trigger.append(word); } });
   const words = [...trigger.querySelectorAll('.complexity-word')];
@@ -232,7 +242,7 @@ $('#reduce').addEventListener('change', paintFocus); motionMedia.addEventListene
   function fall() {
     if (state === 'fallen' || state === 'restoring') return;
     generation++; animations.forEach(animation => animation.cancel()); animations = [];
-    conclusion.hidden = true; state = 'fallen'; label();
+    conclusion.hidden = true; state = 'fallen'; label(); unlock();
     if (reduced()) return;
     const box = trigger.getBoundingClientRect(), width = box.width, height = box.height;
     engine = Engine.create({ enableSleeping: true }); engine.gravity.y = 1;
@@ -271,6 +281,7 @@ $('#reduce').addEventListener('change', paintFocus); motionMedia.addEventListene
   function release() { if (drag && engine) { Composite.remove(engine.world, drag); drag = null; wake(); } }
   trigger.addEventListener('pointerup', release); trigger.addEventListener('pointercancel', release);
   function stable() {
+    unlock();
     generation++; dispose(); animations.forEach(animation => animation.cancel()); animations = []; words.forEach(word => word.style.transform = '');
     state = 'clear'; conclusion.hidden = false; label();
   }
@@ -407,7 +418,7 @@ $$('[data-readable]').forEach(link => link.addEventListener('click', event => {
       word.style.filter = `blur(${(1 - ease) * 5}px)`;
       word.style.transform = `translateY(${(1 - ease) * 24}px)`;
     }));
-    const anatomyTop = $('#anatomy').getBoundingClientRect().top;
+    const anatomyTop = $('#anatomy').getClientRects().length ? $('#anatomy').getBoundingClientRect().top : Infinity;
     background.style.setProperty('--bridge-columns', 1 - clamp((innerHeight - anatomyTop) / (innerHeight * .7)));
   }
   function schedule() { if (!queued) { queued = true; requestAnimationFrame(paint); } }
@@ -501,7 +512,7 @@ $$('[data-readable]').forEach(link => link.addEventListener('click', event => {
    joint.querySelector('text').style.opacity = entry * exit;
   });
   // The illustration occupies the cleared half of the same continuous background.
-  background.style.setProperty('--bridge-columns', reduced() ? 1 : 1 - clamp((innerHeight - rect.top) / (innerHeight * .7)));
+  background.style.setProperty('--bridge-columns', reduced() || !section.getClientRects().length ? 1 : 1 - clamp((innerHeight - rect.top) / (innerHeight * .7)));
  }
  // Draw all three solids together, with exposed faces determined from shared cell geometry.
  const cells = [
