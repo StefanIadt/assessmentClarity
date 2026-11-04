@@ -47,3 +47,7 @@ body:has(#prefs[open]) #prefs-open{visibility:hidden}
 .staggered-menu #prefs-close{transition:opacity .16s ease}
 .staggered-menu.is-closing #prefs-close{opacity:0;pointer-events:none}
 @media(prefers-reduced-motion:reduce){.staggered-menu #prefs-close{transition:none}}
+
+.back-to-top{width:44px;height:44px;border:0;background:transparent}
+.back-to-top::before{content:"";position:absolute;inset:8px;border:1px solid currentColor;border-radius:50%;background:var(--surface);z-index:-1}
+.back-to-top svg{width:16px;height:16px;stroke-width:1.5}
