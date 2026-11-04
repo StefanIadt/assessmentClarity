@@ -184,7 +184,7 @@ function paintFocus() {
   const distanceFromCenter = Math.abs(bounds.top + bounds.height / 2 - innerHeight * .5);
   const proximity = clamp(1 - distanceFromCenter / (innerHeight * .44));
   const emphasis = proximity * proximity * (3 - 2 * proximity);
-  const baseBlur = reduced() ? 0 : (innerWidth < 760 ? 1.7 : 2.1) * emphasis;
+  const baseBlur = reduced() ? 0 : (innerWidth < 760 ? 2.4 : 3.1) * emphasis;
   const center = pointer || (focused ? (() => { const r = focused.getBoundingClientRect(); return { x: r.left + r.width / 2, y: r.top + r.height / 2 }; })() : null);
   focusWords.forEach(word => {
     let blur = baseBlur;
@@ -192,7 +192,7 @@ function paintFocus() {
       const box = word.getBoundingClientRect();
       const dx = Math.max(0, Math.abs(center.x - (box.left + box.width / 2)) - box.width / 2);
       const dy = Math.max(0, Math.abs(center.y - (box.top + box.height / 2)) - box.height / 2);
-      const distance = Math.hypot(dx / (innerWidth < 760 ? 145 : 250), dy / 48);
+      const distance = Math.hypot(dx / (innerWidth < 760 ? 80 : 125), dy / 34);
       blur *= clamp((distance - .5) / .75);
     }
     word.style.setProperty('--word-blur', `${blur}px`);
@@ -415,4 +415,61 @@ $$('[data-readable]').forEach(link => link.addEventListener('click', event => {
   addEventListener('scroll', schedule, { passive: true }); addEventListener('resize', schedule);
   $('#reduce').addEventListener('change', schedule); motionMedia.addEventListener('change', schedule);
   paint();
+})();
+
+// One continuous assembly, with chapter navigation and reader-controlled detail.
+(() => {
+ const section = $('#anatomy'), parts = $$('.anatomy-part'), buttons = $$('[data-chapter]');
+ const title = $('#anatomy-title'), description = $('.anatomy-description'), evidence = $('.anatomy-evidence'), hint = $('.anatomy-hint');
+ const chapters = [
+ ['Structure.', 'Related information has a recognisable place within a consistent whole.', 'W3C', 'https://www.w3.org/WAI/WCAG2/supplemental/patterns/o2p03-page-structure/'],
+ ['Manageable detail.', 'Explore one group at a time. Its detail opens without losing its place in the whole.', 'CAST UDL', 'https://udlguidelines.cast.org/action-expression/strategy-development/organize-information/'],
+ ['Alignment.', 'Learning outcomes, the task and assessment criteria connect to form a coherent whole.', 'Project design principles', '#anatomy'],
+ ['Planning.', 'Visible stages and milestones help turn a final deadline into a process students can plan.', 'CAST UDL', 'https://udlguidelines.cast.org/action-expression/strategy-development/'],
+ ['Checking and reflection.', 'Return to the requirements, check progress and identify what needs attention.', 'CAST UDL', 'https://udlguidelines.cast.org/action-expression/strategy-development/monitor-progress/']
+ ];
+ let current = -1, queued = false, selected = 0, open = false;
+ const drawer = $('.anatomy-compartment');
+ function toggleDetail() {
+  open = !open; drawer.setAttribute('aria-expanded', String(open));
+  drawer.setAttribute('aria-label', open ? 'Close grouped information' : 'Open grouped information');
+  $('.compartment-detail').setAttribute('visibility', open ? 'visible' : 'hidden');
+  drawer.style.transform = open ? 'translate(-16px,18px)' : '';
+ }
+ drawer.addEventListener('click', toggleDetail);
+ drawer.addEventListener('keydown', event => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); toggleDetail(); } });
+ function paint() {
+  queued = false;
+  const rect = section.getBoundingClientRect();
+  const progress = reduced() ? selected / 4 : clamp(-rect.top / Math.max(1, section.offsetHeight - innerHeight));
+  const step = Math.min(4, Math.floor(progress * 5));
+  if (step !== current) {
+   current = step; const data = chapters[step]; title.textContent = data[0]; description.textContent = data[1];
+   evidence.textContent = `Design rationale: ${data[2]} ↗`; evidence.href = data[3];
+   evidence.hidden = step === 2;
+   buttons.forEach((button, index) => { if (index === step) button.setAttribute('aria-current', 'step'); else button.removeAttribute('aria-current'); });
+   hint.textContent = step === 1 ? 'Select the compartment to open or close its detail.' : 'Scroll to assemble the parts.';
+  }
+  parts.forEach((part, index) => {
+   const amount = reduced() ? 1 : clamp((progress * 5 - index + .75) / .75);
+   const ease = 1 - Math.pow(1 - amount, 3);
+   part.style.opacity = .12 + .88 * ease;
+   const close = clamp((progress - .8) / .2);
+   const separation = [0, 20, 50, 190, 250][index] * (1 - close);
+   part.style.transform = `translateY(${-separation - (1 - ease) * (80 + index * 24)}px)`;
+   part.classList.toggle('is-active', index === step);
+  });
+  $$('[data-joint]').forEach((joint, index) => { joint.style.transform = `translateY(${-(index ? 140 : 55) * (1 - clamp((progress - .8) / .2))}px)`; });
+  // The illustration occupies the cleared half of the same continuous background.
+  if (rect.top < innerHeight) background.style.setProperty('--bridge-columns', reduced() ? 1 : 1 - clamp((innerHeight - rect.top) / (innerHeight * .7)));
+ }
+ function schedule() { if (!queued) { queued = true; requestAnimationFrame(paint); } }
+ buttons.forEach((button, index) => button.addEventListener('click', () => {
+  selected = index;
+  if (reduced()) { paint(); return; }
+  const top = scrollY + section.getBoundingClientRect().top;
+  scrollTo({ top: top + (section.offsetHeight - innerHeight) * ((index + .45) / 5), behavior: 'smooth' });
+ }));
+ addEventListener('scroll', schedule, { passive:true }); addEventListener('resize', schedule);
+ $('#reduce').addEventListener('change', schedule); motionMedia.addEventListener('change', schedule); paint();
 })();
