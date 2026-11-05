@@ -24,3 +24,17 @@
 @media(max-width:1100px){.ambiguity-panel .ambiguity-composition{display:flex;flex-direction:column;gap:28px}.ambiguity-panel h2{margin:0}.ambiguity-panel .note-one,.ambiguity-panel .note-two{margin:0;max-width:48ch;position:static}.ambiguity-persona{align-self:center;width:min(100%,260px);margin-top:12px}.persona-back-name{font-size:80px}.persona-quote{font-size:32px}.persona-back{padding:16px}}
 @media(prefers-reduced-motion:reduce){.persona-flip-inner,.sam-persona-card.is-tilting .persona-flip-inner{transition:none;transform:rotateY(var(--flip))}}
 .story-still .persona-flip-inner{transition:none;transform:rotateY(var(--flip))}
+/* A small, slightly displaced portrait with an actual mini persona on its reverse. */
+.ambiguity-persona{max-width:232px;transform:translate(20px,-14px) rotate(3deg)}
+.sam-persona-card{aspect-ratio:2/3}
+.persona-portrait img{width:auto;height:289.884%;max-width:none;left:50%;top:0;transform:translate(-14.158%,-17.946%)}
+.persona-back{padding:16px}
+.persona-kicker{display:flex;justify-content:space-between;gap:12px;font-size:7px;letter-spacing:.08em}
+.persona-back-name{font-size:75px;line-height:.83;letter-spacing:-.085em;margin-top:15px;align-self:flex-end}
+.persona-role{font-size:10px;line-height:1.35;margin-top:10px}
+.persona-fact{display:block;margin-top:13px}
+.persona-fact>span:first-child{display:block;font-size:7px;line-height:1.2;text-transform:uppercase;letter-spacing:.08em;color:#b0aea5;margin-bottom:4px}
+.persona-fact>span:last-child{display:block;font-size:10px;line-height:1.4;letter-spacing:-.01em}
+.persona-footer{padding-top:12px;font-size:6.5px}
+@media(min-width:1101px) and (max-width:1300px){.ambiguity-persona{max-width:220px;transform:translate(10px,-12px) rotate(3deg)}.persona-back-name{font-size:68px}.persona-fact{margin-top:11px}.persona-fact>span:last-child{font-size:9.5px}}
+@media(max-width:1100px){.ambiguity-persona{width:min(100%,224px);transform:translate(10px,0) rotate(2deg)}.persona-back-name{font-size:72px}.persona-fact{margin-top:11px}.persona-fact>span:last-child{font-size:9.5px}}
