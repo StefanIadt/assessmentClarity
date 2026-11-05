@@ -38,3 +38,6 @@
 .persona-footer{padding-top:12px;font-size:6.5px}
 @media(min-width:1101px) and (max-width:1300px){.ambiguity-persona{max-width:220px;transform:translate(10px,-12px) rotate(3deg)}.persona-back-name{font-size:68px}.persona-fact{margin-top:11px}.persona-fact>span:last-child{font-size:9.5px}}
 @media(max-width:1100px){.ambiguity-persona{width:min(100%,224px);transform:translate(10px,0) rotate(2deg)}.persona-back-name{font-size:72px}.persona-fact{margin-top:11px}.persona-fact>span:last-child{font-size:9.5px}}
+/* Follow the shared site palette on both sides of the theme switch. */
+.persona-back{background:var(--surface);color:var(--foreground)}
+.persona-kicker,.persona-role,.persona-fact>span:first-child,.persona-footer{color:var(--subtle)}
