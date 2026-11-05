@@ -1,28 +1,26 @@
-/* The persona belongs to the ambiguity scene, beside the argument it illustrates. */
-.ambiguity-persona{grid-column:9/-1;grid-row:1/3;align-self:center;justify-self:end;width:100%;max-width:420px;position:relative;z-index:3}
-.sam-persona-card{position:relative;display:block;width:100%;aspect-ratio:318/390;padding:0;border:0;background:transparent;color:var(--foreground);font:inherit;text-align:left;cursor:pointer;perspective:1300px;-webkit-tap-highlight-color:transparent}
+/* A small photographic object beside the ambiguity statement. */
+.ambiguity-persona{grid-column:9/-1;grid-row:1/3;align-self:center;justify-self:center;width:100%;max-width:280px;position:relative;z-index:3}
+.sam-persona-card{--tilt-x:0deg;--tilt-y:0deg;--flip:0deg;position:relative;display:block;width:100%;aspect-ratio:318/346;padding:0;border:0;background:transparent;color:var(--foreground);font:inherit;text-align:left;cursor:pointer;perspective:1000px;-webkit-tap-highlight-color:transparent;touch-action:pan-y}
 .sam-persona-card:focus-visible{outline:2px solid var(--foreground);outline-offset:6px}
-.persona-flip-inner{position:absolute;inset:0;display:block;transform-style:preserve-3d;transition:transform .7s cubic-bezier(.2,.75,.25,1.12)}
-.sam-persona-card[aria-pressed=true] .persona-flip-inner{transform:rotateY(180deg)}
-.persona-face{position:absolute;inset:0;display:block;backface-visibility:hidden;-webkit-backface-visibility:hidden;overflow:hidden;background:var(--surface);box-sizing:border-box}
+.sam-persona-card[aria-pressed=true]{--flip:180deg}
+.persona-flip-inner{position:absolute;inset:0;display:block;transform-style:preserve-3d;transform:rotateX(var(--tilt-x)) rotateY(calc(var(--flip) + var(--tilt-y)));transition:transform .65s cubic-bezier(.2,.75,.25,1.1)}
+.sam-persona-card.is-tilting .persona-flip-inner{transition:transform .13s ease-out}
+.persona-face{position:absolute;inset:0;display:block;backface-visibility:hidden;-webkit-backface-visibility:hidden;overflow:hidden;background:var(--surface);box-sizing:border-box;border:0}
 .persona-portrait{position:absolute;inset:0;display:block;overflow:hidden;background:#111}
-.persona-portrait img{position:absolute;width:493.082%;max-width:none;left:-19.811%;top:-46%;filter:grayscale(1) contrast(1.65)}
-.persona-photo-caption{position:absolute;inset:auto 0 0;display:flex;justify-content:space-between;align-items:end;gap:20px;padding:60px 24px 24px;background:linear-gradient(transparent,#000b);color:#fff}
-.persona-name{font-size:64px;line-height:.9;letter-spacing:-.075em;font-weight:400}
-.persona-turn{font-size:11px;line-height:1.4;max-width:10ch}
-.persona-back{transform:rotateY(180deg);display:flex;flex-direction:column;padding:26px;border:1px solid var(--edge);color:var(--foreground)}
-.persona-kicker{font-size:9px;text-transform:uppercase;letter-spacing:.09em;color:var(--subtle)}
-.persona-back-name{font-size:88px;line-height:.9;letter-spacing:-.075em;margin:26px 0 14px}
-.persona-role{font-size:15px;line-height:1.4;letter-spacing:-.015em}
-.persona-rule{display:block;border-top:1px solid var(--edge);margin:22px 0 0}
-.persona-context-title{font-size:22px;line-height:1.15;letter-spacing:-.04em;margin-top:18px}
-.persona-context{font-size:13px;line-height:1.5;margin-top:7px;max-width:30ch}
-.persona-footer{display:flex;justify-content:space-between;gap:12px;margin-top:auto;padding-top:20px;font-size:9px;color:var(--subtle)}
+/* The source is a composite: crop only x63–381, y180–526, excluding its text. */
+.persona-portrait img{position:absolute;width:493.082%;max-width:none;left:-19.811%;top:0;transform:translateY(-17.946%);filter:grayscale(1) contrast(1.5)}
+.persona-photo-caption{position:absolute;inset:auto 0 0;display:flex;justify-content:space-between;align-items:end;gap:16px;padding:45px 16px 14px;background:linear-gradient(transparent,#000a);color:#fff}
+.persona-name{font-size:34px;line-height:.9;letter-spacing:-.065em;font-weight:400}
+.persona-turn{font-size:9px;line-height:1.35;max-width:10ch}
+.persona-back{transform:rotateY(180deg);display:flex;flex-direction:column;padding:19px;background:#171717;color:#f4f3ef}
+.persona-kicker{font-size:8px;line-height:1.2;text-transform:uppercase;letter-spacing:.08em;color:#bbb9b1}
+.persona-back-name{position:relative;font-size:88px;line-height:.85;letter-spacing:-.085em;margin-top:17px;font-weight:400}
+.persona-number{position:absolute;right:0;top:2px;font-size:10px;font-weight:300;letter-spacing:0}
+.persona-role{font-size:10px;line-height:1.45;letter-spacing:.01em;margin-top:12px;color:#c6c4bc}
+.persona-quote{font-family:Georgia,'Times New Roman',serif;font-style:italic;font-size:35px;font-weight:400;line-height:1;letter-spacing:-.045em;margin-top:17px}
+.persona-footer{display:flex;justify-content:space-between;gap:10px;margin-top:auto;padding-top:14px;font-size:7px;letter-spacing:.025em;color:#b0aea5}
 @media(min-width:1101px){.ambiguity-panel h2{grid-column:1/9;font-size:clamp(52px,5.5vw,100px);line-height:1.02}.ambiguity-panel h2>span{white-space:normal}.ambiguity-panel .note-two{grid-column:1/5}.ambiguity-panel .note-one{grid-column:5/9}.ambiguity-panel .ambiguity-note{font-size:clamp(15px,1.2vw,20px);line-height:1.45}.ambiguity-panel .ambiguity-composition{column-gap:28px;row-gap:36px}}
-@media(min-width:1101px) and (max-width:1450px){.persona-back{padding:20px}.persona-back-name{font-size:64px;margin:18px 0 10px}.persona-role{font-size:12px}.persona-rule{margin-top:14px}.persona-context-title{font-size:19px;margin-top:14px}.persona-context{font-size:12px;margin-top:5px}.persona-footer{padding-top:12px;font-size:8px}}
-@media(max-width:1100px){.ambiguity-panel .ambiguity-composition{display:flex;flex-direction:column;gap:28px}.ambiguity-panel h2{margin:0}.ambiguity-panel .note-one,.ambiguity-panel .note-two{margin:0;max-width:48ch;position:static}.ambiguity-persona{align-self:center;width:min(100%,380px);margin-top:12px}.persona-back-name{font-size:76px;margin:22px 0 12px}.persona-back{padding:22px}.persona-context-title{font-size:21px;margin-top:16px}.persona-role{font-size:14px}.persona-rule{margin-top:18px}}
-@media(max-width:400px){.sam-persona-card{aspect-ratio:318/440}.persona-back{padding:20px}.persona-back-name{font-size:68px;margin-top:20px}.persona-context-title{font-size:20px}.persona-context{font-size:12px}.persona-name{font-size:56px}}
-@media(prefers-reduced-motion:reduce){.persona-flip-inner{transition:none}}
-.story-still .persona-flip-inner{transition:none}
-.sam-persona-card{aspect-ratio:318/450}
-@media(max-width:400px){.sam-persona-card{aspect-ratio:318/560}}
+@media(min-width:1101px) and (max-width:1300px){.ambiguity-persona{max-width:250px}.persona-back{padding:16px}.persona-back-name{font-size:75px;margin-top:14px}.persona-role{margin-top:9px}.persona-quote{font-size:31px;margin-top:13px}.persona-footer{padding-top:10px}}
+@media(max-width:1100px){.ambiguity-panel .ambiguity-composition{display:flex;flex-direction:column;gap:28px}.ambiguity-panel h2{margin:0}.ambiguity-panel .note-one,.ambiguity-panel .note-two{margin:0;max-width:48ch;position:static}.ambiguity-persona{align-self:center;width:min(100%,260px);margin-top:12px}.persona-back-name{font-size:80px}.persona-quote{font-size:32px}.persona-back{padding:16px}}
+@media(prefers-reduced-motion:reduce){.persona-flip-inner,.sam-persona-card.is-tilting .persona-flip-inner{transition:none;transform:rotateY(var(--flip))}}
+.story-still .persona-flip-inner{transition:none;transform:rotateY(var(--flip))}
