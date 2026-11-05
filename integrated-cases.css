@@ -45,3 +45,12 @@ body:not(.readable-page) main>section{scroll-margin-top:56px}
 @media(max-width:760px){.integrated-cases .persona-navigation{column-gap:28px}.integrated-cases .persona-navigation>a .persona-nav-name{font-size:18px}.integrated-cases .persona-navigation>a .persona-nav-role{font-size:9px}}
 
 html{background:var(--surface)}
+/* One sliding marker rests directly over the navigation rule. */
+.integrated-cases .persona-navigation{position:relative}
+.integrated-cases .persona-navigation>a .persona-nav-name,.integrated-cases .persona-navigation>a[aria-current] .persona-nav-name{font-weight:400}
+.integrated-cases .persona-navigation>a .persona-nav-arrow{display:inline-block;width:16px;flex-shrink:0}
+.integrated-cases .persona-navigation>a[aria-current] .persona-nav-arrow{display:inline-block;visibility:hidden}
+.persona-indicator{position:absolute;left:0;bottom:-1px;height:3px;width:0;background:var(--foreground);pointer-events:none;transition:transform .4s cubic-bezier(.22,1,.36,1),width .4s cubic-bezier(.22,1,.36,1)}
+.persona-indicator[hidden]{display:none}
+@media(prefers-reduced-motion:reduce){.persona-indicator{transition:none}}
+.story-still .persona-indicator{transition:none}

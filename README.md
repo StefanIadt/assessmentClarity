@@ -37,3 +37,5 @@ The interaction is a custom implementation inspired by typographic and particle-
 ### Production cleanup
 
 Legacy standalone demo routes (`prototype.html`, `storyboard.html`, `brief-demo.html`, `sam.html`, `maya.html`) and the superseded reader-story scripts are retired. Production keeps the homepage, its readable alternative and the embedded case-study/brief documents that power the live experience. Theme initialisation runs in the document head so the saved palette is in place before first paint. Device width transitions retain an opaque, theme-matched reader backing.
+
+The persona navigation retains the main page progress bar and uses a sliding 3px marker under the active regular-weight name. Only embedded story-position scrollbars are hidden; the actual reader keeps scrolling for long content. Sam’s fictional portrait is now a softer documentary-style bus scene, used consistently in the sidebar and flip card. Maya’s profile title is “Psychology lecturer.”
