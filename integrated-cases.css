@@ -12,3 +12,16 @@
 .opening-explore{position:absolute;right:var(--space);bottom:70px;z-index:5;max-width:28ch;font-size:14px;line-height:1.45}.opening-explore p{margin-bottom:12px}.opening-explore a{text-underline-offset:5px}
 @media(max-width:760px){.integrated-cases{min-height:440px}.integrated-cases .case-study-rail{gap:14px}.integrated-cases .scenario-notice{font-size:10px;padding:7px 16px}.integrated-cases .persona-navigation{padding:7px 16px;font-size:12px}.opening-explore{bottom:55px;max-width:24ch;font-size:12px}.opening-explore p{display:none}}
 #tool.integrated-cases{scroll-margin-top:var(--main-header-height,80px)}
+/* The page owns one scroll position: arrive, pin, travel sideways, then release. */
+#tool.integrated-cases{display:block;height:calc(220svh - var(--main-header-height,80px));min-height:0;border-top:0}
+.integrated-cases .persona-stage{position:sticky;top:var(--main-header-height,80px);display:flex;flex-direction:column;height:calc(100svh - var(--main-header-height,80px));min-height:0;border-top:1px solid var(--edge,#cac8c0);background:var(--surface,#f4f3ef)}
+.integrated-cases .case-study-rail{overflow-x:hidden;touch-action:pan-y;scrollbar-width:none}
+.story-still #tool.integrated-cases{height:calc(100svh - var(--main-header-height,80px))}
+@media(prefers-reduced-motion:reduce){#tool.integrated-cases{height:calc(100svh - var(--main-header-height,80px))}}
+/* Keep the original navigation, with a compact 56px footprint. */
+body{padding-top:56px!important}
+body>.top{height:56px;min-height:56px;padding:6px var(--space);flex-wrap:nowrap}
+body>.top .logo{font-size:14px}
+body>.top .experience-controls{width:auto;gap:18px}
+body:not(.readable-page) main>section{scroll-margin-top:56px}
+@media(max-width:760px){body>.top{padding:6px 16px}body>.top .logo{font-size:12px}body>.top .experience-controls{gap:12px}}
