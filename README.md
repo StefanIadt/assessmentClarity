@@ -24,6 +24,8 @@ The interaction is a custom implementation inspired by typographic and particle-
 
 ### Persona scenario demos
 
+- `index.html#tool` integrates the gallery immediately after the original opening. It uses the original site header and preferences; the separate demo header is not embedded. `integrated-cases.css` scopes the gallery layout to this section. Vertical wheel and touch gestures hand back to the main page at story boundaries.
+
 - `sam.html` opens the shared horizontal case-study gallery at Sam; `maya.html` opens that same gallery at Maya.
 - `sam-case.html` and `maya-case.html` contain the two complete case studies, next to each other in the gallery. Each card takes about 85% of the viewport so the neighbouring case remains visible. Both keep their persona card on the left on wider screens and use vertical chapters. Moving between people preserves their reading positions and tab-local drafts. Horizontal gestures are forwarded across the embedded reader boundaries; vertical wheel input is not remapped. Offscreen media pauses.
 - `maya-brief.html` uses the captured brief typography and toolbar for a fictional group literature review. Journals are separate for Alex and Riley; group feedback records are separate; private teaching notes are omitted from the student feedback preview. The journals and feedback are completed, read-only scenario records; selectors browse the prepared examples. Library links open simulated destination previews.
