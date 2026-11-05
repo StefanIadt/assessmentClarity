@@ -32,3 +32,11 @@ body.case-gallery{height:100svh;overflow:hidden;display:flex;flex-direction:colu
 @media(max-width:760px){.embedded-case .sam-layout,.embedded-case.person-maya .sam-layout{grid-template-columns:minmax(0,1fr);grid-template-rows:auto minmax(0,1fr)}.embedded-case .sam-panel,.embedded-case.person-maya .sam-panel{grid-column:1;grid-row:1}.embedded-case .sam-document,.embedded-case.person-maya .sam-document{grid-column:1;grid-row:2}.embedded-case .sam-identity{display:flex}.embedded-case .sam-name-block p{font-size:11px}}
 @media(prefers-reduced-motion:reduce){.case-study-rail{scroll-snap-type:none}}.story-still .case-study-rail{scroll-snap-type:none}
 .case-study-rail.is-panning{scroll-snap-type:none}.embedded-case #sam-name[tabindex="-1"]:focus{outline:none}
+/* Each case fills most of the rail; the next case remains visibly alongside it. */
+.case-study-rail{position:relative;gap:24px}.case-study-slide{flex:0 0 85%}.case-study-rail:after{content:'';flex:0 0 calc(15% - 24px)}.case-study-slide+ .case-study-slide{border-left:1px solid var(--edge);box-sizing:border-box}.scenario-preview{display:block;border:0;border-bottom:1px solid currentColor;background:none;color:var(--foreground);font:inherit;font-size:14px;padding:8px 0;margin:16px 0;min-height:40px;text-align:left;cursor:pointer}.scenario-preview[hidden]{display:none}
+@media(max-width:760px){.case-study-rail{gap:14px}.case-study-rail:after{flex-basis:calc(15% - 14px)}.embedded-case .sam-layout,.embedded-case.person-maya .sam-layout{padding-left:12px;padding-right:12px}.scenario-preview{margin:8px 0;font-size:12px;min-height:32px;padding:5px 0}}
+@media(min-width:1051px){.embedded-case .sam-layout,.embedded-case.person-maya .sam-layout{grid-template-columns:minmax(270px,.7fr) minmax(0,2.3fr)}}
+@media(min-width:761px) and (max-width:1050px){.embedded-case .sam-photo,.embedded-case .maya-photo{width:90px}.embedded-case .sam-name-block h1,.embedded-case.person-maya .sam-name-block h1{font-size:40px}}
+.case-study-rail:after{display:none}.case-study-slide:last-child{scroll-snap-align:end}
+@media(max-width:760px){.embedded-case .chapter-index{overflow-x:auto;scrollbar-width:none}.embedded-case .chapter-index a{flex-shrink:0}}
+#context-source[aria-disabled=true]{opacity:.5;cursor:default;text-decoration:none}

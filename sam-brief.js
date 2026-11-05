@@ -4,9 +4,9 @@
  let guided=false,currentStage='schedule';const visited=new Set();const projectRows=[...q('#project-details').lastElementChild.children].filter(e=>e.classList.contains('grid'));
  const selectors={schedule:'#schedule',task:'#project-overview',detail:'#ai-policy',assessment:'#rubric',check:'#submission-checklist'};
  const roots={schedule:'#schedule',task:'#project-details',detail:'#ai-policy',assessment:'#rubric',check:'#submission-checklist'};
- function fixedHeader(){const height=Math.ceil(header.getBoundingClientRect().height);document.documentElement.style.setProperty('--fixed-brief-header',height+'px')}
+ function fixedHeader(){const height=Math.ceil(header.getBoundingClientRect().height),toolbar=q('.demo-toolbar');document.documentElement.style.setProperty('--fixed-brief-header',height+'px');document.documentElement.style.setProperty('--reader-toolbar-height',(getComputedStyle(toolbar).position==='fixed'?Math.ceil(toolbar.getBoundingClientRect().height):0)+'px')}
  all('[data-control]').forEach(b=>b.title=b.getAttribute('aria-label')||b.textContent.trim());
- new ResizeObserver(fixedHeader).observe(header);fixedHeader();
+ new ResizeObserver(fixedHeader).observe(header);new ResizeObserver(fixedHeader).observe(q('.demo-toolbar'));fixedHeader();
  function cleanHighlight(){all('.story-target').forEach(e=>e.classList.remove('story-target'));all('.story-key').forEach(e=>e.classList.remove('story-key'))}
  function highlight(stage){cleanHighlight();let target;if(stage==='task')target=q('#project-overview').closest('.focus-unit').firstElementChild.querySelector('p');else if(stage==='detail')target=q('[data-control=actions]');else target=q(roots[stage])?.querySelector('h2');if(target){if(target.matches('button')){target.classList.add('story-key');return}if(!target.querySelector('.annotation-word')&&!target.matches('span')){const span=document.createElement('span');span.className='annotation-word';span.textContent=target.textContent;target.replaceChildren(span);target=span}else target=target.querySelector('.annotation-word')||target;target.classList.add('story-key')}}
  function showStage(stage,announce=true){
@@ -42,14 +42,14 @@
  function addReadingUnit(node){if(node&&!readingUnits.includes(node)){node.classList.add('reading-focus-unit');readingUnits.push(node)}}
  ['#brief-metadata','#one-page-summary','#resources','#ai-policy .ai-guidance','#faq','#how-work-is-marked'].forEach(selector=>addReadingUnit(q(selector)));
  projectRows.forEach(addReadingUnit);
- all('#rubric details[data-criterion], #schedule .schedule-phase, #schedule .schedule-selected, #submission-form .grid, #submission-checklist .demo-checks > label, #ai-log-form > label, #ai-log-form .log-dates').forEach(addReadingUnit);
+ all('#schedule > h2, #schedule .schedule-example > p, #schedule .schedule-axis, #rubric details[data-criterion], #schedule .schedule-phase, #schedule .schedule-selected, #submission-form .grid, #submission-checklist .demo-checks > label, #ai-log-form > label, #ai-log-form .log-dates').forEach(addReadingUnit);
  // Form layouts can contain nested grid rows; fade only the outer reading block.
  readingUnits.forEach(node=>{if(node.parentElement.closest('.reading-focus-unit'))node.classList.remove('reading-focus-unit')});
  const focusBlocks=readingUnits.filter(node=>node.classList.contains('reading-focus-unit'));
  function updateReadingFocus(){
   readingFrame=0;
   if(!document.body.classList.contains('focus-on')){all('.reading-focus-current').forEach(node=>node.classList.remove('reading-focus-current'));return}
-  const top=header.getBoundingClientRect().bottom+8,bottom=innerHeight-12,maxScroll=document.documentElement.scrollHeight-innerHeight;
+  const top=header.getBoundingClientRect().bottom+8,bottom=innerHeight-12-(parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--reader-toolbar-height'))||0),maxScroll=document.documentElement.scrollHeight-innerHeight;
   const atEnd=maxScroll>2&&scrollY>=maxScroll-2,line=atEnd?bottom-12:top+Math.max(0,bottom-top)*.32;
   let best=null,distance=Infinity;
   focusBlocks.forEach(node=>{
@@ -71,7 +71,7 @@
  new ResizeObserver(requestReadingFocus).observe(header);
  all('[data-control=dark]').forEach(b=>b.addEventListener('click',()=>{if(logOpen)openLog();else if(guided)showStage(currentStage,false)}));q('#read-aloud').addEventListener('click',event=>{if(!guided)return;event.stopImmediatePropagation();speak(q(roots[currentStage]).innerText)},true);
  // The same Student Actions route as the source brief, with a tab-local working log.
- const form=q('#ai-log-form'),entries=[{entryName:'Entry 1'}];let entryIndex=0,logOpen=false;
+ const form=q('#ai-log-form'),entries=[{entryName:'Responsive navigation review',startDate:'2026-10-14',endDate:'2026-10-14',tool:'ChatGPT',purpose:'Compare approaches to a responsive navigation menu and identify questions to test against my own design reference.',modification:'I rewrote the suggested markup to match my Figma reference, removed an unnecessary interaction and added keyboard focus styles. I tested the result rather than copying the output into the site.',reflection:'The suggestion did not account for keyboard use or the content length in my design. It was useful as a starting point for comparison, but the final implementation and the test record are my own responsibility.',confirmation:true},{entryName:'Understanding a grid layout issue',startDate:'2026-10-21',endDate:'2026-10-21',tool:'GitHub Copilot',purpose:'Explain why a nested grid overflowed at a narrow viewport while I was debugging the responsive layout.',modification:'I checked the explanation against the documentation, changed the minimum width in my own component and retested the page with long content.',reflection:'The explanation helped me locate a constraint, but I still needed to verify it in the browser and explain the change in my process record.',confirmation:true}];let entryIndex=0,logOpen=false;
  function saveEntry(){entries[entryIndex]=Object.fromEntries(new FormData(form));entries[entryIndex].confirmation=form.elements.confirmation.checked}
  function fillEntry(){form.reset();Object.entries(entries[entryIndex]).forEach(([key,value])=>{if(form.elements[key]){if(key==='confirmation')form.elements[key].checked=!!value;else form.elements[key].value=value}});q('#log-entry').value=String(entryIndex)}
  function openLog(){closePanels();logOpen=true;all('#document > *').forEach(e=>e.hidden=true);q('#ai-log').hidden=false;document.documentElement.classList.add('log-open');scrollTo(0,0);q('#back-from-log').focus();requestReadingFocus()}
@@ -89,6 +89,7 @@
 
  all('[data-phase]').forEach(button=>button.addEventListener('click',()=>{const i=Number(button.dataset.phase),p=phases[i];all('[data-phase]').forEach(b=>b.setAttribute('aria-pressed',String(b===button)));q('#schedule-phase-title').textContent=`${p[0]} · ${p[1]===p[2]?'week '+p[1]:'weeks '+p[1]+'–'+p[2]}`;q('#schedule-phase-detail').textContent=p[3];post('phase',{phase:p[0],detail:p[3]});resize()}));
 
+ q('#log-entry').replaceChildren(...entries.map((entry,i)=>new Option('Entry '+(i+1),String(i))));fillEntry();q('#ai-log-form .log-notice').textContent='Completed example record. Use the entry selector to inspect Sam’s AI-use record.';
  configure({continuous:true,view:'begin',role:'student',dark:false});
  if(parent===window)restoreComplete();
  resize();
