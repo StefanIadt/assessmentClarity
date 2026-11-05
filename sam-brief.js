@@ -90,7 +90,7 @@
  all('[data-phase]').forEach(button=>button.addEventListener('click',()=>{const i=Number(button.dataset.phase),p=phases[i];all('[data-phase]').forEach(b=>b.setAttribute('aria-pressed',String(b===button)));q('#schedule-phase-title').textContent=`${p[0]} · ${p[1]===p[2]?'week '+p[1]:'weeks '+p[1]+'–'+p[2]}`;q('#schedule-phase-detail').textContent=p[3];post('phase',{phase:p[0],detail:p[3]});resize()}));
 
  q('#log-entry').replaceChildren(...entries.map((entry,i)=>new Option('Entry '+(i+1),String(i))));fillEntry();q('#ai-log-form .log-notice').textContent='Completed example record. Use the entry selector to inspect Sam’s AI-use record.';
- configure({continuous:true,view:'begin',role:'student',dark:false});
+ configure({continuous:true,view:'begin',role:'student',dark:document.documentElement.classList.contains('dark')});
  if(parent===window)restoreComplete();
  resize();
 })();

@@ -4,3 +4,5 @@
 
 .readable-page #prefs-open{display:none}.has-preferences .readable-page #prefs-open{display:inline-flex}
 @media(prefers-color-scheme:dark){body:not(.light){--surface:#191a18;--foreground:#f1f0e9;--subtle:#bfbbb2;--dialog-surface:#22231f;--edge:#77796d;color-scheme:dark}}
+
+html.dark{--surface:#191a18;--foreground:#f1f0e9;--subtle:#bfbbb2;--dialog-surface:#22231f;--edge:#77796d;color-scheme:dark}html{background:var(--surface)}

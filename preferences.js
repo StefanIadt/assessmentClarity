@@ -9,9 +9,10 @@
  controls.dark.checked=typeof saved.dark==='boolean'?saved.dark:colour.matches;
  controls.contrast.checked=saved.contrast===true;controls.large.checked=saved.large===true;
  function paint(){
-  document.body.classList.toggle('light',!controls.dark.checked);
+  document.documentElement.classList.toggle('dark',controls.dark.checked);document.documentElement.style.colorScheme=controls.dark.checked?'dark':'light';document.body.classList.toggle('light',!controls.dark.checked);
   for(const name of ['dark','contrast','large'])document.body.classList.toggle(name,controls[name].checked);
   document.body.classList.toggle('story-still',controls.reduce.checked||motion.matches);
+  const colourMeta=document.querySelector('meta[name=theme-color]');if(colourMeta)colourMeta.content=controls.dark.checked?'#191a18':'#f4f3ef';
   const theme=get('theme-toggle');if(theme){theme.setAttribute('aria-label',controls.dark.checked?'Switch to light mode':'Switch to dark mode');theme.setAttribute('title',controls.dark.checked?'Switch to light mode':'Switch to dark mode');theme.setAttribute('aria-pressed',String(controls.dark.checked));}
   const paused=controls.reduce.checked||motion.matches,button=get('motion-toggle');
   if(button){button.textContent=paused?'Motion paused':'Pause motion';button.setAttribute('aria-pressed',String(paused));}
@@ -63,3 +64,6 @@
  addEventListener('scroll',backToTopVisibility,{passive:true});addEventListener('resize',backToTopVisibility);backToTopVisibility();
  paint();
 })();
+
+// External references open separately; page and persona anchors retain their navigation.
+(()=>{function update(root){const links=root instanceof HTMLAnchorElement?[root]:root.querySelectorAll?.('a[href]')||[];for(const link of links){const raw=link.getAttribute('href');if(!raw)continue;let url;try{url=new URL(raw,location.href)}catch{continue}if(/^https?:$/.test(url.protocol)&&url.origin!==location.origin&&!link.hasAttribute('data-library-url')&&link.getAttribute('aria-disabled')!=='true'){link.target='_blank';link.rel='noopener noreferrer'}}}update(document);new MutationObserver(records=>{for(const record of records){if(record.type==='attributes')update(record.target);else record.addedNodes.forEach(n=>{if(n.nodeType===1)update(n)})}}).observe(document.body,{subtree:true,childList:true,attributes:true,attributeFilter:['href']})})();

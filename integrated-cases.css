@@ -26,8 +26,6 @@ body>.top .experience-controls{width:auto;gap:18px}
 body:not(.readable-page) main>section{scroll-margin-top:56px}
 @media(max-width:760px){body>.top{padding:6px 16px}body>.top .logo{font-size:12px}body>.top .experience-controls{gap:12px}}
 
-.top .oer-nav{font-size:12px;text-transform:none;letter-spacing:0;text-underline-offset:4px;white-space:nowrap}
-@media(max-width:370px){.top .oer-nav{font-size:11px}body>.top .experience-controls{gap:10px}}
 
 #tool.integrated-cases,.story-still #tool.integrated-cases{height:calc(100svh - var(--main-header-height,56px) + var(--persona-travel,320svh))}
 .integrated-cases .case-study-rail{overflow-x:auto;scrollbar-width:none}
@@ -45,3 +43,5 @@ body:not(.readable-page) main>section{scroll-margin-top:56px}
 .integrated-cases .persona-navigation>a[aria-current] .persona-nav-arrow{display:none}
 .integrated-cases .persona-navigation>a:hover .persona-nav-name{color:var(--foreground)}
 @media(max-width:760px){.integrated-cases .persona-navigation{column-gap:28px}.integrated-cases .persona-navigation>a .persona-nav-name{font-size:18px}.integrated-cases .persona-navigation>a .persona-nav-role{font-size:9px}}
+
+html{background:var(--surface)}

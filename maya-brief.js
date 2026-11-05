@@ -31,5 +31,5 @@
  function sizeRecords(){all('textarea[readonly]').forEach(e=>{if(!e.getClientRects().length)return;e.style.height='auto';e.style.height=e.scrollHeight+2+'px'})}
  let sizeTimer;addEventListener('resize',()=>{clearTimeout(sizeTimer);sizeTimer=setTimeout(sizeRecords,90)});document.addEventListener('toggle',sizeRecords,true);q('#text-size').addEventListener('change',sizeRecords);q('#line-space').addEventListener('change',sizeRecords);
  function alignOverview(){scrollTo(0,scrollY+q('.maya-overview-task').getBoundingClientRect().top-header.offsetHeight-16)}document.fonts.ready.then(()=>{sizeRecords();if(current==='overview')alignOverview()});
- configure({continuous:true,role:'student',dark:false});fillJournal();fillFormative();show('overview');fixedHeader();
+ configure({continuous:true,role:'student',dark:document.documentElement.classList.contains('dark')});fillJournal();fillFormative();show('overview');fixedHeader();
 })();
