@@ -34,3 +34,14 @@ body:not(.readable-page) main>section{scroll-margin-top:56px}
 .integrated-cases .persona-navigation{align-items:center;gap:24px;flex-wrap:wrap;padding-top:5px;padding-bottom:5px}
 .persona-prompt{margin:0 0 0 auto;color:var(--subtle);font-size:11px;line-height:1.4;max-width:54ch}
 @media(max-width:760px){.integrated-cases .persona-navigation{gap:3px 24px}.persona-prompt{flex-basis:100%;margin:0;font-size:10px;padding-bottom:3px}}
+
+/* Editorial names and quiet role labels, rather than underlined text links. */
+.integrated-cases .persona-navigation>a,.integrated-cases .persona-navigation>a[aria-current]{text-decoration:none;gap:8px;padding:5px 0;min-height:32px;align-items:baseline;color:var(--subtle);font-weight:400}
+.integrated-cases .persona-navigation>a .persona-nav-name{font-size:18px;line-height:1;letter-spacing:-.04em}
+.integrated-cases .persona-navigation>a .persona-nav-role{font-size:9px;line-height:1.2;letter-spacing:.09em;text-transform:uppercase;color:var(--subtle)}
+.integrated-cases .persona-navigation>a .persona-nav-arrow{font-size:16px;line-height:1;margin-left:2px}
+.integrated-cases .persona-navigation>a[aria-current]{color:var(--foreground)}
+.integrated-cases .persona-navigation>a[aria-current] .persona-nav-name{font-weight:600}
+.integrated-cases .persona-navigation>a[aria-current] .persona-nav-arrow{display:none}
+.integrated-cases .persona-navigation>a:hover .persona-nav-name{color:var(--foreground)}
+@media(max-width:760px){.integrated-cases .persona-navigation{column-gap:28px}.integrated-cases .persona-navigation>a .persona-nav-name{font-size:18px}.integrated-cases .persona-navigation>a .persona-nav-role{font-size:9px}}
