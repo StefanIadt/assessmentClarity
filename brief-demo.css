@@ -11,3 +11,6 @@ html{background:transparent;scroll-behavior:auto}body{min-height:0;background:tr
 html.dark{--background:#191b18;--foreground:#f1f0e9;--card:#22251f;--muted:#2b2e27;--muted-foreground:#b7b8ad;--accent:#30342b;--accent-foreground:#f1f0e9;--border:#50554a;--brand:#a2a5ff;--brand-foreground:#11120f;color-scheme:dark}body{color:var(--foreground)}html.dark.demo-hc{--background:#000;--card:#000;--foreground:#fff;--muted-foreground:#fff;--border:#ccc}
 
 .demo-still .focus-unit{transition:none}
+/* Paint the whole embedded viewport, even when the selected section is short. */
+html{min-height:100%;background:var(--card)}
+body,body.brief-viewer-page{min-height:100svh;background:var(--card)}
