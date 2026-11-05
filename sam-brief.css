@@ -20,3 +20,16 @@ html.in-phone #sam-fixed-header .demo-toolbar button>span{display:none!important
 @media(max-width:360px){#sam-fixed-header .demo-toolbar button,html.in-phone #sam-fixed-header .demo-toolbar button{min-width:32px;min-height:40px;padding:6px!important}#sam-fixed-header .demo-toolbar>div{gap:3px!important}}
 @media(max-width:640px){.schedule-scroll{overflow:visible}.schedule-axis{grid-template-columns:repeat(12,minmax(0,1fr));min-width:0;font-size:10px}.schedule-axis span:first-child{display:none}.schedule-phase{grid-template-columns:1fr;min-width:0;gap:5px;margin:10px 0;font-size:12px}.schedule-track{min-width:0;height:22px}.schedule-bar{height:16px}.schedule-example-note{float:none;display:block;margin-top:5px}}
 @media(max-width:640px){#rubric details[data-criterion]{min-width:0!important}#rubric details[data-criterion]>summary{min-width:0}#rubric [data-criterion-title]{overflow-wrap:anywhere}}
+/* Original reading behaviour: the current part stays clear as the reader scrolls. */
+body[data-focus-tracking=viewport].focus-on #document .focus-unit{opacity:1;filter:none}
+body[data-focus-tracking=viewport] #document .reading-focus-unit{transition:opacity .45s ease}
+body[data-focus-tracking=viewport].focus-on #document .reading-focus-unit{opacity:.22;filter:none}
+body[data-focus-tracking=viewport].focus-on #document .reading-focus-current{opacity:1;filter:none}
+@media(prefers-reduced-motion:reduce){body[data-focus-tracking=viewport] #document .reading-focus-unit{transition:none}}
+body[data-focus-tracking=viewport].demo-still #document .reading-focus-unit{transition:none}
+@media print{body[data-focus-tracking=viewport].focus-on #document .reading-focus-unit{opacity:1!important}}
+body[data-focus-tracking=viewport] #document .reading-focus-section h2,body[data-focus-tracking=viewport] #document .reading-focus-section>p{transition:opacity .45s ease}
+body[data-focus-tracking=viewport].focus-on #document .reading-focus-section:not(.reading-focus-current):not(:has(.reading-focus-current)) h2,body[data-focus-tracking=viewport].focus-on #document .reading-focus-section:not(.reading-focus-current):not(:has(.reading-focus-current))>p{opacity:.22}
+@media(prefers-reduced-motion:reduce){body[data-focus-tracking=viewport] #document .reading-focus-section h2,body[data-focus-tracking=viewport] #document .reading-focus-section>p{transition:none}}
+body[data-focus-tracking=viewport].demo-still #document .reading-focus-section h2,body[data-focus-tracking=viewport].demo-still #document .reading-focus-section>p{transition:none}
+@media print{body[data-focus-tracking=viewport].focus-on #document .reading-focus-section h2,body[data-focus-tracking=viewport].focus-on #document .reading-focus-section>p{opacity:1!important}}

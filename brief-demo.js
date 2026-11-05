@@ -30,13 +30,13 @@ function closePanels(){ $$('.toolbar-panel').forEach(p=>p.hidden=true);$$('[data
 $$('[data-control]').forEach(button=>button.addEventListener('click',()=>{
  const action=button.dataset.control;
  if(['contents','display','actions','audio'].includes(action)){const panel=$('#'+action+'-panel'),open=panel.hidden;closePanels();panel.hidden=!open;button.setAttribute('aria-expanded',String(open));if(open)panel.querySelector('input,select,button')?.focus();resize();return}
- if(action==='focus'){focus=!focus;document.body.classList.toggle('focus-on',focus);button.setAttribute('aria-pressed',String(focus));if(focus&&!$('.focus-current'))$('.focus-unit')?.classList.add('focus-current');post('feature',{feature:'focus',enabled:focus});resize()}
+ if(action==='focus'){focus=!focus;document.body.classList.toggle('focus-on',focus);button.setAttribute('aria-pressed',String(focus));if(focus&&document.body.dataset.focusTracking!=='viewport'&&!$('.focus-current'))$('.focus-unit')?.classList.add('focus-current');post('feature',{feature:'focus',enabled:focus});resize()}
  if(action==='dark'){config.dark=!config.dark;configure(config);post('theme',{dark:config.dark})}
  if(action==='contrast'){const on=document.documentElement.classList.toggle('demo-hc');button.setAttribute('aria-pressed',String(on));post('feature',{feature:'contrast',enabled:on})}
 }));
 $$('[data-view]').forEach(b=>b.addEventListener('click',()=>{if(config.continuous){closePanels();post('jump',{id:({begin:'brief-metadata',detail:'project-details',assessment:'rubric',checklist:'submission-checklist'})[b.dataset.view]});return}configure({view:b.dataset.view});post('view',{view:b.dataset.view})}));
 $('#contents-search').addEventListener('input',event=>{$$('#contents-panel [data-view]').forEach(b=>b.hidden=!b.textContent.toLowerCase().includes(event.target.value.toLowerCase()))});
-$$('.focus-unit').forEach(row=>{function highlight(){if(!focus)return;$$('.focus-current').forEach(e=>e.classList.remove('focus-current'));row.classList.add('focus-current')}row.addEventListener('pointerenter',highlight);row.addEventListener('focusin',highlight)});
+$$('.focus-unit').forEach(row=>{function highlight(){if(!focus||document.body.dataset.focusTracking==='viewport')return;$$('.focus-current').forEach(e=>e.classList.remove('focus-current'));row.classList.add('focus-current')}row.addEventListener('pointerenter',highlight);row.addEventListener('focusin',highlight)});
 $('#text-size').addEventListener('change',e=>{$('#document').style.setProperty('--font-scale',e.target.value);post('feature',{feature:'text',enabled:e.target.value!=='1'});resize()});
 $('#line-space').addEventListener('change',e=>{document.documentElement.style.setProperty('--demo-line',e.target.value);resize()});
 $$('[data-expand]').forEach(b=>b.addEventListener('click',()=>{const row=$('#self-detail-'+b.dataset.expand),open=row.hidden;row.hidden=!open;b.setAttribute('aria-expanded',String(open));b.firstElementChild.textContent=open?'–':'+';resize()}));

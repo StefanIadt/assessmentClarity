@@ -18,9 +18,9 @@
   if(stage==='detail'&&!visited.has(stage))all('#project-details details').forEach(e=>e.open=false);
   if(stage==='schedule'&&!visited.has(stage)){q('[data-phase="1"]')?.click();const tip=q('.schedule-tooltip');if(tip)tip.hidden=true;}
   q('#ai-log').hidden=true;header.classList.toggle('ai-chapter',stage==='detail');
-  visited.add(stage);highlight(stage);closePanels();scrollTo(0,0);if(announce)post('stage',{stage});resize();
+  visited.add(stage);highlight(stage);closePanels();scrollTo(0,0);requestReadingFocus();if(announce)post('stage',{stage});resize();
  }
- function restoreComplete(){projectRows.forEach(e=>{e.hidden=false;e.classList.add('focus-unit')});guided=false;document.documentElement.classList.remove('guided-reading');all('#document > *').forEach(e=>e.hidden=false);all('.guided-row').forEach(e=>{e.hidden=false;e.classList.remove('guided-row')});q('#ai-log').hidden=true;cleanHighlight()}
+ function restoreComplete(){projectRows.forEach(e=>{e.hidden=false;e.classList.add('focus-unit')});guided=false;document.documentElement.classList.remove('guided-reading');all('#document > *').forEach(e=>e.hidden=false);all('.guided-row').forEach(e=>{e.hidden=false;e.classList.remove('guided-row')});q('#ai-log').hidden=true;cleanHighlight();requestReadingFocus()}
  function jump(id){closePanels();const stage=id==='schedule'?'schedule':id==='rubric'?'assessment':id==='submission-checklist'||id==='submission-form'?'check':id==='key-expectations'||id==='ai-requirement'||id==='ai-policy'?'detail':'task';if(guided){showStage(stage);return}const e=q('#'+id);if(e)scrollTo({top:scrollY+e.getBoundingClientRect().top-header.offsetHeight-15,behavior:'auto'})}
  const nav=q('#contents-panel nav');nav.replaceChildren();[['schedule','Schedule'],['project-details','Project Details'],['ai-policy','AI Policy and Usage Log'],['rubric','Rubric'],['submission-checklist','Submission Checklist']].forEach(([id,text])=>{const b=document.createElement('button');b.type='button';b.dataset.jump=id;b.textContent=text;b.addEventListener('click',()=>jump(id));nav.append(b)});const full=document.createElement('a');full.href='sam-brief.html?full=1';full.target='_blank';full.rel='noopener';full.className='complete-brief-link';full.textContent='Read the complete brief ↗';nav.append(full);
  q('#contents-search').addEventListener('input',e=>all('#contents-panel [data-jump]').forEach(b=>b.hidden=!b.textContent.toLowerCase().includes(e.target.value.toLowerCase())));
@@ -28,13 +28,47 @@
  // Student Actions stays the original control, routing to the same guided section.
  all('#actions-panel [data-view]').forEach(b=>b.addEventListener('click',()=>{if(guided)jump(b.dataset.view==='assessment'?'rubric':'submission-checklist')}));
  addEventListener('message',event=>{if(event.source!==parent||event.origin!==location.origin||event.data?.source!=='sam-story')return;const msg=event.data;if(msg.type==='stage')showStage(msg.stage,false);if(msg.type==='device'){document.documentElement.classList.toggle('in-phone',msg.phone);fixedHeader()}if(msg.type==='contents'&&q('#contents-panel').hidden)q('[data-control=contents]').click()});
- function focusRequirement(detail){if(!guided||currentStage!=='detail'||!document.body.classList.contains('focus-on'))return;const row=detail.closest('.guided-row');row?.classList.remove('focus-unit');all('#key-expectations details').forEach(e=>e.classList.add('focus-unit','guided-focus-child'));all('.focus-current').forEach(e=>e.classList.remove('focus-current'));detail.classList.add('focus-current')}all('#key-expectations details').forEach(detail=>{detail.addEventListener('focusin',()=>focusRequirement(detail));detail.addEventListener('pointerenter',()=>focusRequirement(detail))});all('[data-control=focus]').forEach(b=>b.addEventListener('click',()=>focusRequirement(q('#ai-requirement'))));
+ // Focus follows the reading position, independently of the pointer.
+ document.body.dataset.focusTracking='viewport';
+ let readingFrame=0;
+ const readingUnits=[];
+ all('#document > section, #document > .demo-pane').forEach(node=>node.classList.add('reading-focus-section'));
+ function addReadingUnit(node){if(node&&!readingUnits.includes(node)){node.classList.add('reading-focus-unit');readingUnits.push(node)}}
+ ['#brief-metadata','#one-page-summary','#resources','#ai-policy .ai-guidance','#faq','#how-work-is-marked'].forEach(selector=>addReadingUnit(q(selector)));
+ projectRows.forEach(addReadingUnit);
+ all('#rubric details[data-criterion], #schedule .schedule-phase, #schedule .schedule-selected, #submission-form .grid, #submission-checklist .demo-checks > label, #ai-log-form > label, #ai-log-form .log-dates').forEach(addReadingUnit);
+ // Form layouts can contain nested grid rows; fade only the outer reading block.
+ readingUnits.forEach(node=>{if(node.parentElement.closest('.reading-focus-unit'))node.classList.remove('reading-focus-unit')});
+ const focusBlocks=readingUnits.filter(node=>node.classList.contains('reading-focus-unit'));
+ function updateReadingFocus(){
+  readingFrame=0;
+  if(!document.body.classList.contains('focus-on')){all('.reading-focus-current').forEach(node=>node.classList.remove('reading-focus-current'));return}
+  const top=header.getBoundingClientRect().bottom+8,bottom=innerHeight-12,maxScroll=document.documentElement.scrollHeight-innerHeight;
+  const atEnd=maxScroll>2&&scrollY>=maxScroll-2,line=atEnd?bottom-12:top+Math.max(0,bottom-top)*.32;
+  let best=null,distance=Infinity;
+  focusBlocks.forEach(node=>{
+   if(!node.getClientRects().length)return;const rect=node.getBoundingClientRect();
+   if(rect.height<=0||rect.width<=0||rect.bottom<=top||rect.top>=bottom)return;
+   const nextDistance=rect.top>line?rect.top-line:rect.bottom<line?line-rect.bottom:0;
+   if(nextDistance<distance){best=node;distance=nextDistance}
+  });
+  all('.reading-focus-current').forEach(node=>{if(node!==best)node.classList.remove('reading-focus-current')});
+  best?.classList.add('reading-focus-current');
+ }
+ function requestReadingFocus(){if(!readingFrame)readingFrame=requestAnimationFrame(updateReadingFocus)}
+ addEventListener('scroll',requestReadingFocus,{passive:true});addEventListener('resize',requestReadingFocus);
+ document.addEventListener('toggle',requestReadingFocus,true);
+ // Keyboard users also keep the field or requirement they enter fully readable.
+ document.addEventListener('focusin',event=>{if(!document.body.classList.contains('focus-on'))return;const block=event.target.closest('.reading-focus-unit');if(block){all('.reading-focus-current').forEach(node=>node.classList.remove('reading-focus-current'));block.classList.add('reading-focus-current')}});
+ all('[data-control=focus]').forEach(button=>button.addEventListener('click',requestReadingFocus));
+ new ResizeObserver(requestReadingFocus).observe(q('#document'));
+ new ResizeObserver(requestReadingFocus).observe(header);
  all('[data-control=dark]').forEach(b=>b.addEventListener('click',()=>{if(logOpen)openLog();else if(guided)showStage(currentStage,false)}));q('#read-aloud').addEventListener('click',event=>{if(!guided)return;event.stopImmediatePropagation();speak(q(roots[currentStage]).innerText)},true);
  // The same Student Actions route as the source brief, with a tab-local working log.
  const form=q('#ai-log-form'),entries=[{entryName:'Entry 1'}];let entryIndex=0,logOpen=false;
  function saveEntry(){entries[entryIndex]=Object.fromEntries(new FormData(form));entries[entryIndex].confirmation=form.elements.confirmation.checked}
  function fillEntry(){form.reset();Object.entries(entries[entryIndex]).forEach(([key,value])=>{if(form.elements[key]){if(key==='confirmation')form.elements[key].checked=!!value;else form.elements[key].value=value}});q('#log-entry').value=String(entryIndex)}
- function openLog(){closePanels();logOpen=true;all('#document > *').forEach(e=>e.hidden=true);q('#ai-log').hidden=false;document.documentElement.classList.add('log-open');scrollTo(0,0);q('#back-from-log').focus()}
+ function openLog(){closePanels();logOpen=true;all('#document > *').forEach(e=>e.hidden=true);q('#ai-log').hidden=false;document.documentElement.classList.add('log-open');scrollTo(0,0);q('#back-from-log').focus();requestReadingFocus()}
  function closeLog(){saveEntry();logOpen=false;document.documentElement.classList.remove('log-open');if(guided)showStage(currentStage,false);else restoreComplete();q('#ai-log').hidden=true;scrollTo(0,0)}
  q('#open-ai-log').addEventListener('click',openLog);q('#back-from-log').addEventListener('click',closeLog);
  q('#show-student-actions').addEventListener('click',()=>{if(q('#actions-panel').hidden)q('[data-control=actions]').click();q('#open-ai-log').focus()});
