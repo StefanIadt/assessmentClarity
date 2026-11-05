@@ -56,3 +56,6 @@ body:has(#prefs[open]) #prefs-open{visibility:hidden}
 .staggered-menu #prefs-close{transition:none}
 .top .logo{font-weight:650}
 .back-to-top{right:var(--top-control-right,24px)}
+
+.back-to-top{opacity:0;visibility:hidden;pointer-events:none}
+body.past-first-fold .back-to-top{opacity:1;visibility:visible;pointer-events:auto}

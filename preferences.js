@@ -59,5 +59,7 @@
  get('motion-toggle')?.addEventListener('click',()=>{controls.reduce.checked=!controls.reduce.checked;controls.reduce.dispatchEvent(new Event('change'));});
  motion.addEventListener('change',()=>{controls.reduce.checked=motion.matches||saved.reduce===true;controls.reduce.dispatchEvent(new Event('change'));});
  colour.addEventListener('change',()=>{if(typeof saved.dark!=='boolean'){controls.dark.checked=colour.matches;paint();}});
+ function backToTopVisibility(){document.body.classList.toggle('past-first-fold',scrollY>=innerHeight);}
+ addEventListener('scroll',backToTopVisibility,{passive:true});addEventListener('resize',backToTopVisibility);backToTopVisibility();
  paint();
 })();
