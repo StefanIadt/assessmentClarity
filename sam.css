@@ -93,3 +93,16 @@ html.case-story::-webkit-scrollbar,.embedded-case .sam-panel::-webkit-scrollbar{
  .embedded-case.person-maya .sam-name-block{display:flex;flex-direction:column;justify-content:space-between}
 }
 @media(min-width:761px) and (max-width:1050px){.embedded-case.person-maya .maya-photo{width:96px;min-height:132px}}
+/* Keep each role beside its name; anchor the quieter detail to the portrait bottom. */
+@media(min-width:761px){
+ .embedded-case .sam-identity,.embedded-case.person-maya .sam-identity{align-items:stretch}
+ .embedded-case .sam-photo,.embedded-case.person-maya .maya-photo{position:relative;width:140px;min-height:140px;height:auto;aspect-ratio:auto}
+ .embedded-case .sam-photo img,.embedded-case.person-maya .maya-photo img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+ .embedded-case .sam-name-block,.embedded-case.person-maya .sam-name-block{display:flex;flex-direction:column;justify-content:flex-start}
+ .embedded-case .sam-name-block h1,.embedded-case.person-maya .sam-name-block h1{margin-bottom:4px}
+ .embedded-case .sam-name-block p{margin:0}
+ .embedded-case .sam-name-block>span{margin-top:auto;padding-top:12px}
+}
+@media(min-width:761px) and (max-width:1050px){.embedded-case .sam-photo,.embedded-case.person-maya .maya-photo{width:96px;min-height:132px}}
+.device-caption button[aria-pressed=true]{border-color:transparent;text-decoration:none}
+.device-caption button[aria-pressed=true] svg{stroke-width:2.25}

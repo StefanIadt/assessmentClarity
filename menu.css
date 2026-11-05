@@ -61,3 +61,5 @@ body:has(#prefs[open]) #prefs-open{visibility:hidden}
 body.past-first-fold .back-to-top{opacity:1;visibility:visible;pointer-events:auto}
 
 .menu-reading-choice .menu-oer{display:inline-flex;align-items:center;min-height:40px;margin-top:8px;font-size:14px;line-height:1.4;text-underline-offset:4px;color:var(--foreground)}
+
+.top .logo .logo-clarity{font-weight:450}
