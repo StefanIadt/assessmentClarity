@@ -25,3 +25,6 @@ body>.top .logo{font-size:14px}
 body>.top .experience-controls{width:auto;gap:18px}
 body:not(.readable-page) main>section{scroll-margin-top:56px}
 @media(max-width:760px){body>.top{padding:6px 16px}body>.top .logo{font-size:12px}body>.top .experience-controls{gap:12px}}
+
+.top .oer-nav{font-size:12px;text-transform:none;letter-spacing:0;text-underline-offset:4px;white-space:nowrap}
+@media(max-width:370px){.top .oer-nav{font-size:11px}body>.top .experience-controls{gap:10px}}
