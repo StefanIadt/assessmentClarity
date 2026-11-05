@@ -28,3 +28,9 @@ body:not(.readable-page) main>section{scroll-margin-top:56px}
 
 .top .oer-nav{font-size:12px;text-transform:none;letter-spacing:0;text-underline-offset:4px;white-space:nowrap}
 @media(max-width:370px){.top .oer-nav{font-size:11px}body>.top .experience-controls{gap:10px}}
+
+#tool.integrated-cases,.story-still #tool.integrated-cases{height:calc(100svh - var(--main-header-height,56px) + var(--persona-travel,320svh))}
+.integrated-cases .case-study-rail{overflow-x:auto;scrollbar-width:none}
+.integrated-cases .persona-navigation{align-items:center;gap:24px;flex-wrap:wrap;padding-top:5px;padding-bottom:5px}
+.persona-prompt{margin:0 0 0 auto;color:var(--subtle);font-size:11px;line-height:1.4;max-width:54ch}
+@media(max-width:760px){.integrated-cases .persona-navigation{gap:3px 24px}.persona-prompt{flex-basis:100%;margin:0;font-size:10px;padding-bottom:3px}}
