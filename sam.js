@@ -9,20 +9,22 @@
  {key:'assessment',name:'Assessment',question:'What am I being marked for?',match:'Rubric',story:'The {match} makes the evidence and standards explicit. Sam can open a criterion and compare its descriptions with his own work.',research:'Andrade’s review supports formative self-assessment with guidance and opportunities to improve. This provides a rationale, not evidence of this tool’s effectiveness.',source:'https://doi.org/10.3389/feduc.2019.00087'},
  {key:'check',name:'Submission',question:'Have I included everything?',match:'Submission Checklist',story:'Sam uses the {match} to check the required links and records. This checks completeness; the rubric judges the quality of his evidence.',research:'Monitoring progress and reviewing quality serve different purposes. Checkmarks record preparation, not achievement.',source:'https://udlguidelines.cast.org/action-expression/strategy-development/monitor-progress/'}
  ];
- if(maya){const teacher=[
- {question:'Is the next step clear?',story:'Maya reviews the {match} before sharing her computing brief. She checks that each phase names an action and a checkpoint, rather than leaving students with only a final deadline.'},
- {question:'Can students find the essential task?',story:'Maya checks the {match} in the student preview: build a responsive website with Tailwind CSS. Supporting guidance stays available without overwhelming the starting point.'},
- {question:'Are the AI expectations explicit?',story:'Maya checks that the AI policy explains how AI may be used and evaluated. Through {match} → AI Usage Log, she reviews the record students will complete.'},
- {question:'Does the evidence match the criteria?',story:'Maya reviews the {match}: implementation, testing and reflection. She checks that the evidence and grade descriptions make her expectations visible to students.'},
- {question:'Will students know what to hand in?',story:'Maya reviews the {match} against the brief’s submission procedure. Figma, GitHub and deployment links must be named consistently; completion remains separate from quality.'}
- ];steps.forEach((step,i)=>Object.assign(step,teacher[i]));}
+ if(maya){steps.splice(0,steps.length,
+ {key:'overview',name:'Overview',question:'How much does this brief need?',match:'Brief Overview',story:'Maya creates a Psychology of UX group assignment. The {match} makes the task, group output, individual reflection and word counts explicit.',research:'Maya’s scenario is illustrative. Keeping core requirements visible gives readers a clear starting point; the detailed instructions remain available when needed.',source:'https://www.w3.org/WAI/WCAG2/supplemental/patterns/o2p03-page-structure/'},
+ {key:'literature',name:'Research',question:'Where will students find good evidence?',match:'Literature Review',story:'Maya connects the {match} to books, journal articles, podcasts, videos and IADT Library resources. Students can explore different formats while critically evaluating the research evidence.',research:'Different formats offer routes into the subject. They do not remove the need to evaluate research quality or follow the stated evidence requirements.',source:'https://library.iadt.ie/guidesandhelp/'},
+ {key:'journal',name:'Reflection',question:'Whose contribution am I assessing?',match:'Reflective Journal',story:'The work is shared; the reflection is personal. Each student opens the {match} from Student Actions to record contribution, decisions, feedback and their own performance.',research:'Guided reflection and self-assessment can support reviewing and improving work. A record of activity alone is not evidence of quality.',source:'https://doi.org/10.3389/feduc.2019.00087'},
+ {key:'formative',name:'Feedback',question:'What did we agree in the group conversation?',match:'Formative Log',story:'Maya uses the {match} to record strengths, areas for development and agreed next steps. The student preview shows shared feedback and excludes her private teaching note.',research:'This example distinguishes a lecturer’s teaching record from feedback shared with students. The demo does not send or save these records.',source:'https://doi.org/10.1080/03075070600572090'},
+ {key:'assessment',name:'Rubric',question:'How does the individual evidence fit?',match:'Rubric',story:'The {match} separates the group’s research and analysis from each student’s reflection. Maya can review Alex’s or Riley’s personal log alongside the individual criterion.',research:'Criteria, evidence and individual responsibilities need to be explicit. The example weightings illustrate the distinction; they are not an institutional policy.',source:'https://doi.org/10.3389/feduc.2019.00087'},
+ {key:'walkthrough',name:'Walkthrough',question:'What might still be ambiguous?',match:'Assessment Walkthrough',story:'Before sharing, Maya records an {match}. Students can expand the card, watch with captions on, or read the transcript alongside the written brief.',research:'The recording supplements the written requirements. Playback is student-controlled and the same explanation is available in a transcript.',source:'https://www.w3.org/WAI/media/av/'})}
  function send(type,data={}){if(loaded)frame.contentWindow.postMessage({source:'sam-story',type,...data},location.origin)}
  const main=q('#sam-start'),nav=q('.chapter-index');
+ const chrome=()=>{const height=q('.top').offsetHeight+q('.demo-notice').offsetHeight;document.documentElement.style.setProperty('--scene-top',height+'px');document.documentElement.style.setProperty('--site-header-height',q('.top').offsetHeight+'px')};new ResizeObserver(chrome).observe(q('.top'));new ResizeObserver(chrome).observe(q('.demo-notice'));chrome();
  q('.story-navigation').remove();const other=document.createElement('a');other.className='next-person';other.href=maya?'sam.html':'maya.html';other.textContent=maya?'Sam · student →':'Maya · lecturer →';q('.sam-identity').after(other);
- const trail=document.createElement('div');trail.className='chapter-landmarks';main.append(trail);
- steps.forEach((step,i)=>{const a=document.createElement('a');a.href='#chapter-'+step.key;a.innerHTML='<span>'+String(i+1).padStart(2,'0')+'</span><span>'+step.name+'</span>';a.addEventListener('click',e=>{e.preventDefault();go(i)});nav.append(a);const landmark=document.createElement('section');landmark.id='chapter-'+step.key;landmark.setAttribute('aria-label',step.name);landmark.style.top=(i*100)+'vh';trail.append(landmark)});
+ const trail=document.createElement('div');trail.className='chapter-landmarks';
+ if(maya){main.classList.add('maya-scroll');main.tabIndex=0;main.setAttribute('role','region');main.style.setProperty('--chapter-count',steps.length);main.append(trail)}else{main.append(trail);main.style.height=(steps.length*100)+'vh'}
+ steps.forEach((step,i)=>{const a=document.createElement('a');a.href='#chapter-'+step.key;a.innerHTML='<span>'+String(i+1).padStart(2,'0')+'</span><span>'+step.name+'</span>';a.addEventListener('click',e=>{e.preventDefault();go(i)});nav.append(a);const landmark=document.createElement('section');landmark.id='chapter-'+step.key;landmark.setAttribute('aria-label',step.name);if(maya){landmark.style.gridColumn=String(i+1);landmark.style.gridRow='1'}else landmark.style.top=(i*100)+'vh';trail.append(landmark)});
  const reduced=()=>matchMedia('(prefers-reduced-motion: reduce)').matches||document.body.classList.contains('story-still');
- function go(i){const top=main.offsetTop+i*innerHeight;window.scrollTo({top,behavior:reduced()?'instant':'smooth'})}
+ function go(i){const behavior=reduced()?'instant':'smooth';if(maya)main.scrollTo({left:i*main.clientWidth,behavior});else window.scrollTo({top:main.offsetTop+i*innerHeight,behavior})}
  let fadeTimer;
  function paint(sync=true,fade=false){
   const step=steps[index];all('.chapter-index a').forEach((a,i)=>{if(i===index)a.setAttribute('aria-current','step');else a.removeAttribute('aria-current')});
@@ -31,12 +33,23 @@
   if(fade&&!reduced()){q('.sam-layout').classList.add('chapter-changing');fadeTimer=setTimeout(update,180)}else update();
  }
  let queued=false;
- function followScroll(){queued=false;const next=Math.max(0,Math.min(steps.length-1,Math.floor((scrollY-main.offsetTop+innerHeight*.32)/innerHeight)));if(next!==index){index=next;paint(true,true)}}
- addEventListener('scroll',()=>{if(!queued){queued=true;requestAnimationFrame(followScroll)}},{passive:true});
+ function followScroll(){queued=false;const next=Math.max(0,Math.min(steps.length-1,maya?Math.round(main.scrollLeft/main.clientWidth):Math.floor((scrollY-main.offsetTop+innerHeight*.32)/innerHeight)));if(next!==index){index=next;paint(true,true)}}
+ (maya?main:window).addEventListener('scroll',()=>{if(!queued){queued=true;requestAnimationFrame(followScroll)}},{passive:true});
  addEventListener('resize',followScroll);
- function setDevice(next){phone=next;document.body.classList.toggle('phone-view',phone);document.body.classList.toggle('laptop-view',!phone);all('[data-device]').forEach(b=>b.setAttribute('aria-pressed',String((b.dataset.device==='phone')===phone)));requestAnimationFrame(()=>send('device',{phone}))}
+ let deviceAnimation=null,morphTimer;
+ function setDevice(next,animate=true){
+  const surface=q('.phone-surface'),previous=surface.getBoundingClientRect().width;
+  deviceAnimation?.cancel();clearTimeout(morphTimer);phone=next;
+  document.body.classList.toggle('phone-view',phone);document.body.classList.toggle('laptop-view',!phone);
+  all('[data-device]').forEach(b=>b.setAttribute('aria-pressed',String((b.dataset.device==='phone')===phone)));
+  const width=phone?Math.min(430,q('.sam-document').clientWidth):q('.sam-document').clientWidth;
+  surface.style.width=width+'px';send('device',{phone});
+  if(animate&&!reduced()&&Math.abs(width-previous)>1){document.body.classList.add('device-morph');deviceAnimation=surface.animate([{width:previous+'px'},{width:width+'px'}],{duration:600,easing:'cubic-bezier(.22,.7,.25,1)'});morphTimer=setTimeout(()=>{document.body.classList.remove('device-morph');send('device-settled',{phone})},600)}else{document.body.classList.remove('device-morph');morphTimer=setTimeout(()=>send('device-settled',{phone}),100)}
+ }
+ let resizeTimer;addEventListener('resize',()=>{clearTimeout(resizeTimer);resizeTimer=setTimeout(()=>{setDevice(phone,false);if(maya)main.scrollTo({left:index*main.clientWidth,behavior:'instant'})},80)});
+ if(maya)main.addEventListener('keydown',e=>{if(e.target!==main)return;if(e.key==='ArrowRight'||e.key==='ArrowLeft'){e.preventDefault();go(Math.max(0,Math.min(steps.length-1,index+(e.key==='ArrowRight'?1:-1))))}});
  all('[data-device]').forEach(b=>b.addEventListener('click',()=>setDevice(b.dataset.device==='phone')));
- frame.addEventListener('load',()=>{loaded=true;frame.contentWindow.postMessage({source:'clarity-story',config:{continuous:true,role:'student',dark:false,viewportHeight:innerHeight}},location.origin);send('device',{phone});paint()});
- addEventListener('message',event=>{if(event.source!==frame.contentWindow||event.origin!==location.origin||event.data?.source!=='clarity-brief-demo')return;if(event.data.type==='stage'){const next=steps.findIndex(s=>s.key===event.data.stage);if(next>=0&&next!==index){index=next;paint(false,true);window.scrollTo({top:main.offsetTop+next*innerHeight,behavior:'instant'})}}});
- setDevice(phone);paint(false);requestAnimationFrame(followScroll);
+ frame.addEventListener('load',()=>{loaded=true;frame.contentWindow.postMessage({source:'clarity-story',config:{continuous:true,role:'student',dark:false,viewportHeight:innerHeight}},location.origin);setDevice(phone,false);paint()});
+ addEventListener('message',event=>{if(event.source!==frame.contentWindow||event.origin!==location.origin||event.data?.source!=='clarity-brief-demo')return;if(event.data.type==='stage'){const next=steps.findIndex(s=>s.key===event.data.stage);if(next>=0&&next!==index){index=next;paint(false,true);maya?main.scrollTo({left:next*main.clientWidth,behavior:'instant'}):window.scrollTo({top:main.offsetTop+next*innerHeight,behavior:'instant'})}}});
+ setDevice(phone,false);paint(false);requestAnimationFrame(followScroll);
 })();

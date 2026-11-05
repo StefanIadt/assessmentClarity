@@ -21,3 +21,11 @@ All assessment examples are fictional. No student records or identifiable studen
 ## Notes
 
 The interaction is a custom implementation inspired by typographic and particle-based design references. React Bits components are not directly imported. A further priority is making existing fragments physically assemble into the final document rather than crossfading into a separate one.
+
+### Persona scenario demos
+
+- `sam.html` follows a computing student through a vertical story.
+- `maya.html` follows a Psychology of UX lecturer through six native horizontal chapters, with her card on the right on wider screens. Chapter links and keyboard arrows also work; vertical wheel input is not remapped.
+- `maya-brief.html` uses the captured brief typography and toolbar for a fictional group literature review. Journals are separate for Alex and Riley; group feedback records are separate; private teaching notes are omitted from the student feedback preview. Records live only in the current tab.
+- The walkthrough is an illustrative recording of the demo screens with a generated fictional portrait and synthetic narration. Its English captions are enabled by default and a matching transcript is included. No camera or microphone is requested.
+- Scenario controls stay inside their reader. The notice links to the complete Building Better Briefs OER; features outside the scenarios are not presented as working production features.
