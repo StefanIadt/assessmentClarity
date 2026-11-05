@@ -37,10 +37,8 @@ body:not(.readable-page) main>section{scroll-margin-top:56px}
 .integrated-cases .persona-navigation>a,.integrated-cases .persona-navigation>a[aria-current]{text-decoration:none;gap:8px;padding:5px 0;min-height:32px;align-items:baseline;color:var(--subtle);font-weight:400}
 .integrated-cases .persona-navigation>a .persona-nav-name{font-size:18px;line-height:1;letter-spacing:-.04em}
 .integrated-cases .persona-navigation>a .persona-nav-role{font-size:9px;line-height:1.2;letter-spacing:.09em;text-transform:uppercase;color:var(--subtle)}
-.integrated-cases .persona-navigation>a .persona-nav-arrow{font-size:16px;line-height:1;margin-left:2px}
 .integrated-cases .persona-navigation>a[aria-current]{color:var(--foreground)}
 .integrated-cases .persona-navigation>a[aria-current] .persona-nav-name{font-weight:600}
-.integrated-cases .persona-navigation>a[aria-current] .persona-nav-arrow{display:none}
 .integrated-cases .persona-navigation>a:hover .persona-nav-name{color:var(--foreground)}
 @media(max-width:760px){.integrated-cases .persona-navigation{column-gap:28px}.integrated-cases .persona-navigation>a .persona-nav-name{font-size:18px}.integrated-cases .persona-navigation>a .persona-nav-role{font-size:9px}}
 
@@ -48,8 +46,6 @@ html{background:var(--surface)}
 /* One sliding marker rests directly over the navigation rule. */
 .integrated-cases .persona-navigation{position:relative}
 .integrated-cases .persona-navigation>a .persona-nav-name,.integrated-cases .persona-navigation>a[aria-current] .persona-nav-name{font-weight:400}
-.integrated-cases .persona-navigation>a .persona-nav-arrow{display:inline-block;width:16px;flex-shrink:0}
-.integrated-cases .persona-navigation>a[aria-current] .persona-nav-arrow{display:inline-block;visibility:hidden}
 .persona-indicator{position:absolute;left:0;bottom:-1px;height:3px;width:0;background:var(--foreground);pointer-events:none;transition:transform .4s cubic-bezier(.22,1,.36,1),width .4s cubic-bezier(.22,1,.36,1)}
 .persona-indicator[hidden]{display:none}
 @media(prefers-reduced-motion:reduce){.persona-indicator{transition:none}}
