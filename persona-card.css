@@ -60,3 +60,6 @@
 .sam-persona-card{aspect-ratio:2/3.2}
 .persona-fact>span:last-child{font-size:13px;line-height:1.45}
 @media(max-width:1300px){.persona-fact>span:last-child{font-size:13px}}
+/* Soft depth follows both faces without adding a visible frame. */
+.persona-face{box-shadow:0 3px 8px #00000012,0 16px 30px -12px #00000040}
+.dark .persona-face{box-shadow:0 4px 10px #00000040,0 20px 34px -10px #00000099}
