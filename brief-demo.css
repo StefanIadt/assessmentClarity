@@ -14,3 +14,5 @@ html.dark{--background:#191b18;--foreground:#f1f0e9;--card:#22251f;--muted:#2b2e
 /* Paint the whole embedded viewport, even when the selected section is short. */
 html{min-height:100%;background:var(--card)}
 body,body.brief-viewer-page{min-height:100svh;background:var(--card)}
+/* Reader scrolling stays local until the explicit story-boundary handoff. */
+html{overscroll-behavior-y:contain}

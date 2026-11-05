@@ -9,3 +9,13 @@
 
 html.dark .assessment-walkthrough{background:#20362d;color:#e2f0e9;border-color:#496859}
 html.dark .assessment-walkthrough small{color:#b7d0c2}
+
+/* Keep the research overview compact; detailed guidance opens on request. */
+#maya-research .maya-detail{margin-bottom:8px}
+#maya-research .maya-detail>summary{padding:12px 14px;font-size:14px;line-height:1.4}
+#maya-research .maya-reading-block>.p-4{padding:14px}
+#maya-research .maya-resource-intro{font-size:14px;line-height:1.45;margin-bottom:12px}
+
+#maya-research #maya-resources-title{margin-top:24px;margin-bottom:12px}
+#maya-research>h2:first-child{margin-bottom:16px}
+#maya-research .maya-resource-group>.maya-resources{padding:4px 12px 12px}
