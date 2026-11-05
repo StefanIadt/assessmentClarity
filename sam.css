@@ -51,27 +51,3 @@ body.case-gallery{height:100svh;overflow:hidden;display:flex;flex-direction:colu
 .embedded-case.contrast .sam-document:before{display:none}
 
 .embedded-case .sam-document{overflow:clip}
-/* A two-sided editorial persona card, keeping the reading layout still. */
-.sam-persona-card{position:relative;display:block;width:100%;height:180px;padding:0;border:0;border-radius:0;background:none;color:var(--foreground);font:inherit;text-align:left;cursor:pointer;perspective:1100px;-webkit-tap-highlight-color:transparent}
-.sam-persona-card:focus-visible{outline:2px solid var(--foreground);outline-offset:5px}
-.persona-flip-inner{position:absolute;inset:0;display:block;transform-style:preserve-3d;transition:transform .7s cubic-bezier(.2,.75,.25,1.12)}
-.sam-persona-card[aria-pressed=true] .persona-flip-inner{transform:rotateY(180deg)}
-.persona-face{position:absolute;inset:0;display:flex;backface-visibility:hidden;-webkit-backface-visibility:hidden;overflow:hidden;background:var(--surface);border-top:1px solid var(--edge);border-bottom:1px solid var(--edge)}
-.persona-front{align-items:center;gap:16px}
-.persona-portrait{position:relative;display:block;width:45%;aspect-ratio:318/350;max-height:100%;flex-shrink:0;overflow:hidden;background:#111}
-.persona-portrait img{position:absolute;width:493.082%;max-width:none;left:-19.811%;top:-51.429%;filter:grayscale(1) contrast(1.65)}
-.persona-front-type{display:flex;flex:1;min-width:0;flex-direction:column;align-self:stretch;justify-content:center;padding:12px 0;gap:10px}
-.persona-name{display:block;font-size:clamp(42px,4vw,58px);line-height:.9;letter-spacing:-.07em}
-.persona-role{font-size:12px;line-height:1.4}
-.persona-turn{font-size:10px;color:var(--subtle);text-decoration:underline;text-underline-offset:4px;margin-top:auto;padding-top:10px}
-.persona-back{transform:rotateY(180deg);display:flex;flex-direction:column;padding:12px 0;box-sizing:border-box}
-.persona-kicker{font-size:9px;text-transform:uppercase;letter-spacing:.07em;color:var(--subtle)}
-.persona-back-name{font-size:48px;line-height:.9;letter-spacing:-.065em;margin-top:12px}
-.persona-back-name>span{display:block;font-size:22px;line-height:1.1;letter-spacing:-.045em;margin-top:5px}
-.persona-needs{font-size:13px;line-height:1.4;margin-top:9px}
-.persona-footer{display:flex;justify-content:space-between;gap:10px;margin-top:auto;padding-top:8px;font-size:9px;color:var(--subtle)}
-@media(max-width:760px){.sam-persona-card{height:125px}.persona-front{gap:14px}.persona-portrait{width:102px;max-height:125px}.persona-front-type{padding:9px 0;gap:6px}.persona-name{font-size:38px}.persona-role{font-size:11px}.persona-turn{padding-top:0;font-size:9px}.persona-back{padding:8px 0}.persona-kicker{font-size:8px}.persona-back-name{font-size:35px;margin-top:8px}.persona-back-name>span{display:inline;font-size:21px;margin-left:12px}.persona-needs{font-size:12px;margin-top:7px}.persona-footer{font-size:8px;padding-top:6px}}
-@media(prefers-reduced-motion:reduce){.persona-flip-inner{transition:none}}
-.story-still .persona-flip-inner{transition:none}
-.sam-persona-card{height:200px}
-@media(max-width:760px){.sam-persona-card{height:132px}}
