@@ -20,7 +20,8 @@
  function send(type,data={}){if(loaded)frame.contentWindow.postMessage({source:'sam-story',type,...data},location.origin)}
  const main=q('#sam-start'),nav=q('.chapter-index');
  const chrome=()=>{const height=q('.top').offsetHeight+q('.demo-notice').offsetHeight;document.documentElement.style.setProperty('--scene-top',height+'px');document.documentElement.style.setProperty('--site-header-height',q('.top').offsetHeight+'px')};new ResizeObserver(chrome).observe(q('.top'));new ResizeObserver(chrome).observe(q('.demo-notice'));chrome();
- q('.story-navigation').remove();const other=document.createElement('a');other.className='next-person';other.href=maya?'#sam':'#maya';other.textContent=maya?'← Sam · student':'Maya · lecturer →';other.addEventListener('click',event=>{event.preventDefault();parent.postMessage({source:'clarity-case-study',type:'person',person:maya?'sam':'maya'},location.origin)});q('.sam-identity').after(other);
+ q('.story-navigation').remove();
+ const caption=q('.device-caption');const alignProfile=()=>document.documentElement.style.setProperty('--profile-top',(caption.getBoundingClientRect().height+parseFloat(getComputedStyle(caption).marginBottom||0))+'px');new ResizeObserver(alignProfile).observe(caption);addEventListener('resize',alignProfile);alignProfile();
  let feedbackPreview=false;const previewButton=document.createElement('button');previewButton.type='button';previewButton.className='scenario-preview';previewButton.id='scenario-feedback-preview';previewButton.textContent='Preview what students see →';previewButton.hidden=true;if(maya)q('.sam-context').after(previewButton);previewButton.addEventListener('click',()=>send(feedbackPreview?'teacher-feedback-view':'student-feedback-preview'));
  q('#context-source').addEventListener('click',e=>e.preventDefault());
  const trail=document.createElement('div');trail.className='chapter-landmarks';
