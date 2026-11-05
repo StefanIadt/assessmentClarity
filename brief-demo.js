@@ -58,3 +58,6 @@ addEventListener('keydown',event=>{if(event.key==='Escape'){closePanels();if($('
 addEventListener('message',event=>{if(event.source!==parent||event.origin!==location.origin||event.data?.source!=='clarity-story')return;configure(event.data.config||{})});if(document.body.dataset.continuous==='true')config.continuous=true;const requestedView=new URLSearchParams(location.search).get('view');if(requestedView==='assessment'||document.body.dataset.defaultView==='assessment')config.view='assessment';configure(config);post('ready');
 
 let printDetails=[];addEventListener("beforeprint",()=>{printDetails=$$("details").map(e=>[e,e.open]);printDetails.forEach(([e])=>e.open=true)});addEventListener("afterprint",()=>printDetails.forEach(([e,open])=>e.open=open));
+
+// The site theme sets the reading surface without changing its current chapter.
+addEventListener('message',event=>{if(event.source!==parent||event.origin!==location.origin||event.data?.source!=='sam-story'||event.data.type!=='master-theme')return;config.dark=!!event.data.dark;document.documentElement.classList.toggle('dark',config.dark);$$('[data-control=dark]').forEach(button=>button.setAttribute('aria-pressed',String(config.dark)));document.querySelectorAll('iframe').forEach(frame=>frame.contentWindow?.postMessage({source:'sam-story',type:'master-theme',dark:config.dark},location.origin))});

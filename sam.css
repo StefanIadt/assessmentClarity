@@ -40,3 +40,15 @@ body.case-gallery{height:100svh;overflow:hidden;display:flex;flex-direction:colu
 .case-study-rail:after{display:none}.case-study-slide:last-child{scroll-snap-align:end}
 @media(max-width:760px){.embedded-case .chapter-index{overflow-x:auto;scrollbar-width:none}.embedded-case .chapter-index a{flex-shrink:0}}
 #context-source[aria-disabled=true]{opacity:.5;cursor:default;text-decoration:none}
+/* A single horizontal axis belongs to the case-study rail. */
+.case-study-rail,.case-study-rail.is-panning{scroll-snap-type:none!important}.case-study-slide{position:relative}.case-study-slide.inactive-case:after{content:'';position:absolute;inset:0;z-index:2;cursor:pointer}.case-study-rail.is-moving .case-study-slide:after{display:none}.embedded-case{overflow-x:hidden}.embedded-case .sam-panel{overflow-x:hidden}.embedded-case .chapter-index{overflow-x:visible;max-width:100%}
+.persona-navigation{display:flex;align-items:center;gap:24px;flex-shrink:0;width:100%;box-sizing:border-box;padding:9px var(--space);min-height:45px;border-bottom:1px solid var(--edge);background:var(--surface);font-size:13px}.persona-nav-label{font-size:11px;color:var(--subtle);letter-spacing:.025em}.persona-navigation>div{display:flex;gap:26px}.persona-navigation a{display:inline-flex;align-items:baseline;gap:6px;min-height:28px;padding:3px 0;color:var(--subtle);text-decoration:none}.persona-navigation a>span{font-size:11px}.persona-navigation a[aria-current=page]{color:var(--foreground);text-decoration:underline;text-underline-offset:5px}.persona-navigation a:hover{color:var(--foreground)}.persona-navigation .return-to-story{margin-left:auto;font-size:12px;text-decoration:underline;text-underline-offset:4px}
+@media(max-width:760px){.persona-navigation{padding:7px 16px;gap:14px;min-height:43px}.persona-nav-label{display:none}.persona-navigation>div{gap:20px}.persona-navigation a{font-size:12px}.persona-navigation a>span{display:none}.persona-navigation .return-to-story{font-size:11px}.embedded-case .chapter-index,.embedded-case.person-maya .chapter-index{display:flex;flex-wrap:wrap;justify-content:flex-start;gap:4px 12px;overflow:visible}.embedded-case .chapter-index a,.embedded-case.person-maya .chapter-index a{display:inline-flex;align-items:baseline;gap:4px;min-height:24px;padding:2px 0;white-space:normal;font-size:10px}.embedded-case .chapter-index a>span:first-child{display:inline;font-size:9px}}
+
+/* A quiet dot field gives the phone view a setting without competing with the page. */
+.embedded-case.phone-view .sam-document:before{content:'';position:absolute;inset:-12px -32px;pointer-events:none;z-index:-1;background-image:radial-gradient(circle,var(--subtle) .7px,transparent .9px);background-size:17px 17px;opacity:.17;mask-image:linear-gradient(transparent,#000 12%,#000 90%,transparent)}
+.embedded-case.phone-view .train-backdrop{width:min(190%,1300px);opacity:.06}
+.embedded-case.dark.phone-view .train-backdrop{opacity:.1}
+.embedded-case.contrast .sam-document:before{display:none}
+
+.embedded-case .sam-document{overflow:clip}
