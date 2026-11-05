@@ -15,12 +15,14 @@ function description(i,j){const d=disciplines[config.discipline],band=Math.floor
  ['The reflection evaluates learning critically, connects changes to evidence and identifies specific next steps.','The reflection explains learning and identifies a useful improvement, supported by examples.','The reflection describes the process but gives limited evaluation or evidence of change.','The reflection is missing or gives little account of learning or development.']][i][band]}
 function configure(next){if(next.viewportHeight)document.documentElement.style.setProperty('--outer-viewport',next.viewportHeight+'px');const changed=next.discipline&&next.discipline!==config.discipline;config={...config,...next};const d=disciplines[config.discipline];
  document.documentElement.classList.toggle('dark',config.dark);document.documentElement.classList.toggle('demo-still',!!config.reduced);if($('.creator-controls'))$('.creator-controls').hidden=config.role!=='lecturer';
- const vals=['Example programme',d.module,d.title,'Alex — illustrative lecturer','Week 1','Week 6','Individual'];$$('[data-meta]').forEach(e=>e.textContent=vals[+e.dataset.meta]);
+ if(document.body.dataset.authored!=='true'){
+const vals=['Example programme',d.module,d.title,'Alex — illustrative lecturer','Week 1','Week 6','Individual'];$$('[data-meta]').forEach(e=>e.textContent=vals[+e.dataset.meta]);
  $('[data-task]').textContent=d.task;$('[data-outcome]').textContent=d.outcome;if(!config.continuous)$('[data-deliverable]').textContent=d.deliverable;$('[data-summary="3"]').textContent=d.task;
  $$('[data-criterion-title]').forEach(e=>e.textContent=d.criteria[+e.dataset.criterionTitle]);$$('[data-self-title]').forEach(e=>e.textContent=d.criteria[+e.dataset.selfTitle]);$$('[data-self-evidence]').forEach(e=>e.textContent=d.evidence[+e.dataset.selfEvidence]);
  $$('[data-band-text]').forEach(e=>{const[i,j]=e.dataset.bandText.split('-').map(Number);e.textContent=description(i,j*2)});
  $$('[data-lo]').forEach(e=>{e.setAttribute('aria-label',`Learning outcome ${+e.dataset.lo<2?1:2}: ${+e.dataset.lo<2?d.outcome:'Evaluate your work and identify how it could improve.'}`);e.title=e.getAttribute('aria-label')});
- if(changed){$$('.self-matrix input').forEach(e=>e.checked=false);$$('.cell-help').forEach(e=>e.hidden=true);$('#grade-explanation').hidden=true;$$('.reflection-label textarea').forEach(e=>e.value='')}
+ }
+if(changed){$$('.self-matrix input').forEach(e=>e.checked=false);$$('.cell-help').forEach(e=>e.hidden=true);$('#grade-explanation').hidden=true;$$('.reflection-label textarea').forEach(e=>e.value='')}
  $$('.demo-pane').forEach(e=>e.hidden=config.continuous?false:e.dataset.pane!==config.view);if(!visibility.begin)$('#one-page-summary').hidden=true;if(!config.continuous&&config.view==='access'){$$('.demo-pane').forEach(e=>e.hidden=e.dataset.pane!=='detail')}
  $$('[data-control=dark]').forEach(e=>e.setAttribute('aria-pressed',String(config.dark)));closePanels();resize();
 }
