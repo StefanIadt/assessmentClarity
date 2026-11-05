@@ -7,7 +7,7 @@
  function jump(id){closePanels();if(phone){const e=q('#'+id);if(e)scrollTo({top:scrollY+e.getBoundingClientRect().top-header.offsetHeight-18,behavior:'auto'})}else if(parent!==window)post('jump',{id});else q('#'+id)?.scrollIntoView({behavior:'auto'})}
  all('#contents-panel [data-jump]').forEach(b=>b.addEventListener('click',()=>jump(b.dataset.jump)));all('[data-local-jump]').forEach(a=>a.addEventListener('click',event=>{event.preventDefault();jump(a.dataset.localJump)}));
  q('#contents-search').addEventListener('input',event=>all('#contents-panel [data-jump]').forEach(b=>b.hidden=!b.textContent.toLowerCase().includes(event.target.value.toLowerCase())));
- all('[data-open-self]').forEach(b=>b.addEventListener('click',()=>window.open('brief-demo.html?view=assessment','_blank','noopener')));
+ all('[data-open-self]').forEach(b=>b.addEventListener('click',()=>window.open('sam-self.html?view=assessment','_blank','noopener')));
  all('[data-control=focus]').forEach(b=>b.addEventListener('click',moveHeader));
  addEventListener('message',event=>{if(event.source!==parent||event.origin!==location.origin||event.data?.source!=='sam-story')return;const msg=event.data;
   if(msg.type==='scroll'){outerTop=msg.top;outerHeight=msg.height;moveHeader()}
