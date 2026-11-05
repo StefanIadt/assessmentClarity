@@ -47,8 +47,7 @@ body.case-gallery{height:100svh;overflow:hidden;display:flex;flex-direction:colu
 
 /* A quiet dot field gives the phone view a setting without competing with the page. */
 .embedded-case.phone-view .sam-document:before{content:'';position:absolute;inset:-12px -32px;pointer-events:none;z-index:-1;background-image:radial-gradient(circle,var(--subtle) .7px,transparent .9px);background-size:17px 17px;opacity:.17;mask-image:linear-gradient(transparent,#000 12%,#000 90%,transparent)}
-.embedded-case.phone-view .train-backdrop{width:min(190%,1300px);opacity:.06}
-.embedded-case.dark.phone-view .train-backdrop{opacity:.1}
+.train-backdrop,.phone-view .train-backdrop,.laptop-view .train-backdrop{display:none}
 .embedded-case.contrast .sam-document:before{display:none}
 
 .embedded-case .sam-document{overflow:clip}
