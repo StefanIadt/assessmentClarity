@@ -12,7 +12,7 @@
  all('[data-control]').forEach(b=>b.title=b.getAttribute('aria-label')||b.textContent.trim());
  all('[data-print]').forEach(b=>{b.disabled=true;b.title='Printing is outside this scenario demo. See the Building Better Briefs OER.'});
  new ResizeObserver(fixedHeader).observe(header);
- addEventListener('message',e=>{if(e.origin!==location.origin||e.source!==parent||e.data?.source!=='sam-story')return;if(e.data.type==='stage')show(e.data.stage);if(e.data.type==='device'){document.documentElement.classList.toggle('in-phone',e.data.phone);fixedHeader()}if(e.data.type==='device-settled'&&current==='overview')alignOverview()});
+ addEventListener('message',e=>{if(e.origin!==location.origin||e.source!==parent||e.data?.source!=='sam-story')return;if(e.data.type==='motion')document.documentElement.classList.toggle('demo-still',e.data.reduced);if(e.data.type==='case-visibility'&&!e.data.visible){q('#maya-video').pause();if('speechSynthesis'in window)speechSynthesis.cancel()}if(e.data.type==='stage')show(e.data.stage);if(e.data.type==='device'){document.documentElement.classList.toggle('in-phone',e.data.phone);fixedHeader()}if(e.data.type==='device-settled'&&current==='overview')alignOverview()});
  all('[data-control=dark]').forEach(b=>b.addEventListener('click',()=>{panes.forEach(p=>p.hidden=p!==q(stages[current]));requestFocus()}));
  q('#read-aloud').addEventListener('click',e=>{e.stopImmediatePropagation();speak(q(stages[current]).innerText)},true);
  // Each fictional student's record is separate and remains in this preview tab.

@@ -33,7 +33,7 @@
  all('[data-print]').forEach(b=>{b.disabled=true;b.title='Printing is outside this scenario demo. See the Building Better Briefs OER.'});
  // Student Actions stays the original control, routing to the same guided section.
  all('#actions-panel [data-view]').forEach(b=>b.addEventListener('click',()=>{if(guided)jump(b.dataset.view==='assessment'?'rubric':'submission-checklist')}));
- addEventListener('message',event=>{if(event.source!==parent||event.origin!==location.origin||event.data?.source!=='sam-story')return;const msg=event.data;if(msg.type==='stage')showStage(msg.stage,false);if(msg.type==='device'){document.documentElement.classList.toggle('in-phone',msg.phone);fixedHeader()}if(msg.type==='contents'&&q('#contents-panel').hidden)q('[data-control=contents]').click()});
+ addEventListener('message',event=>{if(event.source!==parent||event.origin!==location.origin||event.data?.source!=='sam-story')return;const msg=event.data;if(msg.type==='motion')document.documentElement.classList.toggle('demo-still',msg.reduced);if(msg.type==='case-visibility'&&!msg.visible){if('speechSynthesis'in window)speechSynthesis.cancel()}if(msg.type==='stage')showStage(msg.stage,false);if(msg.type==='device'){document.documentElement.classList.toggle('in-phone',msg.phone);fixedHeader()}if(msg.type==='contents'&&q('#contents-panel').hidden)q('[data-control=contents]').click()});
  // Focus follows the reading position, independently of the pointer.
  document.body.dataset.focusTracking='viewport';
  let readingFrame=0;

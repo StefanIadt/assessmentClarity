@@ -24,8 +24,8 @@ The interaction is a custom implementation inspired by typographic and particle-
 
 ### Persona scenario demos
 
-- `sam.html` follows a computing student through a vertical story.
-- `maya.html` follows a Psychology of UX lecturer through six native horizontal chapters, with her card on the right on wider screens. Chapter links and keyboard arrows also work; vertical wheel input is not remapped.
+- `sam.html` opens the shared horizontal case-study gallery at Sam; `maya.html` opens that same gallery at Maya.
+- `sam-case.html` and `maya-case.html` contain the two complete case studies, next to each other in the gallery. Both keep their persona card on the left on wider screens and use vertical chapters. Moving between people preserves their reading positions and tab-local drafts. Horizontal gestures are forwarded across the embedded reader boundaries; vertical wheel input is not remapped. Offscreen media pauses.
 - `maya-brief.html` uses the captured brief typography and toolbar for a fictional group literature review. Journals are separate for Alex and Riley; group feedback records are separate; private teaching notes are omitted from the student feedback preview. Records live only in the current tab.
 - The walkthrough is an illustrative recording of the demo screens with a generated fictional portrait and synthetic narration. Its English captions are enabled by default and a matching transcript is included. No camera or microphone is requested.
 - Scenario controls stay inside their reader. The notice links to the complete Building Better Briefs OER; features outside the scenarios are not presented as working production features.
