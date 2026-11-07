@@ -1,0 +1,2 @@
+// Set the saved colour scheme before styles and embedded pages first paint.
+(()=>{let saved={};try{saved=JSON.parse(localStorage.getItem('clarity-preferences')||'{}')}catch{}const dark=typeof saved.dark==='boolean'?saved.dark:matchMedia('(prefers-color-scheme: dark)').matches;document.documentElement.classList.toggle('dark',dark);document.documentElement.style.colorScheme=dark?'dark':'light'})();

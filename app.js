@@ -5,14 +5,7 @@ const clamp = value => Math.max(0, Math.min(1, value));
 const motionMedia = matchMedia('(prefers-reduced-motion: reduce)');
 const reduced = () => motionMedia.matches || $('#reduce').checked;
 
-// Preferences remain available for every scene.
-const prefs = $('#prefs');
-$('#reduce').checked = motionMedia.matches;
-$('#prefs-open').onclick = () => { prefs.hidden = !prefs.hidden; $('#prefs-open').setAttribute('aria-expanded', String(!prefs.hidden)); };
-$('#prefs-close').onclick = () => { prefs.hidden = true; $('#prefs-open').setAttribute('aria-expanded', 'false'); $('#prefs-open').focus(); };
-document.addEventListener('keydown', event => { if (event.key === 'Escape' && !prefs.hidden) $('#prefs-close').click(); });
-$('#contrast').onchange = event => document.body.classList.toggle('contrast', event.target.checked);
-$('#large').onchange = event => { document.body.classList.toggle('large', event.target.checked); dispatchEvent(new Event('resize')); };
+// Reading preferences are initialised before the effects start.
 
 // A single continuous backdrop prevents seams between scenes.
 const vocabulary = ['Assessment brief','Learning outcomes','What is expected?','Research','Prototype','Submission deadline','Feedback','Assessment criteria','Reflection','Accessibility','Academic integrity','Learning together','Module requirements','Concept and research','Make a plan','Evidence of process','Design for inclusion','Weighting 30%','Task navigation','What do I submit?','11 December','17:00','Review and refine','Student success'];
@@ -92,18 +85,18 @@ function updatePaperChoreography(travel, stage, still) {
       transform(140,stage.clientHeight-top+380,70,-18,-10,rotation+17)
     ][index];
     const flat = transform(0,0,0,0,0,rotation);
-    const contactShadow = 'drop-shadow(0px 1px 0.65px rgba(37,29,20,.32)) drop-shadow(2px 5px 3.5px rgba(37,29,20,.20))';
-    const raisedShadow = 'drop-shadow(5px 19px 13px rgba(37,29,20,.23)) drop-shadow(1px 2px 1px rgba(37,29,20,.10))';
+    const contactShadow = 'drop-shadow(0px .6px .8px rgba(37,29,20,.16))';
+    const raisedShadow = 'drop-shadow(1px 3px 3px rgba(37,29,20,.07))';
     const finalTransform = target === 'placed' ? flat : target === 'hidden' ? entry : exit;
     state.target = target; layer.style.transition = 'none'; layer.style.opacity = still ? 0 : 1;
     layer.style.transform = finalTransform; layer.style.filter = contactShadow;
     function project(pose) {
-      return pose.replace(/translate3d\(([-.\d]+)px,([-\.\d]+)px,([-\.\d]+)px\)/, (_,x,y,z) => `translate3d(${Number(x) + 5 + Number(z) * .4}px,${Number(y) + 7 + Number(z) * .62}px,0px)`).replace(/rotateX\([^)]*\)/,'rotateX(0deg)').replace(/rotateY\([^)]*\)/,'rotateY(0deg)');
+      return pose.replace(/translate3d\(([-.\d]+)px,([-\.\d]+)px,([-\.\d]+)px\)/, (_,x,y,z) => `translate3d(${Number(x) + 1 + Number(z) * .16}px,${Number(y) + 1.5 + Number(z) * .24}px,0px)`).replace(/rotateX\([^)]*\)/,'rotateX(0deg)').replace(/rotateY\([^)]*\)/,'rotateY(0deg)');
     }
     state.shadow.style.transformOrigin = getComputedStyle(layer).transformOrigin;
     state.shadow.style.transform = project(finalTransform);
-    state.shadow.style.filter = 'brightness(0) blur(3px)';
-    state.shadow.style.opacity = still ? 0 : .20;
+    state.shadow.style.filter = 'brightness(0) blur(2px)';
+    state.shadow.style.opacity = still ? 0 : .07;
     if (first || still || (previous !== 'placed' && target !== 'placed')) {
       layer.dataset.phase = target; state.animation = null; return;
     }
@@ -122,7 +115,7 @@ function updatePaperChoreography(travel, stage, still) {
     const shadowFrames = frames.map((frame, frameIndex) => {
       if (frameIndex === 0) return { ...currentShadow, offset: 0, easing: frame.easing };
       const raised = frame.filter === raisedShadow;
-      return { transform: project(frame.transform), filter: `brightness(0) blur(${raised ? 17 : 3}px)`, opacity: raised ? .19 : .20, offset: frame.offset, easing: frame.easing };
+      return { transform: project(frame.transform), filter: `brightness(0) blur(${raised ? 12 : 2}px)`, opacity: raised ? .09 : .07, offset: frame.offset, easing: frame.easing };
     });
     state.shadowAnimation = state.shadow.animate(shadowFrames,{ duration, fill:'none' });
     const animation = layer.animate(frames,{ duration, fill:'none' }); state.animation = animation;
@@ -150,19 +143,19 @@ function paintScroll() {
   takeaway.style.opacity = clearing; takeaway.style.transform = `translateY(${(1 - clearing) * 15}px)`;
 
   $$('.story-brief h2 span').forEach((line, index) => { const amount = still ? 1 : clamp((travel - .2 - index * .025) / .16); line.style.opacity = amount; line.style.transform = `translateY(${(1 - amount) * 28}px)`; line.style.clipPath = 'none'; });
-  const opacity = still ? .07 : .36 - clamp(travel / .85) * .285;
-  background.style.setProperty('opacity', document.body.classList.contains('contrast') ? .035 : opacity);
+  const columnOpacity = .36 - .285 * clamp((travel - .18) / .22);
+  background.style.setProperty('opacity', document.body.classList.contains('contrast') ? .035 : columnOpacity);
   $$('.consistent-column').forEach((column, index) => { column.style.transform = still ? 'none' : `translateY(${Math.max(-240, Math.min(240, scrollY * (index % 2 ? .018 + index * .004 : -.015 - index * .003)))}px)`; });
   const rect = $('.ambiguity-flow').getBoundingClientRect();
-  const reveal = still ? 1 : clamp((innerHeight * .8 - rect.top) / (innerHeight * .42));
+  const reveal = still ? 1 : clamp((innerHeight * .55 - rect.top) / (innerHeight * .75));
   revealGroups.forEach((group, groupIndex) => {
     const words = [...group.querySelectorAll('.ambiguity-scroll-word')];
     words.forEach((word, index) => {
       const amount = still ? 1 : clamp((reveal - groupIndex * .16 - index / words.length * .21) / .18);
-      const eased = 1 - Math.pow(1 - amount, 3);
+      const eased = amount * amount * (3 - 2 * amount);
       word.style.opacity = eased;
       const particleWord = word.closest('.particle-word'); if (particleWord) particleWord.style.setProperty('--particle-reveal', eased);
-      word.style.transform = `translateY(${(1 - eased) * .45}em)`; word.style.filter = `blur(${(1 - eased) * 2}px)`;
+      word.style.transform = `translateY(${(1 - eased) * .55}em)`; word.style.filter = `blur(${(1 - eased) * 2}px)`;
     });
   });
 }
@@ -177,49 +170,66 @@ const sentence = message.textContent.trim(); message.replaceChildren();
 const focusWords = sentence.split(/\s+/).map((text, index, all) => {
   const word = document.createElement('button'); word.type = 'button'; word.className = 'focus-word'; word.textContent = text; word.setAttribute('aria-pressed', 'false'); message.append(word); if (index < all.length - 1) message.append(document.createTextNode(' ')); return word;
 });
-let pointer = null, focused = null, focusFrame = 0;
-function paintFocus() {
+// Crossfade between identical blurred and clear text with one feathered spatial mask.
+const torchBase = document.createElement('span'); torchBase.className = 'torch-base';
+while (message.firstChild) torchBase.append(message.firstChild);
+const torchClear = document.createElement('span'); torchClear.className = 'torch-clear';torchClear.setAttribute('aria-hidden','true');
+focusWords.forEach((word,index) => { if(index)torchClear.append(' ');const span=document.createElement('span');span.textContent=word.textContent;torchClear.append(span); });
+message.append(torchBase,torchClear);
+let pointer = null, focused = null, focusFrame = 0, lens = null, lensStrength = 0, lensTime = 0;
+function paintFocus(time=performance.now()) {
   focusFrame = 0;
+  const dt=Math.min(50,lensTime ? time-lensTime : 16.7);lensTime=time;
   const bounds = message.getBoundingClientRect();
   const distanceFromCenter = Math.abs(bounds.top + bounds.height / 2 - innerHeight * .5);
   const proximity = clamp(1 - distanceFromCenter / (innerHeight * .44));
   const emphasis = proximity * proximity * (3 - 2 * proximity);
-  const baseBlur = reduced() ? 0 : (innerWidth < 760 ? 1.7 : 2.1) * emphasis;
-  const center = pointer || (focused ? (() => { const r = focused.getBoundingClientRect(); return { x: r.left + r.width / 2, y: r.top + r.height / 2 }; })() : null);
-  focusWords.forEach(word => {
-    let blur = baseBlur;
-    if (blur && center) {
-      const box = word.getBoundingClientRect();
-      const dx = Math.max(0, Math.abs(center.x - (box.left + box.width / 2)) - box.width / 2);
-      const dy = Math.max(0, Math.abs(center.y - (box.top + box.height / 2)) - box.height / 2);
-      const distance = Math.hypot(dx / (innerWidth < 760 ? 145 : 250), dy / 48);
-      blur *= clamp((distance - .5) / .75);
-    }
-    word.style.setProperty('--word-blur', `${blur}px`);
-    word.setAttribute('aria-pressed', String(word === focused));
-  });
+  const baseBlur = reduced() ? 0 : (innerWidth < 760 ? 4.8 : 6.2) * emphasis;
+  const target = pointer || (focused ? (() => { const r = focused.getBoundingClientRect(); return { x: r.left + r.width / 2, y: r.top + r.height / 2 }; })() : null);
+  if(target && !lens)lens={...target};
+  const follow=1-Math.exp(-dt/75);
+  if(target){lens.x+=(target.x-lens.x)*follow;lens.y+=(target.y-lens.y)*follow;}
+  const wanted=target && !reduced()?1:0;
+  lensStrength+=(wanted-lensStrength)*(1-Math.exp(-dt/(wanted?100:230)));
+  const x=lens?lens.x-bounds.left:0,y=lens?lens.y-bounds.top:0;
+  const width=innerWidth<760?145:220,height=innerWidth<760?70:100;
+  const core=1-lensStrength;
+  const gradient=`ellipse ${width}px ${height}px at ${x}px ${y}px`;
+  torchClear.style.maskImage=`radial-gradient(${gradient},rgba(0,0,0,${lensStrength}) 0%,rgba(0,0,0,${lensStrength}) 20%,rgba(0,0,0,${lensStrength*.85}) 45%,rgba(0,0,0,${lensStrength*.4}) 72%,transparent 100%)`;
+  torchBase.style.maskImage=`radial-gradient(${gradient},rgba(0,0,0,${core}) 0%,rgba(0,0,0,${core}) 20%,rgba(0,0,0,${1-lensStrength*.85}) 45%,rgba(0,0,0,${1-lensStrength*.4}) 72%,black 100%)`;
+  focusWords.forEach(word=>{word.style.setProperty('--word-blur',`${baseBlur}px`);word.setAttribute('aria-pressed',String(word===focused));});
+  const travelling=target && lens && Math.hypot(target.x-lens.x,target.y-lens.y)>.2;
+  if(travelling || Math.abs(wanted-lensStrength)>.002)focusFrame=requestAnimationFrame(paintFocus);
+  else lensTime=0;
 }
-message.addEventListener('pointermove', event => { if (event.pointerType === 'mouse') { pointer = { x: event.clientX, y: event.clientY }; paintFocus(); } });
-message.addEventListener('pointerleave', () => { pointer = null; paintFocus(); });
-focusWords.forEach(word => {
-  word.addEventListener('focus', () => { focused = word; paintFocus(); });
-  word.addEventListener('click', () => { focused = word; pointer = null; paintFocus(); });
+function scheduleFocus(){if(!focusFrame)focusFrame=requestAnimationFrame(paintFocus);}
+message.addEventListener('pointermove',event=>{if(event.pointerType==='mouse'){pointer={x:event.clientX,y:event.clientY};scheduleFocus();}});
+message.addEventListener('pointerleave',()=>{pointer=null;scheduleFocus();});
+focusWords.forEach(word=>{
+ word.addEventListener('focus',()=>{focused=word;scheduleFocus();});
+ word.addEventListener('click',()=>{focused=word;pointer=null;scheduleFocus();});
 });
-message.addEventListener('focusout', () => requestAnimationFrame(() => { if (!message.contains(document.activeElement)) { focused = null; paintFocus(); } }));
-function scheduleFocus() { if (!focusFrame) focusFrame = requestAnimationFrame(paintFocus); }
-addEventListener('scroll', scheduleFocus, { passive: true }); addEventListener('resize', scheduleFocus);
-paintFocus();
-$('#reduce').addEventListener('change', paintFocus); motionMedia.addEventListener('change', paintFocus);
+message.addEventListener('focusout',()=>requestAnimationFrame(()=>{if(!message.contains(document.activeElement)){focused=null;scheduleFocus();}}));
+addEventListener('scroll',scheduleFocus,{passive:true});addEventListener('resize',scheduleFocus);
+$('#reduce').addEventListener('change',scheduleFocus);motionMedia.addEventListener('change',scheduleFocus);
+scheduleFocus();
 
 // Matter.js bodies fall, collide, settle and can be dragged. Restore returns them to their measured text positions.
 (() => {
   const trigger = $('.complexity-trigger'), toggle = $('.clarity-toggle'), conclusion = $('.complexity-conclusion');
   const text = trigger.textContent; trigger.setAttribute('aria-label', text); trigger.replaceChildren();
-  text.split(/(\s+)/).forEach(part => { if (!part.trim()) trigger.append(document.createTextNode(part)); else { const word = document.createElement('span'); word.className = 'complexity-word'; word.textContent = part; word.setAttribute('aria-hidden', 'true'); trigger.append(word); } });
+  text.split(/(\s+)/).forEach(part => { if (!part.trim()) trigger.append(document.createTextNode(part)); else { const word = document.createElement('span'); word.className = 'complexity-word' + (part.toLowerCase() === 'complexity' ? ' complexity-signal' : ''); word.textContent = part; word.setAttribute('aria-hidden', 'true'); trigger.append(word); } });
   const words = [...trigger.querySelectorAll('.complexity-word')];
+  const breathingWord=trigger.querySelector('.complexity-signal');
+  function measureBreathingWord(){
+   const sample=breathingWord.cloneNode(true);sample.style.cssText='position:absolute;visibility:hidden;animation:none;font-weight:650;font-variation-settings:"wght" 650;white-space:nowrap;width:auto;';
+   trigger.append(sample);const width=sample.getBoundingClientRect().width;sample.remove();if(width)breathingWord.style.width=`${Math.ceil(width)}px`;
+  }
+  document.fonts.ready.then(measureBreathingWord);addEventListener('resize',measureBreathingWord);
+
   const { Engine, Bodies, Body, Composite, Constraint, Query, Sleeping } = Matter;
   let engine = null, pieces = [], state = 'idle', frame = 0, lastTime = 0, drag = null, animations = [], generation = 0;
-  function label() { trigger.dataset.state = state; toggle.textContent = state === 'fallen' ? 'Restore clarity ↗' : state === 'clear' ? 'Let it fall again ↓' : 'Let words fall ↓'; toggle.setAttribute('aria-expanded', String(state === 'clear')); toggle.disabled = state === 'restoring'; }
+  function label() { trigger.dataset.state = state; toggle.textContent = state === 'fallen' || state === 'restoring' ? 'Restore clarity ↗' : 'Lose the thread ↘'; toggle.setAttribute('aria-expanded', String(state === 'clear')); toggle.disabled = state === 'restoring'; }
   function dispose() { cancelAnimationFrame(frame); frame = 0; if (engine) { Composite.clear(engine.world, false); Engine.clear(engine); engine = null; } drag = null; pieces = []; }
   function draw() { pieces.forEach(({ word, body, x, y }) => { word.style.transform = `translate(${body.position.x - x}px,${body.position.y - y}px) rotate(${body.angle}rad)`; }); }
   function tick(time) {
@@ -251,15 +261,14 @@ $('#reduce').addEventListener('change', paintFocus); motionMedia.addEventListene
     dispose(); state = 'restoring'; label();
     animations = words.map((word, index) => {
       word.style.transform = '';
-      return reduced() ? null : word.animate([{ transform: transforms[index] }, { transform: 'translate(0,0) rotate(0rad)' }], { duration: 950, delay: index * 7, easing: 'cubic-bezier(.22,1,.36,1)', fill: 'none' });
+      return reduced() ? null : word.animate([{ transform: transforms[index] }, { transform: 'translate(0,0) rotate(0rad)' }], { duration: 950, delay: index * 7, easing: 'cubic-bezier(.22,1,.36,1)', fill: 'both' });
     }).filter(Boolean);
     await Promise.allSettled(animations.map(animation => animation.finished));
     if (generation !== run) return;
-    animations = []; state = 'clear'; conclusion.hidden = false; label();
+    words.forEach(word => { word.style.transform = ''; });
+    animations.forEach(animation => animation.cancel()); animations = []; state = 'clear'; conclusion.hidden = false; label();
     if (!reduced()) conclusion.animate([{ opacity: 0, transform: 'translateY(12px)' }, { opacity: 1, transform: 'translateY(0)' }], { duration: 650, easing: 'ease-out' });
   }
-  trigger.addEventListener('pointerenter', event => { if (event.pointerType === 'mouse' && state === 'idle') fall(); });
-  trigger.addEventListener('focus', () => { if (state === 'idle') fall(); });
   trigger.addEventListener('click', () => { if (state === 'idle' || state === 'clear') fall(); });
   toggle.addEventListener('click', () => state === 'fallen' ? restore() : fall());
   trigger.addEventListener('pointerdown', event => {
@@ -375,12 +384,6 @@ $('#reduce').addEventListener('change', paintFocus); motionMedia.addEventListene
   document.fonts.ready.then(scheduleMeasure); measure();
 })();
 
-// Readable alternatives remain available while the next story scenes are being developed.
-$$('[data-readable]').forEach(link => link.addEventListener('click', event => {
-  event.preventDefault(); $('#reduce').checked = true; $('#reduce').dispatchEvent(new Event('change'));
-  requestAnimationFrame(() => requestAnimationFrame(() => $('#reading-passage').scrollIntoView({ behavior: 'instant', block: 'start' })));
-}));
-
 // Scroll supplies the playhead: no timer, blur, or automatic progression.
 (() => {
   const section = $('.brief-bridge');
@@ -400,22 +403,244 @@ $$('[data-readable]').forEach(link => link.addEventListener('click', event => {
   function paint() {
     queued = false;
     const box = section.getBoundingClientRect();
-    const progress = clamp((innerHeight * .85 - box.top) / (innerHeight * 1.05));
+    const progress = clamp((innerHeight * .65 - box.top) / (innerHeight * 1.5));
     groups.forEach((words, group) => words.forEach((word, index) => {
-      const start = group ? .42 + index / words.length * .28 : index / words.length * .3;
-      const amount = reduced() ? 1 : clamp((progress - start) / .17);
-      const ease = 1 - Math.pow(1 - amount, 3);
+      const start = group ? .5 + index / words.length * .1 : .08 + index / words.length * .12;
+      const amount = reduced() ? 1 : clamp((progress - start) / (group ? .35 : .5));
+      const ease = amount * amount * (3 - 2 * amount);
       word.style.opacity = ease;
-      let x = 0, y = (1 - ease) * 20;
-      if (word.dataset.action === 'grouped') x = (1 - ease) * -24;
-      if (word.dataset.action === 'connected') x = (1 - ease) * 18;
-      if (word.dataset.action === 'revealed') y = (1 - ease) * 32;
-      word.style.transform = `translate(${x}px,${y}px)`;
+      word.style.filter = `blur(${(1 - ease) * 5}px)`;
+      word.style.transform = `translateY(${(1 - ease) * 24}px)`;
     }));
-    background.style.setProperty('--bridge-columns', reduced() ? 1 : 1 - clamp((progress - .72) / .28));
+    const anatomyTop = $('#anatomy').getClientRects().length ? $('#anatomy').getBoundingClientRect().top : Infinity;
+    background.style.setProperty('--bridge-columns', 1 - clamp((innerHeight - anatomyTop) / (innerHeight * .7)));
   }
   function schedule() { if (!queued) { queued = true; requestAnimationFrame(paint); } }
   addEventListener('scroll', schedule, { passive: true }); addEventListener('resize', schedule);
   $('#reduce').addEventListener('change', schedule); motionMedia.addEventListener('change', schedule);
   paint();
+})();
+
+// One continuous assembly, with chapter navigation and reader-controlled detail.
+(() => {
+ const section = $('#anatomy'), parts = $$('.anatomy-part'), buttons = $$('[data-chapter]');
+ const title = $('#anatomy-title'), description = $('.anatomy-description'), evidence = $('.anatomy-evidence'), hint = $('.anatomy-hint');
+ const chapters = [
+ ['Structure.', 'The assessment brief uses consistent headings and a clear order, so students know where to find the task, submission requirements and assessment criteria.', 'W3C', 'https://www.w3.org/WAI/WCAG2/supplemental/patterns/o2p03-page-structure/'],
+ ['Manageable detail.', 'Related information is grouped into sections. Smaller details are revealed within each group, while the whole stays visible.', 'CAST UDL', 'https://udlguidelines.cast.org/action-expression/strategy-development/organize-information/'],
+ ['Alignment.', 'Learning outcomes, the task and assessment criteria connect to form a coherent whole.', 'Project design principles', '#anatomy'],
+ ['Planning.', 'Visible stages and milestones help turn a final deadline into a process students can plan.', 'CAST UDL', 'https://udlguidelines.cast.org/action-expression/strategy-development/'],
+ ['Checking and reflection.', 'Review the work against the assessment requirements. Identify what is complete and what needs another look.', 'CAST UDL', 'https://udlguidelines.cast.org/action-expression/strategy-development/monitor-progress/']
+ ];
+ let current = -1, queued = false, selected = 0;
+ const chapterText = document.createElement('div'); chapterText.className = 'anatomy-chapter-text';
+ title.before(chapterText); chapterText.append(title, description, evidence);
+ let outgoing = null, entrance = null;
+ function transitionChapter(change) {
+  if (outgoing) { outgoing.remove(); outgoing = null; }
+  if (entrance) { entrance.cancel(); entrance = null; }
+  if (current < 0 || reduced()) { change(); return; }
+  outgoing = chapterText.cloneNode(true);
+  outgoing.classList.add('anatomy-chapter-outgoing'); outgoing.setAttribute('aria-hidden', 'true'); outgoing.inert = true;
+  outgoing.querySelectorAll('[id]').forEach(node => node.removeAttribute('id'));
+  chapterText.before(outgoing);
+  const previous = outgoing;
+  previous.animate([{ opacity:1, transform:'translateY(0)' }, { opacity:0, transform:'translateY(-9px)' }], { duration:440, easing:'ease-in-out', fill:'forwards' }).finished.then(() => { previous.remove(); if (outgoing === previous) outgoing = null; }).catch(() => {});
+  change();
+  entrance = chapterText.animate([{ opacity:0, transform:'translateY(9px)' }, { opacity:1, transform:'translateY(0)' }], { duration:520, easing:'cubic-bezier(.22,1,.36,1)' });
+ }
+ function paint() {
+  queued = false;
+  const rect = section.getBoundingClientRect();
+  const progress = reduced() ? selected / 4 : clamp(-rect.top / Math.max(1, section.offsetHeight - innerHeight));
+  const step = Math.min(4, Math.floor(progress * 5));
+  if (step !== current) {
+   const data = chapters[step];
+   transitionChapter(() => {
+    title.textContent = data[0]; description.textContent = data[1];
+    if(step===2){
+     description.replaceChildren();
+     ['Learning outcomes', 'the task', 'assessment criteria'].forEach((text,index)=>{
+      if(index)description.append(index===1?', ':' and ');
+      const term=document.createElement('span');term.className='alignment-term';term.dataset.term=index;term.textContent=text;description.append(term);
+     });
+     description.append(' connect to form a coherent whole.');
+    }
+    evidence.textContent = `Design rationale: ${data[2]} ↗`; evidence.href = data[3]; evidence.hidden = step === 1 || step === 2;
+   });
+   current = step;
+   buttons.forEach((button, index) => { if (index === step) button.setAttribute('aria-current', 'step'); else button.removeAttribute('aria-current'); });
+   hint.textContent = step === 1 ? 'Scroll to reveal the detail within each group.' : step === 4 ? 'Scroll to look again, then bring the whole together.' : 'Scroll to assemble the parts.';
+  }
+  parts.forEach((part, index) => {
+   const amount = reduced() ? 1 : index === 0 ? clamp((progress - .1) / .085) : clamp((progress - index * .2) / .13);
+   const ease = 1 - Math.pow(1 - amount, 3);
+   part.style.opacity = index === 2 ? 1 : ease;
+   const close = clamp((progress - .8) / .2);
+   const separation = 0;
+   const arrival = index === 1 ? 42 : (index === 0 || index === 2 || index === 3 ? 0 : 80 + index * 24);
+   part.style.transform = `translateY(${-separation - (1 - ease) * arrival}px)`;
+   part.classList.toggle('is-active', index === step);
+  });
+  $('.assembly-object').style.transform = 'none';
+  const repeatAmount = reduced() ? 1 : clamp((progress - .025) / .075);
+  const repeatEase = repeatAmount * repeatAmount * (3 - 2 * repeatAmount);
+  $('.structure-repeat').style.opacity = repeatEase;
+  $('.structure-repeat').style.transform = `translateY(${32 - (1 - repeatEase) * 50}px)`;
+  $('.tray-front').style.opacity = parts[0].style.opacity;
+  $('.anatomy-drawing .assembly-guide').style.opacity = reduced() ? (selected === 4 ? 0 : 1) : 1 - smooth((progress - .8) / .025);
+  drawJoinery(progress);
+  drawPlanning(progress);
+  const review = !reduced() && progress >= .8;
+  $('.assembly-object').style.visibility = review ? 'hidden' : 'visible';
+  $('.review-object').setAttribute('visibility', review ? 'visible' : 'hidden');
+  if (review) drawReview(progress);
+  if (reduced() && selected === 4) {
+   $('.assembly-object').style.visibility = 'hidden';
+   $('.review-object').setAttribute('visibility', 'visible');drawReview(1);
+  }
+  const detailAmount=reduced()?1:smooth((progress-.27)/.11);
+  const detail=$('.compartment-detail');detail.setAttribute('visibility','visible');detail.style.opacity=detailAmount;detail.style.transform=`translateY(${-(1-detailAmount)*18}px)`;
+  description.querySelectorAll('.alignment-term').forEach((term,index)=>{
+   const amount=reduced()?1:smooth((progress-(.4+index*.065))/.06);
+   term.style.fontWeight=String(400+250*amount);
+  });
+  // The illustration occupies the cleared half of the same continuous background.
+  background.style.setProperty('--bridge-columns', reduced() || !section.getClientRects().length ? 1 : 1 - clamp((innerHeight - rect.top) / (innerHeight * .7)));
+ }
+ // Draw all three solids together, with exposed faces determined from shared cell geometry.
+ const cells = [
+  ...[[0,0],[0,1],[1,1],[0,2]].map(([x,y]) => ({x,y,part:0})),
+  ...[[1,0],[2,0],[2,1]].map(([x,y]) => ({x,y,part:1})),
+  ...[[1,2],[2,2]].map(([x,y]) => ({x,y,part:2}))
+ ];
+ const byPosition = new Map(cells.map(cell => [`${cell.x},${cell.y}`,cell]));
+ let lastMesh = '';
+ function drawJoinery(progress) {
+  const amounts = [0,1,2].map(index => reduced() ? 1 : clamp((progress - (.4 + index * .065)) / .06));
+  const heights = amounts.map(amount => 34 + 125 * (1 - amount * amount * (3 - 2 * amount)));
+  const visible = amounts.map(amount => amount > 0);
+  const faces = [];
+  const project = ([x,y,z]) => `${(325+(x-y)*1.12).toFixed(2)},${(490+(x+y)*.54-z).toFixed(2)}`;
+  function addFace(vertices,kind,edges,opacity) {
+   const depth = vertices.reduce((sum,[x,y,z]) => sum+x+y+z*1.08,0)/vertices.length;
+   const fill = `<polygon class="mesh-${kind}" points="${vertices.map(project).join(' ')}"/>`;
+   const lines = edges.map(([a,b]) => `M${project(a)}L${project(b)}`).join('');
+   faces.push({depth,html:`<g opacity="${opacity.toFixed(4)}">`+fill+(lines ? `<path class="mesh-edge" d="${lines}"/>` : '')+'</g>'});
+  }
+  cells.forEach(cell => {
+   if (!visible[cell.part]) return;
+   const opacity=amounts[cell.part]*amounts[cell.part]*(3-2*amounts[cell.part]);
+   const x=cell.x*60,y=cell.y*60,z=heights[cell.part],top=z+44;
+   const corners=[[x,y,top],[x+60,y,top],[x+60,y+60,top],[x,y+60,top]];
+   const neighbours=[[0,-1],[1,0],[0,1],[-1,0]].map(([dx,dy])=>byPosition.get(`${cell.x+dx},${cell.y+dy}`));
+   const edges=[];
+   neighbours.forEach((neighbour,index)=>{
+    if (!neighbour || !visible[neighbour.part] || neighbour.part !== cell.part) edges.push([corners[index],corners[(index+1)%4]]);
+   });
+   addFace(corners,'top',edges,opacity);
+   // Only camera-facing sides exist in the drawing. Subtract any occupied neighbour volume.
+   for (const [dx,dy,kind] of [[1,0,'side-x'],[0,1,'side-y']]) {
+    const neighbour=byPosition.get(`${cell.x+dx},${cell.y+dy}`);
+    let intervals=[[z,top]];
+    if (neighbour && visible[neighbour.part]) {
+     const bottom=heights[neighbour.part],upper=bottom+44;
+     intervals=intervals.flatMap(([lo,hi])=> upper<=lo || bottom>=hi ? [[lo,hi]] : [[lo,Math.min(hi,bottom)],[Math.max(lo,upper),hi]].filter(([a,b])=>b-a>.01));
+    }
+    intervals.forEach(([lo,hi])=>{
+     const a=dx ? [x+60,y,lo] : [x,y+60,lo];
+     const b=dx ? [x+60,y+60,lo] : [x+60,y+60,lo];
+     const c=[b[0],b[1],hi],d=[a[0],a[1],hi];
+     const edges=[[a,b]];
+     // Merge coplanar side cells: no false vertical seams inside a single piece.
+     const before=byPosition.get(`${cell.x+(dx?0:-1)},${cell.y+(dx?-1:0)}`);
+     const after=byPosition.get(`${cell.x+(dx?0:1)},${cell.y+(dx?1:0)}`);
+     if (!before || before.part!==cell.part) edges.push([a,d]);
+     if (!after || after.part!==cell.part) edges.push([b,c]);
+     addFace([a,b,c,d],kind,edges,opacity);
+    });
+   }
+  });
+  const html=faces.sort((a,b)=>a.depth-b.depth).map(face=>face.html).join('');
+  if (html!==lastMesh) { $('.joinery-mesh').innerHTML=html;lastMesh=html; }
+ }
+ // Review uses the same world dimensions, reprojected as a real turn rather than a flat SVG spin.
+ const smooth = value => { const t=clamp(value);return t*t*(3-2*t); };
+ function projectScene(boxes,angle=0,seams=[]) {
+  const cos=Math.cos(angle),sin=Math.sin(angle);
+  const world=([x,y,z])=>[90+(x-90)*cos-(y-90)*sin,90+(x-90)*sin+(y-90)*cos,z];
+  // The projection stays fixed through the entire turn; only the object angle changes.
+  const verticalPlan=.54,verticalHeight=1;
+  const point=v=>{const[x,y,z]=world(v);return `${(325+(x-y)*1.12).toFixed(2)},${(490+(x+y)*verticalPlan-z*verticalHeight).toFixed(2)}`;};
+  const faces=[];
+  function face(v,kind){const depth=v.reduce((sum,p)=>{const[x,y,z]=world(p);return sum+x+y+z*1000;},0)/v.length;faces.push({depth,html:`<polygon class="review-${kind}" points="${v.map(point).join(' ')}"/>`});}
+  boxes.forEach(([x,y,z,w,d,h])=>{
+   const X=x+w,Y=y+d,Z=z+h;
+   face([[x,y,Z],[X,y,Z],[X,Y,Z],[x,Y,Z]],'top');
+   const sides=[
+    [1,0,[[X,y,z],[X,Y,z],[X,Y,Z],[X,y,Z]]],
+    [0,1,[[x,Y,z],[X,Y,z],[X,Y,Z],[x,Y,Z]]],
+    [-1,0,[[x,y,z],[x,Y,z],[x,Y,Z],[x,y,Z]]],
+    [0,-1,[[x,y,z],[X,y,z],[X,y,Z],[x,y,Z]]]
+   ];
+   sides.forEach(([nx,ny,v])=>{const facing=(nx*cos-ny*sin)+(nx*sin+ny*cos);if(facing>.001)face(v,nx?'side-x':'side-y');});
+  });
+  seams.forEach(vertices=>vertices.slice(1).forEach((b,index)=>{
+   const a=vertices[index];const depth=[a,b].reduce((sum,p)=>{const[x,y,z]=world(p);return sum+x+y+z*1000;},0)/2+.01;
+   faces.push({depth,html:`<path class="review-seam" d="M${point(a)}L${point(b)}"/>`});
+  }));
+  return faces.sort((a,b)=>a.depth-b.depth).map(f=>f.html).join('');
+ }
+ function trackBoxes(){return [0,1,2,3].map(index=>[index*45,0,86,45,180,5]);}
+ function drawPlanning(progress){
+  $('.planning-track').innerHTML=trackBoxes().map((box,index)=>{
+   const start=.6+index*.032;
+   const amount=reduced()?1:smooth((progress-start)/.018);
+   const settle=reduced()?1:smooth((progress-start-.014)/.052);
+   const placed=[...box];placed[2]+=24*(1-settle);
+   return `<g opacity="${amount}">${projectScene([placed])}</g>`;
+  }).join('');
+ }
+ function drawReview(progress){
+  const turn=smooth((progress-.8)/.135);
+  const compact=smooth((progress-.94)/.055);
+  const angle=turn * (180 * Math.PI / 180);
+
+  const boxes=[];
+  // Identical frames and their fitted divisions remain visible during the inspection.
+  for(const offset of [-48,-24,0]){
+   const base=7+offset*(1-compact);
+   boxes.push([0,0,base,180,180,5]);
+   boxes.push([0,0,base+5,4,180,14],[4,0,base+5,176,4,14],[176,4,base+5,4,176,14],[4,176,base+5,172,4,14]);
+  }
+  boxes.push([88,4,12,4,172,14],[92,88,12,84,4,14]);
+  boxes.push([0,0,34-compact*10,180,180,44]);
+  boxes.push(...trackBoxes().map(([x,y,z,w,d,h])=>[x,y,z-compact*12,w,d,h]));
+  const jointSeams=[[[60,0,78],[60,60,78],[120,60,78],[120,120,78],[60,120,78],[60,180,78]],[[120,120,78],[180,120,78]]];
+  const inspection=projectScene(boxes,angle,jointSeams);
+  // The outer form closes after the turn; internal seams quietly disappear.
+  const solid=projectScene([[0,0,7,180,180,84]],angle);
+
+  $('.review-object').innerHTML=`<g opacity="${1-compact}">${inspection}</g><g opacity="${compact}">${solid}</g>`;
+ }
+ function schedule() { if (!queued) { queued = true; requestAnimationFrame(paint); } }
+ buttons.forEach((button, index) => button.addEventListener('click', () => {
+  selected = index;
+  if (reduced()) { paint(); return; }
+  const top = scrollY + section.getBoundingClientRect().top;
+  scrollTo({ top: top + (section.offsetHeight - innerHeight) * ((index + .45) / 5), behavior: 'smooth' });
+ }));
+ addEventListener('scroll', schedule, { passive:true }); addEventListener('resize', schedule);
+ $('#reduce').addEventListener('change', schedule); motionMedia.addEventListener('change', schedule); paint();
+})();
+
+// Overall reading position; informational only, never alters the scroll position.
+(() => {
+ const progress=document.getElementById('site-progress');if(!progress)return;
+ const bar=progress.querySelector('span');let queued=false,last=-1;
+ function paint(){queued=false;const range=document.documentElement.scrollHeight-innerHeight;const fraction=range>0?clamp(scrollY/range):0;bar.style.transform=`scaleX(${fraction})`;const percent=Math.round(fraction*100);if(percent!==last){progress.setAttribute('aria-valuenow',String(percent));last=percent;}}
+ function schedule(){if(!queued){queued=true;requestAnimationFrame(paint);}}
+ addEventListener('scroll',schedule,{passive:true});addEventListener('resize',schedule);
+ document.getElementById('reduce').addEventListener('change',schedule);
+ new ResizeObserver(schedule).observe(document.querySelector('main'));paint();
 })();
