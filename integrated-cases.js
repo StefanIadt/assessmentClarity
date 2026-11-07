@@ -1,6 +1,7 @@
 (()=>{
  'use strict';
  const header=document.querySelector('body>.top'),section=document.querySelector('#tool'),rail=section.querySelector('#case-studies'),stage=section.querySelector('.persona-stage'),frames=[...rail.querySelectorAll('iframe')];
+ const mobile=()=>matchMedia('(max-width:760px), (max-width:1100px) and (pointer:coarse)').matches;
  const people=['sam','maya'],counts=[5,6],positions=[0,0];let active=0,queued=false,switching=null,switchTimer;
  const reduced=()=>document.body.classList.contains('story-still')||matchMedia('(prefers-reduced-motion: reduce)').matches;
  const bounds=()=>({start:scrollY+section.getBoundingClientRect().top-header.offsetHeight,travel:Math.max(1,section.offsetHeight-stage.offsetHeight)});
@@ -14,9 +15,9 @@
  const indicator=document.createElement('span');indicator.className='persona-indicator';indicator.setAttribute('aria-hidden','true');indicator.hidden=true;nav.append(indicator);
  let indicatorFrame;function moveIndicator(){cancelAnimationFrame(indicatorFrame);indicatorFrame=requestAnimationFrame(()=>{const name=nav.querySelector('a[aria-current]');if(!name)return;const n=name.getBoundingClientRect(),r=nav.getBoundingClientRect();indicator.style.width=n.width+'px';indicator.style.transform='translateX('+(n.left-r.left)+'px)';indicator.hidden=false})}
  new MutationObserver(moveIndicator).observe(nav,{subtree:true,attributes:true,attributeFilter:['aria-current']});new ResizeObserver(moveIndicator).observe(nav);document.fonts.ready.then(moveIndicator);moveIndicator();
- window.clarityCaseScroll={select,pan(delta){rail.scrollBy({left:delta,behavior:'instant'})}};
- rail.addEventListener('scroll',()=>{if(switching!==null)return;const next=rail.scrollLeft>(rail.scrollWidth-rail.clientWidth)/2?1:0;if(next!==active){const {start}=bounds();active=next;size();window.scrollTo({top:start+positions[active]*bounds().travel,behavior:'instant'});schedule()}},{passive:true});
- addEventListener('message',e=>{if(e.origin!==location.origin||e.data?.source!=='clarity-case-study')return;const index=frames.findIndex(f=>f.contentWindow===e.source);if(index<0)return;if(e.data.type==='chapter'&&index===active&&Number.isFinite(e.data.index)){const {start,travel}=bounds();window.scrollTo({top:start+Math.max(0,Math.min(counts[active]-1,e.data.index))/(counts[active]-1)*travel,behavior:reduced()?'instant':'smooth'})}if(e.data.type==='ready'&&index===active)schedule()});
+ window.clarityCaseScroll={select,pan(delta){if(mobile())return;rail.scrollBy({left:delta,behavior:'instant'})}};
+ rail.addEventListener('scroll',()=>{if(mobile()||switching!==null)return;const next=rail.scrollLeft>(rail.scrollWidth-rail.clientWidth)/2?1:0;if(next!==active){const {start}=bounds();active=next;size();window.scrollTo({top:start+positions[active]*bounds().travel,behavior:'instant'});schedule()}},{passive:true});
+ addEventListener('message',e=>{if(mobile())return;if(e.origin!==location.origin||e.data?.source!=='clarity-case-study')return;const index=frames.findIndex(f=>f.contentWindow===e.source);if(index<0)return;if(e.data.type==='chapter'&&index===active&&Number.isFinite(e.data.index)){const {start,travel}=bounds();window.scrollTo({top:start+Math.max(0,Math.min(counts[active]-1,e.data.index))/(counts[active]-1)*travel,behavior:reduced()?'instant':'smooth'})}if(e.data.type==='ready'&&index===active)schedule()});
  function route(){if(location.hash==='#sam'||location.hash==='#maya')select(location.hash.slice(1))}
  new ResizeObserver(size).observe(header);addEventListener('scroll',schedule,{passive:true});addEventListener('resize',size);addEventListener('hashchange',route);size();route();
 })();
