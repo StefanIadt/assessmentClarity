@@ -21,3 +21,6 @@
  .mobile-reader-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:8px 16px;border-bottom:1px solid var(--edge);flex:none;min-height:56px;box-sizing:border-box}.mobile-reader-heading button{font:inherit;font-size:14px;min-height:44px;background:none;border:0;color:var(--foreground)}.mobile-reader-heading span{font-size:12px;color:var(--subtle)}
  .mobile-reader-sheet iframe{width:100%;flex:1;min-height:0;border:0;background:var(--surface)}
 }
+
+.anatomy-mobile-select{display:none}
+@media(max-width:760px){.anatomy-nav{display:block;width:100%;margin-bottom:22px}.anatomy-nav>button{display:none}.anatomy-mobile-select{display:block;width:100%;min-height:48px;border:1px solid var(--edge);border-radius:0;background:var(--surface);color:var(--foreground);font:inherit;font-size:15px;padding:10px 12px}}

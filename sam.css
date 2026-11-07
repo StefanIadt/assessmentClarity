@@ -54,9 +54,9 @@ body.case-gallery{height:100svh;overflow:hidden;display:flex;flex-direction:colu
 
 /* Match the backing layer to the reader during every device transition. */
 .phone-surface{background:var(--reader-surface,#fff)}
-.dark .phone-surface{background:var(--reader-surface,#22251f)}
+.dark .phone-surface{background:var(--reader-surface,#242424)}
 #sam-frame{background:var(--reader-surface,#fff);color-scheme:inherit}
-.dark #sam-frame{background:var(--reader-surface,#22251f)}
+.dark #sam-frame{background:var(--reader-surface,#242424)}
 .device-morph #sam-frame{opacity:1}
 
 .dark .sam-photo{background:var(--surface)}

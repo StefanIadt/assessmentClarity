@@ -8,7 +8,7 @@ html{background:transparent;scroll-behavior:auto}body{min-height:0;background:tr
 .grade-explanation{position:fixed;z-index:40;width:min(340px,calc(100vw - 24px));margin:0;font-size:15px;box-shadow:0 4px 12px #0003}
 .grade-explanation strong{display:block;font-weight:500;margin-bottom:8px}
 /* SingleFile retained the active light palette only; supply the companion dark palette. */
-html.dark{--background:#191b18;--foreground:#f1f0e9;--card:#22251f;--muted:#2b2e27;--muted-foreground:#b7b8ad;--accent:#30342b;--accent-foreground:#f1f0e9;--border:#50554a;--brand:#a2a5ff;--brand-foreground:#11120f;color-scheme:dark}body{color:var(--foreground)}html.dark.demo-hc{--background:#000;--card:#000;--foreground:#fff;--muted-foreground:#fff;--border:#ccc}
+html.dark{--background:#191919;--foreground:#f1f1f1;--card:#242424;--muted:#2e2e2e;--muted-foreground:#b8b8b8;--accent:#343434;--accent-foreground:#f1f1f1;--border:#535353;--brand:#a2a5ff;--brand-foreground:#111111;color-scheme:dark}body{color:var(--foreground)}html.dark.demo-hc{--background:#000;--card:#000;--foreground:#fff;--muted-foreground:#fff;--border:#ccc}
 
 .demo-still .focus-unit{transition:none}
 /* Paint the whole embedded viewport, even when the selected section is short. */
@@ -16,3 +16,8 @@ html{min-height:100%;background:var(--card)}
 body,body.brief-viewer-page{min-height:100svh;background:var(--card)}
 /* Reader scrolling stays local until the explicit story-boundary handoff. */
 html{overscroll-behavior-y:contain}
+
+/* Read-only completed checks retain a clear blue selected state. */
+.demo-checks input[type=checkbox]{appearance:none;width:20px;height:20px;border:1px solid var(--border);border-radius:3px;background:var(--card);opacity:1;position:relative}
+.demo-checks input[type=checkbox]:checked{background:#2563eb;border-color:#2563eb}
+.demo-checks input[type=checkbox]:checked:after{content:"";position:absolute;left:6px;top:2px;width:6px;height:11px;border:solid #fff;border-width:0 2px 2px 0;transform:rotate(45deg)}

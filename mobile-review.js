@@ -22,3 +22,6 @@
  addEventListener('message',e=>{if(e.origin!==location.origin||e.source!==reader.contentWindow||e.data?.source!=='clarity-brief-demo'||e.data.type!=='stage')return;const steps=frames[readerPerson].contentWindow.caseReview.steps,n=steps.findIndex(s=>s.key===e.data.stage);if(n>=0&&n!==state[readerPerson]){state[readerPerson]=n;render(readerPerson);sheet.querySelector('header span').textContent=(readerPerson?'Maya':'Sam')+' · '+steps[n].name}});
  window.mobileCaseReview={select,open,close,state};addEventListener('resize',()=>{if(!mobile()&&sheet.open)close()});
 })();
+
+/* One readable mobile control replaces the wrapped anatomy link cluster. */
+(()=>{const nav=document.querySelector('.anatomy-nav');if(!nav)return;const buttons=[...nav.querySelectorAll('button')],select=document.createElement('select');select.className='anatomy-mobile-select';select.setAttribute('aria-label','Explore assessment design');buttons.forEach((b,i)=>select.add(new Option(b.textContent.trim().replace(/^(\d{2})/,'$1 · '),i)));select.addEventListener('change',()=>buttons[+select.value].click());const sync=()=>{const i=buttons.findIndex(b=>b.getAttribute('aria-current')==='step');if(i>=0)select.value=i};new MutationObserver(sync).observe(nav,{subtree:true,attributes:true,attributeFilter:['aria-current']});nav.append(select);sync()})();
