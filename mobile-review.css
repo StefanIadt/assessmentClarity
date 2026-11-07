@@ -42,3 +42,26 @@
 @media(max-width:760px){
  .scroll-story .scroll-cue{left:0;right:0;bottom:0;min-height:68px;display:flex;align-items:center;padding:18px;background:var(--surface,#f4f3ef);color:var(--foreground,#191919);border-top:1px solid var(--edge,#cac8c0);font-size:11px;letter-spacing:.08em;isolation:isolate}
 }
+
+/* Touch reading uses stable document flow instead of hover and pinned transitions. */
+@media(max-width:760px),(max-width:1100px) and (pointer:coarse){
+ .ambiguity-flow,.barrier-flow{min-height:0!important}
+ .ambiguity-flow>.ambiguity-panel,.barrier-flow>.barrier-panel{position:relative!important;top:auto;min-height:0!important}
+ .ambiguity-scroll-word{opacity:1!important;filter:none!important;transform:none!important}
+ .particle-word canvas{display:none!important}.particle-word .particle-label{color:inherit!important;opacity:1!important}.particle-word{cursor:default}
+ .torch-clear{display:none!important}.torch-base{mask-image:none!important}.focus-word{filter:none!important;transition:none!important;cursor:text}
+ #anatomy.anatomy-story{height:auto!important;scroll-margin-top:72px}
+ .anatomy-stage{position:relative!important;top:auto;min-height:0;height:auto;padding-top:32px;align-content:start}
+ .anatomy-chapter-text{min-height:0}.anatomy-chapter-outgoing{display:none}
+ .anatomy-drawing{height:300px;min-height:0;max-width:100%;margin-top:12px}
+ .anatomy-nav{position:relative;top:auto}.anatomy-copy h2{scroll-margin-top:76px}
+}
+@media(max-width:760px),(max-width:1100px) and (pointer:coarse){
+ .focus-word{pointer-events:none}
+ .anatomy-nav{display:block;width:100%;margin-bottom:22px}.anatomy-nav>button{display:none}
+ .anatomy-mobile-select{display:block;width:100%;min-height:48px;border:1px solid var(--edge);border-radius:0;background:var(--surface);color:var(--foreground);font:inherit;font-size:15px;padding:10px 12px}
+}
+@media(max-width:760px),(max-width:1100px) and (pointer:coarse){
+ #anatomy{overflow-anchor:none}
+ .anatomy-chapter-text{min-height:350px}
+}

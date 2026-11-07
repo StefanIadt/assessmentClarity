@@ -3,6 +3,7 @@ const $ = selector => document.querySelector(selector);
 const $$ = selector => [...document.querySelectorAll(selector)];
 const clamp = value => Math.max(0, Math.min(1, value));
 const motionMedia = matchMedia('(prefers-reduced-motion: reduce)');
+const touchLayout = () => matchMedia('(max-width:760px), (max-width:1100px) and (pointer:coarse)').matches;
 const reduced = () => motionMedia.matches || $('#reduce').checked;
 
 // Reading preferences are initialised before the effects start.
@@ -147,11 +148,11 @@ function paintScroll() {
   background.style.setProperty('opacity', document.body.classList.contains('contrast') ? .035 : columnOpacity);
   $$('.consistent-column').forEach((column, index) => { column.style.transform = still ? 'none' : `translateY(${Math.max(-240, Math.min(240, scrollY * (index % 2 ? .018 + index * .004 : -.015 - index * .003)))}px)`; });
   const rect = $('.ambiguity-flow').getBoundingClientRect();
-  const reveal = still ? 1 : clamp((innerHeight * .55 - rect.top) / (innerHeight * .75));
+  const reveal = still || touchLayout() ? 1 : clamp((innerHeight * .55 - rect.top) / (innerHeight * .75));
   revealGroups.forEach((group, groupIndex) => {
     const words = [...group.querySelectorAll('.ambiguity-scroll-word')];
     words.forEach((word, index) => {
-      const amount = still ? 1 : clamp((reveal - groupIndex * .16 - index / words.length * .21) / .18);
+      const amount = still || touchLayout() ? 1 : clamp((reveal - groupIndex * .16 - index / words.length * .21) / .18);
       const eased = amount * amount * (3 - 2 * amount);
       word.style.opacity = eased;
       const particleWord = word.closest('.particle-word'); if (particleWord) particleWord.style.setProperty('--particle-reveal', eased);
@@ -184,12 +185,12 @@ function paintFocus(time=performance.now()) {
   const distanceFromCenter = Math.abs(bounds.top + bounds.height / 2 - innerHeight * .5);
   const proximity = clamp(1 - distanceFromCenter / (innerHeight * .44));
   const emphasis = proximity * proximity * (3 - 2 * proximity);
-  const baseBlur = reduced() ? 0 : (innerWidth < 760 ? 4.8 : 6.2) * emphasis;
+  const baseBlur = reduced() || touchLayout() ? 0 : (innerWidth < 760 ? 4.8 : 6.2) * emphasis;
   const target = pointer || (focused ? (() => { const r = focused.getBoundingClientRect(); return { x: r.left + r.width / 2, y: r.top + r.height / 2 }; })() : null);
   if(target && !lens)lens={...target};
   const follow=1-Math.exp(-dt/75);
   if(target){lens.x+=(target.x-lens.x)*follow;lens.y+=(target.y-lens.y)*follow;}
-  const wanted=target && !reduced()?1:0;
+  const wanted=target && !reduced() && !touchLayout()?1:0;
   lensStrength+=(wanted-lensStrength)*(1-Math.exp(-dt/(wanted?100:230)));
   const x=lens?lens.x-bounds.left:0,y=lens?lens.y-bounds.top:0;
   const width=innerWidth<760?145:220,height=innerWidth<760?70:100;
@@ -347,7 +348,7 @@ scheduleFocus();
     if (pointer || energy > points.length * .08) frame = requestAnimationFrame(tick);
     else { host.classList.remove('particles-active'); drawAtRest(); last = 0; }
   }
-  function wake() { if (reduced() || !visible || !points.length) return; host.classList.add('particles-active'); if (!frame) { last = 0; frame = requestAnimationFrame(tick); } }
+  function wake() { if (touchLayout() || reduced() || !visible || !points.length) return; host.classList.add('particles-active'); if (!frame) { last = 0; frame = requestAnimationFrame(tick); } }
   function position(event) { const box = host.getBoundingClientRect(); pointer = { x: event.clientX - box.left + pad, y: event.clientY - box.top + pad }; wake(); }
   host.addEventListener('pointerenter', event => { if (event.pointerType === 'mouse') position(event); });
   host.addEventListener('pointermove', event => { if (event.pointerType === 'mouse') position(event); });
@@ -374,6 +375,7 @@ scheduleFocus();
     queued = false;
     scenes.forEach(scene => {
       const panel = scene.firstElementChild;
+      if(touchLayout()){scene.classList.add('scene-unpinned');return}
       scene.classList.remove('scene-unpinned');
       scene.classList.toggle('scene-unpinned', reduced() || panel.scrollHeight > innerHeight + 2);
     });
@@ -439,7 +441,7 @@ scheduleFocus();
  function transitionChapter(change) {
   if (outgoing) { outgoing.remove(); outgoing = null; }
   if (entrance) { entrance.cancel(); entrance = null; }
-  if (current < 0 || reduced()) { change(); return; }
+  if (current < 0 || reduced() || touchLayout()) { change(); return; }
   outgoing = chapterText.cloneNode(true);
   outgoing.classList.add('anatomy-chapter-outgoing'); outgoing.setAttribute('aria-hidden', 'true'); outgoing.inert = true;
   outgoing.querySelectorAll('[id]').forEach(node => node.removeAttribute('id'));
@@ -452,7 +454,7 @@ scheduleFocus();
  function paint() {
   queued = false;
   const rect = section.getBoundingClientRect();
-  const progress = reduced() ? selected / 4 : clamp(-rect.top / Math.max(1, section.offsetHeight - innerHeight));
+  const progress = touchLayout() ? (selected + .5) / 5 : reduced() ? selected / 4 : clamp(-rect.top / Math.max(1, section.offsetHeight - innerHeight));
   const step = Math.min(4, Math.floor(progress * 5));
   if (step !== current) {
    const data = chapters[step];
@@ -470,7 +472,7 @@ scheduleFocus();
    });
    current = step;
    buttons.forEach((button, index) => { if (index === step) button.setAttribute('aria-current', 'step'); else button.removeAttribute('aria-current'); });
-   hint.textContent = step === 1 ? 'Scroll to reveal the detail within each group.' : step === 4 ? 'Scroll to look again, then bring the whole together.' : 'Scroll to assemble the parts.';
+   hint.textContent = touchLayout() ? 'Choose a chapter above to explore the parts.' : step === 1 ? 'Scroll to reveal the detail within each group.' : step === 4 ? 'Scroll to look again, then bring the whole together.' : 'Scroll to assemble the parts.';
   }
   parts.forEach((part, index) => {
    const amount = reduced() ? 1 : index === 0 ? clamp((progress - .1) / .085) : clamp((progress - index * .2) / .13);
@@ -626,7 +628,7 @@ scheduleFocus();
  function schedule() { if (!queued) { queued = true; requestAnimationFrame(paint); } }
  buttons.forEach((button, index) => button.addEventListener('click', () => {
   selected = index;
-  if (reduced()) { paint(); return; }
+  if (reduced() || touchLayout()) { paint(); return; }
   const top = scrollY + section.getBoundingClientRect().top;
   scrollTo({ top: top + (section.offsetHeight - innerHeight) * ((index + .45) / 5), behavior: 'smooth' });
  }));
