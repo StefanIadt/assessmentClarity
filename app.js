@@ -634,6 +634,31 @@ scheduleFocus();
  }));
  addEventListener('scroll', schedule, { passive:true }); addEventListener('resize', schedule);
  $('#reduce').addEventListener('change', schedule); motionMedia.addEventListener('change', schedule); paint();
+ // Touch readers get five real sections in document flow, not a frozen animation frame.
+ let mobileBuilt=false;
+ function buildMobileChapters(){
+  if(mobileBuilt||!touchLayout())return;mobileBuilt=true;
+  const flow=document.createElement('div');flow.className='mobile-anatomy-flow';
+  const navigation=document.createElement('nav');navigation.className='mobile-anatomy-navigation';navigation.setAttribute('aria-label','Assessment design chapters');
+  const select=document.createElement('select');select.setAttribute('aria-label','Go to an assessment design chapter');navigation.append(select);flow.append(navigation);
+  const articles=[];const saved=selected;
+  chapters.forEach((chapter,i)=>{
+   selected=i;paint();
+   const article=document.createElement('article');article.id='assessment-design-'+i;article.className='mobile-anatomy-chapter';
+   const number=document.createElement('p');number.className='mobile-anatomy-number';number.textContent=String(i+1).padStart(2,'0')+' / 05';
+   const heading=document.createElement('h2');heading.textContent=chapter[0];
+   const copy=document.createElement('p');copy.textContent=chapter[1];
+   const image=document.querySelector('.anatomy-drawing').cloneNode(true);image.removeAttribute('class');image.classList.add('mobile-anatomy-diagram');image.removeAttribute('aria-labelledby');image.setAttribute('aria-label',chapter[0]+' Assessment parts illustration');image.setAttribute('viewBox','20 270 680 510');image.querySelectorAll('[id]').forEach(e=>e.removeAttribute('id'));
+   article.append(number,heading,copy,image);
+   if(i!==1&&i!==2){const link=document.createElement('a');link.className='anatomy-evidence';link.textContent='Design rationale: '+chapter[2]+' ↗';link.href=chapter[3];link.target='_blank';link.rel='noopener noreferrer';article.append(link)}
+   flow.append(article);articles.push(article);select.add(new Option(String(i+1).padStart(2,'0')+' · '+chapter[0].replace(/\.$/,''),i));
+  });
+  selected=saved;paint();section.append(flow);section.classList.add('has-mobile-chapters');
+  select.addEventListener('change',()=>{const article=articles[+select.value];const top=scrollY+article.getBoundingClientRect().top-140;scrollTo({top,behavior:'instant'})});
+  let pending=false;function follow(){pending=false;if(!touchLayout())return;let active=0;articles.forEach((a,i)=>{if(a.getBoundingClientRect().top<=180)active=i});select.value=active}
+  addEventListener('scroll',()=>{if(!pending){pending=true;requestAnimationFrame(follow)}},{passive:true});
+ }
+ buildMobileChapters();addEventListener('resize',buildMobileChapters);
 })();
 
 // Overall reading position; informational only, never alters the scroll position.

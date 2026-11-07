@@ -65,3 +65,24 @@
  #anatomy{overflow-anchor:none}
  .anatomy-chapter-text{min-height:350px}
 }
+
+.mobile-anatomy-flow{display:none}
+@media(max-width:760px),(max-width:1100px) and (pointer:coarse){
+ #anatomy.has-mobile-chapters>.anatomy-stage{display:none}
+ .mobile-anatomy-flow{display:block;padding:0 18px 35px;background:var(--surface)}
+ .mobile-anatomy-navigation{position:sticky;top:56px;z-index:15;background:var(--surface);padding:12px 0;border-bottom:1px solid var(--edge)}
+ .mobile-anatomy-navigation select{display:block;width:100%;min-height:48px;border:1px solid var(--edge);border-radius:0;background:var(--surface);color:var(--foreground);font:inherit;font-size:15px;padding:10px 12px}
+ .mobile-anatomy-chapter{padding:28px 0 32px;scroll-margin-top:140px;border-bottom:1px solid var(--edge)}
+ .mobile-anatomy-number{font-size:11px;letter-spacing:.09em;color:var(--subtle);margin:0 0 14px}
+ .mobile-anatomy-chapter h2{font-size:36px;line-height:1.05;font-weight:400;letter-spacing:-.045em;margin:0 0 18px}
+ .mobile-anatomy-chapter>p:not(.mobile-anatomy-number){font-size:19px;line-height:1.45;margin:0;max-width:32ch}
+ .mobile-anatomy-diagram{display:block;width:100%;height:230px;margin:20px 0 16px;color:var(--foreground)}
+ .mobile-anatomy-chapter .anatomy-evidence{display:inline-block;font-size:12px;line-height:1.5}
+ .mobile-anatomy-diagram .assembly-guide{display:none}
+ .brief-bridge{height:auto!important;min-height:0!important}.brief-bridge .bridge-stage{position:relative!important;min-height:0!important;padding-top:48px;padding-bottom:48px}
+ .bridge-word{opacity:1!important;filter:none!important;transform:none!important}
+}
+@media(max-width:760px),(max-width:1100px) and (pointer:coarse){
+ html{scroll-behavior:auto!important}
+ .mobile-anatomy-flow{padding-bottom:160px}
+}
