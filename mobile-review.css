@@ -86,3 +86,13 @@
  html{scroll-behavior:auto!important}
  .mobile-anatomy-flow{padding-bottom:160px}
 }
+
+/* Mobile scrolling must never resize a physics scene when browser chrome changes. */
+@media(max-width:760px),(max-width:1100px) and (pointer:coarse){
+ .complexity-flow{min-height:0!important;margin-top:60px}
+ .complexity-flow>.complexity-section{position:relative!important;min-height:0!important;height:auto;padding-top:40px;padding-bottom:40px;justify-content:flex-start}
+ .complexity-section .complexity-trigger,.complexity-section:has(.complexity-conclusion:not([hidden])) .complexity-trigger{padding-bottom:0;opacity:1;color:var(--foreground);cursor:text;pointer-events:none}
+ .complexity-section .clarity-toggle{display:none!important}
+ .complexity-section .complexity-conclusion{display:block!important;position:relative;margin:24px 0 0;order:0}
+ .complexity-word{transform:none!important}.complexity-signal{animation:none!important;font-weight:400!important}
+}

@@ -218,6 +218,7 @@ scheduleFocus();
 // Matter.js bodies fall, collide, settle and can be dragged. Restore returns them to their measured text positions.
 (() => {
   const trigger = $('.complexity-trigger'), toggle = $('.clarity-toggle'), conclusion = $('.complexity-conclusion');
+  if(touchLayout()){trigger.disabled=true;trigger.classList.add('touch-static');trigger.setAttribute('role','paragraph');toggle.hidden=true;conclusion.hidden=false;$('#complexity-help').textContent='The statement and its conclusion remain readable on touch screens.';return}
   const text = trigger.textContent; trigger.setAttribute('aria-label', text); trigger.replaceChildren();
   text.split(/(\s+)/).forEach(part => { if (!part.trim()) trigger.append(document.createTextNode(part)); else { const word = document.createElement('span'); word.className = 'complexity-word' + (part.toLowerCase() === 'complexity' ? ' complexity-signal' : ''); word.textContent = part; word.setAttribute('aria-hidden', 'true'); trigger.append(word); } });
   const words = [...trigger.querySelectorAll('.complexity-word')];
@@ -241,6 +242,7 @@ scheduleFocus();
   }
   function wake() { if (!frame && engine) { lastTime = 0; frame = requestAnimationFrame(tick); } }
   function fall() {
+    if(touchLayout())return;
     if (state === 'fallen' || state === 'restoring') return;
     generation++; animations.forEach(animation => animation.cancel()); animations = [];
     conclusion.hidden = true; state = 'fallen'; label();
